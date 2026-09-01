@@ -95,6 +95,26 @@ test("a spoofed Host cannot produce an open redirect", async () => {
   assert.equal(new URL(response.headers.get("location")).hostname, "vroelabs.com");
 });
 
+test("plain http is redirected to https", async () => {
+  const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
+  const response = await worker.fetch(
+    new Request("http://vroelabs.com/trove", { headers: { Accept: "text/html" } }),
+    env,
+  );
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://vroelabs.com/trove");
+});
+
+test("http on the wrong host fixes both scheme and host in one hop", async () => {
+  const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
+  const response = await worker.fetch(
+    new Request("http://www.vroelabs.com/vero", { headers: { Accept: "text/html" } }),
+    env,
+  );
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://vroelabs.com/vero");
+});
+
 test("workers.dev previews are not redirected away", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(

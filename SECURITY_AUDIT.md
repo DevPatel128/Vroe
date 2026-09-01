@@ -141,6 +141,7 @@ browser console clean with zero CSP violations.
 | 3 | **Security headers absent from every HTML response in practice** — Cloudflare was serving assets without invoking the worker | `assets.run_worker_first: true` (ADR-008) |
 | 4 | Every canonical URL 307-redirected | `html_handling: "drop-trailing-slash"` (ADR-008) |
 | 5 | Vite dev-server advisories | Upgraded to 6.4.3 |
+| 6 | `http://vroelabs.com` returned 200 instead of upgrading — "Always Use HTTPS" was off, and the OAuth session has zone *read* only, so it could not be enabled from here | The redirect now lives in `canonicalRedirect()`, where it is unit-tested and travels with the code. Verified in production. Enabling the zone setting as well is still recommended |
 
 Findings 1, 3 and 4 were invisible to the test suite and only appeared when the
 site was actually run. That is worth remembering.
@@ -170,16 +171,43 @@ These are real and currently accepted.
 8. **`npm audit` covers known advisories only.** It does not detect a malicious
    package that has not been reported.
 
-## Pending external verification
+## Production verification, 1 September 2026
 
-To run against production after launch, and to record here:
+Run against `https://vroelabs.com` after deploy:
 
+| Check | Result |
+| --- | --- |
+| All eight security headers present on the live homepage | Pass |
+| CSP contains no `unsafe-*` | Pass |
+| All 9 pages, `robots.txt`, `sitemap.xml`, `security.txt`, favicon | 200 |
+| Unknown path | 404, not the app shell |
+| `http://vroelabs.com` → `https://vroelabs.com` | 301, one hop |
+| `http://www.` and `https://www.` → apex | 301, one hop |
+| `/api/health` | `ready:true`, booleans only |
+| `/api/config` | public site key only |
+| Subscribe without a Turnstile token | 403 |
+| Subscribe cross-origin | 403 |
+| Subscribe with the honeypot filled | 200, stored nothing |
+| Subscribe with malformed JSON | 400 |
+| `GET /api/subscribe` | 405 |
+| `SUBSCRIBERS` KV write / read / delete | Pass, 0 keys left behind |
+| Browser console on the live site | No errors, no CSP violations |
+| `enhance.js` loads; Turnstile renders on first interaction | Pass |
+
+### Still to do
+
+- [ ] **One human form submission on production.** The Turnstile challenge needs
+      a visible, focused page, which headless automation cannot provide. The
+      identical code path was verified end-to-end locally against real KV using
+      Cloudflare's always-passes test key: correct hashed key, exactly four
+      stored fields, address absent from every log line.
 - [ ] Mozilla Observatory
 - [ ] Google Lighthouse (security and best-practices)
-- [ ] Google Rich Results Test
 - [ ] OWASP ZAP passive scan
-- [ ] `curl -I` header inspection against the live domain
-- [ ] One real end-to-end form submission, read back out of KV
+- [ ] Enable **Always Use HTTPS**, **Minimum TLS 1.2** and **Bot Fight Mode** in
+      the Cloudflare dashboard. The worker already handles the HTTPS upgrade;
+      these are defence in depth. The OAuth session has zone read access only,
+      so they cannot be set from the CLI.
 
 **A scanner score is not proof that a site is secure.** These are inputs to
 judgement, not conclusions.

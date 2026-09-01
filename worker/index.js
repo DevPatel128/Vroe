@@ -155,8 +155,21 @@ function withCache(headers, pathname) {
 }
 
 /**
- * Redirect to the canonical hostname when the request arrived on another one.
- * Returns null when no redirect is needed.
+ * Redirect to the canonical origin: https, on CANONICAL_HOST.
+ *
+ * Covers two cases in one place:
+ *   - a plain-HTTP request  -> the https equivalent
+ *   - any other hostname    -> CANONICAL_HOST (this folds www into the apex)
+ *
+ * Doing the HTTPS upgrade here rather than relying solely on Cloudflare's
+ * "Always Use HTTPS" zone setting means the behaviour lives with the code, is
+ * unit-tested, and survives a zone being reconfigured. HSTS covers repeat
+ * visitors; this covers the first one.
+ *
+ * The target host is read from configuration and never from the request, so
+ * this cannot be turned into an open redirect by spoofing the Host header.
+ *
+ * Returns null when the request is already canonical.
  *
  * @param {Request} request
  * @param {URL} url
@@ -164,19 +177,24 @@ function withCache(headers, pathname) {
  * @returns {Response | null}
  */
 function canonicalRedirect(request, url, env) {
-  const canonical = env.CANONICAL_HOST;
-  if (!canonical) return null;
-  if (url.hostname === canonical) return null;
+  const isLocal =
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname.endsWith(".workers.dev");
 
-  // workers.dev and local development are left alone so previews stay usable.
-  if (url.hostname.endsWith(".workers.dev") || url.hostname === "localhost" || url.hostname === "127.0.0.1") {
-    return null;
-  }
+  // Previews and local development are left alone so they stay usable over http.
+  if (isLocal) return null;
+
+  const canonical = env.CANONICAL_HOST;
+  const wrongHost = Boolean(canonical) && url.hostname !== canonical;
+  const insecure = url.protocol === "http:";
+
+  if (!wrongHost && !insecure) return null;
 
   const target = new URL(url);
-  target.hostname = canonical;
   target.protocol = "https:";
   target.port = "";
+  if (wrongHost) target.hostname = canonical;
 
   return withSecurity(
     new Response(null, {
