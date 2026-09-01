@@ -11,6 +11,26 @@ updates:
     versioning-strategy: increase
     labels: ["dependencies"]
 
+    # Packages that must move together, or the bump cannot resolve.
+    #
+    # react-dom declares an exact peer on react, so bumping one alone produces
+    # an ERESOLVE that CI correctly rejects — three such PRs were opened and
+    # failed before this grouping existed. Vite and its React plugin have the
+    # same relationship across majors.
+    groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      vite:
+        patterns: ["vite", "@vitejs/*"]
+      fontsource:
+        patterns: ["@fontsource/*"]
+
+    ignore:
+      # Wrangler tracks the Cloudflare platform and releases very frequently.
+      # Patch and minor bumps are noise here; take majors deliberately.
+      - dependency-name: wrangler
+        update-types: ["version-update:semver-patch"]
+
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
