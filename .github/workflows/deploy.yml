@@ -1,0 +1,78 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Manual redeploy without an empty commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never deploy two commits concurrently; let the newer one win.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Prepare native deps
+        run: npm rebuild sharp
+
+      - name: Build
+        run: npm run build
+
+      # Deploying a build that fails its own tests is never the right call.
+      - name: Test
+        run: npm test
+
+      - name: Deploy to Cloudflare
+        # The token is scoped to Workers Scripts:Edit, Workers KV Storage:Edit,
+        # Account Settings:Read and Zone:Workers Routes:Edit on vroelabs.com.
+        # It is not a global API key. See docs/06-deployment.md.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      - name: Smoke test the live site
+        run: |
+          set -euo pipefail
+          sleep 10
+          echo "Checking security headers…"
+          headers=$(curl -sI https://vroelabs.com)
+          for h in "content-security-policy" "strict-transport-security" \
+                   "x-content-type-options" "x-frame-options" "referrer-policy"; do
+            echo "$headers" | grep -qi "^$h:" || { echo "::error::missing $h"; exit 1; }
+          done
+          echo "$headers" | grep -qi "unsafe-inline" && { echo "::error::unsafe-inline in CSP"; exit 1; }
+
+          echo "Checking routes…"
+          for path in / /trove /vero /notes/trove /notes/vero /about /contact \
+                      /privacy /terms /robots.txt /sitemap.xml /.well-known/security.txt; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://vroelabs.com$path")
+            [ "$code" = "200" ] || { echo "::error::$path returned $code"; exit 1; }
+          done
+
+          echo "Checking health…"
+          curl -s https://vroelabs.com/api/health | grep -q '"ready":true' \
+            || { echo "::error::/api/health not ready"; exit 1; }
+
+          echo "Live site verified."

@@ -1,0 +1,104 @@
+/* Reset, document defaults and shared primitives. */
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; cursor: pointer; }
+img { max-width: 100%; }
+
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.045em; }
+
+/* Keyboard focus must always be visible. The prototype relied on the browser
+   default, which disappears against the darker brand surfaces. */
+:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Skip link — first focusable element on every page. */
+.skip-link {
+  position: absolute; top: -100px; left: 20px; z-index: 100;
+  padding: 12px 18px; border-radius: var(--radius-control);
+  color: var(--white); background: var(--ink);
+  font-size: 13px; font-weight: 700;
+  transition: top var(--ease);
+}
+.skip-link:focus { top: 20px; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  color: var(--ink-soft);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.16em; line-height: 1.2;
+  text-transform: uppercase;
+}
+.eyebrow.with-rule::before { width: 22px; height: 1px; content: ""; background: var(--ink); }
+
+.accent-dot { color: var(--coral); }
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 15px;
+  border: 0; border-radius: var(--radius-control); padding: 15px 19px;
+  font-size: 13px; font-weight: 700;
+  transition: transform var(--ease), background var(--ease);
+}
+.button:hover { transform: translateY(-2px); }
+.button svg, .text-link svg { font-size: 17px; flex: none; }
+.button-primary { color: var(--white); background: var(--ink); }
+.button-primary:hover { background: #112d67; }
+.button-coral { color: var(--white); background: var(--coral); }
+.button-coral:hover { background: #f2543b; }
+
+.text-link {
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 0; border-bottom: 1px solid currentColor; padding: 3px 0 7px;
+  color: var(--ink); background: transparent;
+  font-size: 13px; font-weight: 700;
+  transition: opacity var(--ease);
+}
+.text-link:hover { opacity: 0.65; }
+.dark-link { margin-top: 25px; }
+
+.status-pill {
+  border-radius: var(--radius-pill); padding: 7px 10px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Both statuses read as "not yet available". Lime for the one further along,
+   a quieter outline for the one that is still an idea. */
+.status-pill.building { color: var(--ink); background: var(--lime); }
+.status-pill.upcoming { color: var(--ink-soft); background: transparent; border: 1px solid var(--line); }
+
+/* Spacing utilities.
+   The CSP forbids inline style attributes (style-src 'self'), so the handful of
+   one-off spacing adjustments the page templates need are named classes. */
+.stack-sm { margin-top: 14px; }
+.stack-md { margin-top: 26px; }
+.stack-lg { margin-top: 28px; }
+.flush-top { margin-top: 0; }
+.pad-end-sm { padding-bottom: 40px; }
+.pad-end-md { padding-bottom: 60px; }
+.pad-end-lg { padding-bottom: 120px; }
+.pad-end-xl { padding-bottom: 140px; }
+.pad-start-md { padding-top: 34px; }

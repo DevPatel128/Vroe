@@ -1,0 +1,66 @@
+/**
+ * Self-hosted fonts.
+ *
+ * The prototype pulled these from fonts.googleapis.com, which cost a
+ * render-blocking third-party request and forced 'unsafe-inline' plus two
+ * Google origins into style-src/font-src. Serving them ourselves is what lets
+ * the CSP be `style-src 'self'; font-src 'self'` with nothing else.
+ *
+ * These @font-face rules are written by hand rather than imported from
+ * @fontsource so the URLs stay stable and unhashed under /fonts/. That matters
+ * because <link rel="preload"> in SeoHead.jsx has to name the exact file, and a
+ * build-hashed name would change on every release and silently stop matching.
+ * The .woff2 files are copied from @fontsource by scripts/sync-fonts.mjs, which
+ * is also what keeps them in step when the package is updated.
+ *
+ * Latin subset only, and only the four DM Sans weights the design uses:
+ * 400 body, 500 muted, 600 nav, 700 eyebrows and buttons.
+ *
+ * font-display: swap — text paints immediately in the fallback and reflows to
+ * the brand face. Georgia and the system sans are close enough in metrics that
+ * the swap is not jarring, and blocking the first paint on a font would be far
+ * worse for Largest Contentful Paint.
+ */
+
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/dm-sans-latin-700-normal.woff2") format("woff2");
+}

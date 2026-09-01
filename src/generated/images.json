@@ -1,0 +1,62 @@
+{
+  "vroe-hero-still-life": {
+    "alt": null,
+    "width": 1586,
+    "height": 992,
+    "sources": {
+      "avif": {
+        "type": "image/avif",
+        "srcset": "/assets/vroe-hero-still-life-768.avif 768w, /assets/vroe-hero-still-life-1200.avif 1200w, /assets/vroe-hero-still-life-1586.avif 1586w"
+      },
+      "webp": {
+        "type": "image/webp",
+        "srcset": "/assets/vroe-hero-still-life-768.webp 768w, /assets/vroe-hero-still-life-1200.webp 1200w, /assets/vroe-hero-still-life-1586.webp 1586w"
+      },
+      "jpg": {
+        "type": "image/jpeg",
+        "srcset": "/assets/vroe-hero-still-life-768.jpg 768w, /assets/vroe-hero-still-life-1200.jpg 1200w, /assets/vroe-hero-still-life-1586.jpg 1586w"
+      }
+    },
+    "fallback": "/assets/vroe-hero-still-life-1586.jpg"
+  },
+  "vero-still-life": {
+    "alt": null,
+    "width": 1086,
+    "height": 1448,
+    "sources": {
+      "avif": {
+        "type": "image/avif",
+        "srcset": "/assets/vero-still-life-480.avif 480w, /assets/vero-still-life-800.avif 800w, /assets/vero-still-life-1086.avif 1086w"
+      },
+      "webp": {
+        "type": "image/webp",
+        "srcset": "/assets/vero-still-life-480.webp 480w, /assets/vero-still-life-800.webp 800w, /assets/vero-still-life-1086.webp 1086w"
+      },
+      "jpg": {
+        "type": "image/jpeg",
+        "srcset": "/assets/vero-still-life-480.jpg 480w, /assets/vero-still-life-800.jpg 800w, /assets/vero-still-life-1086.jpg 1086w"
+      }
+    },
+    "fallback": "/assets/vero-still-life-1086.jpg"
+  },
+  "belief-still-life": {
+    "alt": null,
+    "width": 600,
+    "height": 360,
+    "sources": {
+      "avif": {
+        "type": "image/avif",
+        "srcset": "/assets/belief-still-life-300.avif 300w, /assets/belief-still-life-450.avif 450w, /assets/belief-still-life-600.avif 600w"
+      },
+      "webp": {
+        "type": "image/webp",
+        "srcset": "/assets/belief-still-life-300.webp 300w, /assets/belief-still-life-450.webp 450w, /assets/belief-still-life-600.webp 600w"
+      },
+      "jpg": {
+        "type": "image/jpeg",
+        "srcset": "/assets/belief-still-life-300.jpg 300w, /assets/belief-still-life-450.jpg 450w, /assets/belief-still-life-600.jpg 600w"
+      }
+    },
+    "fallback": "/assets/belief-still-life-600.jpg"
+  }
+}

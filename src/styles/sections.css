@@ -1,0 +1,107 @@
+/* Notes, beliefs, article body, about, contact, early access, 404. */
+
+.notes-section { padding: 0 0 160px; }
+.notes-intro { margin-bottom: 45px; }
+.notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.note-card { min-height: 460px; border-radius: var(--radius-card); padding: 34px; display: flex; flex-direction: column; }
+.note-card-trove { color: var(--ink); background: var(--lime); }
+.note-card-vero { color: var(--white); background: var(--ink); }
+.note-topline { display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; }
+.note-topline svg { font-size: 20px; }
+.note-mark { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; border-radius: 8px; color: var(--ink); background: var(--lime); font-family: var(--serif); font-size: 16px; letter-spacing: 0; }
+.note-card h3 { max-width: 470px; margin: 74px 0 25px; font-size: clamp(42px, 4vw, 62px); line-height: 0.9; }
+.note-card p { max-width: 430px; opacity: 0.78; font-size: 14px; line-height: 1.6; }
+.note-card p + p { margin-top: 15px; }
+.note-card .text-link { margin-top: auto; align-self: flex-start; }
+.note-card-vero .text-link { color: var(--white); }
+
+/* ─── Article body ────────────────────────────────────────────────────── */
+.article-body { max-width: 660px; }
+.article-body p { color: var(--ink-soft); font-size: 17px; line-height: 1.7; }
+.article-body p + p { margin-top: 22px; }
+.article-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; color: var(--ink-soft); font-size: 12px; font-weight: 600; }
+.article-meta time { font-variant-numeric: tabular-nums; }
+.article-footer { max-width: 660px; margin-top: 54px; padding-top: 28px; border-top: 1px solid var(--line); }
+.article-footer p { color: var(--ink-soft); font-size: 14px; line-height: 1.6; margin-bottom: 18px; }
+
+/* ─── Beliefs ─────────────────────────────────────────────────────────── */
+.thinking-section { padding-bottom: 160px; }
+.thinking-marker { display: flex; align-items: center; gap: 16px; }
+.marker-line { flex: 1; height: 1px; background: var(--line); }
+.thinking-grid { display: grid; grid-template-columns: 1fr 0.95fr 150px; gap: 70px; align-items: center; padding-top: 34px; }
+.thinking-grid h2 { font-size: clamp(48px, 5vw, 72px); line-height: 0.89; }
+.thinking-copy { color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.thinking-copy p + p { margin-top: 18px; }
+.thinking-copy strong { display: block; margin-top: 24px; color: var(--ink); font-size: 14px; }
+.thinking-object { display: block; width: 150px; height: 96px; object-fit: cover; border-radius: 12px; }
+
+/* ─── Prose sections (about, legal) ───────────────────────────────────── */
+.prose { max-width: 680px; padding-bottom: 120px; }
+.prose section + section { margin-top: 44px; }
+.prose h2 { font-size: clamp(28px, 3.2vw, 38px); line-height: 1; margin-bottom: 16px; }
+.prose p { color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
+.prose p + p { margin-top: 14px; }
+.prose ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+.prose li { position: relative; padding-left: 24px; color: var(--ink-soft); font-size: 15px; line-height: 1.6; }
+.prose li::before { position: absolute; left: 2px; top: 10px; content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
+.prose a { border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 600; }
+.prose a:hover { border-color: var(--coral); }
+.prose .closer { display: block; margin-top: 40px; color: var(--ink); font-family: var(--serif); font-size: 26px; letter-spacing: -0.03em; }
+.legal-effective { color: var(--ink-soft); font-size: 12px; font-weight: 600; margin-bottom: 34px; }
+
+/* ─── Contact ─────────────────────────────────────────────────────────── */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 44px 0 50px; }
+.contact-reason { border: 1px solid var(--line); border-radius: var(--radius-card); padding: 24px 22px; background: var(--white); }
+.contact-reason h2 { font-family: var(--sans); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 9px; }
+.contact-reason p { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.contact-panel { border-radius: var(--radius-card); padding: 40px 42px; background: var(--blue); }
+.contact-panel h2 { font-size: 31px; line-height: 0.95; margin-bottom: 16px; }
+.contact-email { display: inline-block; margin-top: 8px; border-bottom: 1px solid currentColor; color: var(--ink); font-size: 18px; font-weight: 700; }
+.contact-response { margin-top: 20px; color: var(--ink-soft); font-size: 13px; }
+
+/* ─── Early access ────────────────────────────────────────────────────── */
+.access-section {
+  display: grid; grid-template-columns: 74px 1fr minmax(340px, 0.95fr);
+  align-items: start; gap: 34px;
+  border-radius: var(--radius-card); padding: 38px 42px; background: var(--blue);
+}
+.access-icon { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border: 1px solid rgba(8,27,74,0.25); border-radius: 50%; color: var(--ink); }
+.access-icon svg { font-size: 25px; }
+.access-copy { padding-top: 6px; }
+.access-copy .eyebrow { margin-bottom: 13px; }
+.access-copy h2 { font-size: 31px; line-height: 0.9; }
+.access-copy > p { margin-top: 14px; max-width: 330px; color: var(--ink-soft); font-size: 13px; line-height: 1.55; }
+.access-copy .contact-email { margin-top: 17px; font-size: 12px; }
+
+.access-form { display: grid; gap: 10px; }
+.access-form .field-row { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
+.access-form input[type="email"] {
+  min-width: 0; border: 1px solid transparent; border-radius: 10px;
+  padding: 15px 17px; color: var(--ink); background: var(--white); font-size: 13px;
+}
+.access-form input[type="email"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; }
+.access-form input[type="email"][aria-invalid="true"] { border-color: var(--coral); }
+
+.consent { display: flex; align-items: flex-start; gap: 9px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+.consent input[type="checkbox"] { flex: none; width: 16px; height: 16px; margin-top: 1px; accent-color: var(--coral); cursor: pointer; }
+.consent label { cursor: pointer; }
+.access-form .smallprint { color: var(--ink-soft); font-size: 10px; }
+.access-form .smallprint a { border-bottom: 1px solid var(--line); font-weight: 600; }
+
+/* The honeypot must be reachable by a naive bot but never by a person, so it is
+   moved off-screen rather than display:none — some bots skip hidden inputs. */
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.form-status { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; line-height: 1.5; }
+.form-status[data-tone="error"] { color: #9c2f1c; }
+.form-status[data-tone="success"] { color: var(--ink); font-weight: 700; }
+.form-status svg { flex: none; font-size: 20px; }
+.success-message { display: flex; align-items: center; gap: 11px; color: var(--ink); font-size: 14px; font-weight: 700; }
+.success-message svg { color: #68844d; font-size: 26px; }
+#turnstile-widget:not(:empty) { margin-top: 2px; }
+
+/* ─── 404 ─────────────────────────────────────────────────────────────── */
+.notfound { display: grid; place-items: center; text-align: center; padding: 120px 0 140px; }
+.notfound h1 { margin: 22px 0 20px; font-size: clamp(52px, 7vw, 96px); line-height: 0.88; }
+.notfound p { max-width: 420px; color: var(--ink-soft); font-size: 15px; line-height: 1.6; margin-bottom: 34px; }
+.notfound-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }

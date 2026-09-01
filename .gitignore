@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+*.tsbuildinfo
+
+# Generated reports (regenerate with `npm run audit:*`)
+lighthouse-report/
+sbom.json
+
+# Secrets — never commit. See .env.example for the shape.
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# esbuild scratch for the prerender step
+.build/

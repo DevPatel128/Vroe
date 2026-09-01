@@ -1,0 +1,48 @@
+/**
+ * Brand tokens — the CSS expression of docs/01-brand/brand-guide.md.
+ *
+ * Every value here maps to a named token in the brand guide. Do not introduce a
+ * colour, radius or width that the brand guide does not define; add it there
+ * first. docs/01-brand/design-system.md records the token -> property mapping.
+ */
+
+:root {
+  /* ─── Colour ─────────────────────────────────────────────────────────── */
+  --ink: #081b4a;          /* Primary text, dark surfaces, buttons          */
+  --ink-soft: #29406c;     /* Secondary text and supporting copy            */
+  --blue: #a9cbed;         /* Sky — hero, Vero and contact backgrounds      */
+  --paper: #f7f6f2;        /* Page background                               */
+  --white: #fffdf9;        /* Cards and light surfaces                      */
+  --coral: #ff674f;        /* Calls to action, accents, active moments      */
+  --lime: #d4e779;         /* Status, highlights, Trove notes               */
+  --line: rgba(8, 27, 74, 0.17); /* Dividers and quiet borders              */
+
+  /* ─── Type ───────────────────────────────────────────────────────────── */
+  --serif: "Instrument Serif", Georgia, serif;
+  --sans: "DM Sans", sans-serif;
+
+  /* ─── Layout ─────────────────────────────────────────────────────────── */
+  --width-wide: 1360px;    /* Hero and header                               */
+  --width-content: 1200px; /* Primary sections                              */
+  --gutter: 80px;          /* Desktop page gutters                          */
+  --gutter-mobile: 20px;   /* Mobile page gutters                           */
+
+  /* ─── Shape ──────────────────────────────────────────────────────────── */
+  --radius-card: 20px;
+  --radius-control: 12px;
+  --radius-pill: 999px;
+
+  /* ─── Motion ─────────────────────────────────────────────────────────── */
+  --ease: 180ms ease;
+}
+
+/* Respect an explicit request for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

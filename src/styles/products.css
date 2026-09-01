@@ -1,0 +1,134 @@
+/* Product cards, the Trove UI preview, and the Vero teaser. */
+
+.products-section { padding: 138px 0 150px; }
+.product-grid {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+  gap: 16px; align-items: stretch;
+}
+.product-card { position: relative; overflow: hidden; border-radius: var(--radius-card); }
+.trove-card-shell { min-height: 680px; background: var(--white); }
+.product-card-copy { position: relative; z-index: 2; width: 40%; padding: 40px 34px; }
+.product-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.product-meta .status-pill { margin-left: auto; }
+.product-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; border-radius: 13px;
+  color: var(--white); font-size: 21px;
+}
+.product-icon.coral { background: var(--coral); }
+.product-icon.lime { color: var(--ink); background: var(--lime); font-family: var(--serif); font-size: 25px; }
+.product-name { font-size: 22px; font-weight: 700; letter-spacing: -0.05em; }
+.product-card h3 { margin: 66px 0 19px; font-size: clamp(44px, 4.4vw, 66px); line-height: 0.86; }
+.product-card-copy p { max-width: 270px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.product-card-copy .button { margin-top: 29px; }
+
+/* ─── Trove preview ──────────────────────────────────────────────────────
+   Decorative illustration of the product UI. Marked aria-hidden and carrying
+   invented sample figures, so it must never be read as real account data. */
+.trove-preview {
+  position: absolute; right: 27px; bottom: 27px;
+  display: grid; grid-template-columns: 118px minmax(0, 1fr);
+  width: 58%; min-height: 500px; overflow: hidden;
+  border: 1px solid rgba(8, 27, 74, 0.12); border-radius: 19px;
+  color: var(--ink); background: #f2f0eb;
+  box-shadow: 0 20px 50px rgba(8, 27, 74, 0.1);
+  transform: rotate(2deg); transform-origin: bottom right;
+}
+.trove-sidebar { display: flex; flex-direction: column; border-right: 1px solid rgba(8,27,74,0.1); padding: 18px 12px; background: #eae8e1; }
+.trove-brand-lockup { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; }
+.trove-mark { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 7px; color: var(--white); background: var(--coral); font-size: 12px; }
+.trove-user { display: flex; align-items: center; gap: 7px; margin: 32px 0 24px; color: var(--ink-soft); font-size: 9px; }
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; color: var(--white); background: var(--ink); font-weight: 700; }
+.trove-nav { display: grid; gap: 5px; }
+.trove-nav-item { display: flex; align-items: center; gap: 7px; border-radius: 7px; padding: 8px 6px; color: var(--ink-soft); font-size: 8px; }
+.trove-nav-item.is-active { color: var(--ink); background: #d9ded0; font-weight: 700; }
+.trove-nav-item svg { font-size: 13px; }
+.trove-sidebar-note { display: grid; gap: 4px; margin-top: auto; border-top: 1px solid rgba(8,27,74,0.14); padding-top: 17px; }
+.trove-sidebar-note strong { font-size: 16px; letter-spacing: -0.06em; }
+.trove-sidebar-note .positive { font-size: 8px; }
+.trove-main { padding: 25px 24px; }
+.trove-preview-topline, .card-heading, .chart-labels { display: flex; align-items: center; justify-content: space-between; }
+.trove-preview-topline .eyebrow { font-size: 8px; }
+.trove-status { display: inline-flex; align-items: center; gap: 4px; color: #617c4c; font-size: 8px; font-weight: 700; }
+.trove-status span { width: 5px; height: 5px; border-radius: 50%; background: #76a653; }
+.trove-balance-row { display: flex; justify-content: space-between; margin: 31px 0 22px; }
+.trove-balance-row > div { display: grid; gap: 5px; }
+.trove-balance-row .eyebrow { font-size: 8px; }
+.trove-balance-row strong { font-size: clamp(26px, 3vw, 40px); letter-spacing: -0.08em; }
+.positive { color: #5c824a; font-size: 10px; font-weight: 700; }
+.mini-action { display: inline-flex; align-items: center; justify-content: center; align-self: start; width: 27px; height: 27px; border: 1px solid rgba(8,27,74,0.16); border-radius: 50%; background: var(--white); }
+.mini-action svg { font-size: 14px; }
+.trove-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
+.trove-card { border: 1px solid rgba(8,27,74,0.1); border-radius: 12px; padding: 15px; background: var(--white); }
+.card-heading { color: var(--ink); font-size: 10px; font-weight: 700; }
+.muted { color: #7e8795; font-size: 9px; font-weight: 500; }
+.bars { display: flex; align-items: end; gap: 4px; height: 78px; margin: 21px 0 9px; border-bottom: 1px solid rgba(8,27,74,0.12); }
+.bars span { flex: 1; min-height: 8px; border-radius: 4px 4px 0 0; background: #859875; }
+.chart-labels { color: #8c929e; font-size: 8px; }
+.goal-card { display: grid; align-content: start; gap: 9px; }
+.goal-card .card-heading svg { color: #9cae69; font-size: 16px; }
+.goal-card strong { margin-top: 25px; font-size: 11px; }
+.goal-track { height: 5px; margin-top: 9px; overflow: hidden; border-radius: var(--radius-pill); background: #e1e3d6; }
+.goal-track span { display: block; width: 64%; height: 100%; border-radius: inherit; background: #a3b86f; }
+.trove-transactions { margin-top: 15px; border: 1px solid rgba(8,27,74,0.1); border-radius: 12px; padding: 15px; background: var(--white); }
+.transaction { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 9px; border-top: 1px solid rgba(8,27,74,0.08); padding: 11px 0 0; margin-top: 11px; }
+.transaction-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 7px; color: #637452; background: #e5ead9; }
+.transaction-icon svg { font-size: 13px; }
+.transaction strong { display: block; font-size: 9px; }
+.transaction small { display: block; margin-top: 2px; color: #88909c; font-size: 8px; }
+.transaction-amount { font-size: 9px !important; }
+
+/* ─── Vero teaser ─────────────────────────────────────────────────────── */
+.vero-card-shell { display: flex; flex-direction: column; min-height: 680px; color: var(--ink); background: var(--blue); }
+.vero-card-shell .product-meta { position: relative; z-index: 2; padding: 34px 30px 0; }
+.vero-copy { position: relative; z-index: 2; padding: 0 30px; }
+.vero-copy h3 { margin-top: 58px; }
+.vero-copy p { max-width: 250px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.vero-image { position: absolute; right: 0; bottom: 0; width: 100%; height: 57%; object-fit: cover; object-position: center 35%; mix-blend-mode: multiply; }
+
+/* ─── Product detail pages ────────────────────────────────────────────── */
+.capability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 40px; }
+.capability {
+  border: 1px solid var(--line); border-radius: var(--radius-card);
+  padding: 26px 24px; background: var(--white);
+}
+.capability h3 { font-family: var(--sans); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 10px; }
+.capability p { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+
+.principles { margin-top: 20px; padding: 0; list-style: none; display: grid; gap: 14px; }
+.principles li {
+  position: relative; padding-left: 26px;
+  color: var(--ink-soft); font-size: 15px; line-height: 1.6;
+}
+.principles li::before {
+  position: absolute; left: 0; top: 9px; content: "";
+  width: 8px; height: 8px; border-radius: 50%; background: var(--coral);
+}
+
+.status-callout {
+  display: flex; align-items: flex-start; gap: 14px;
+  border: 1px solid var(--line); border-left: 3px solid var(--coral);
+  border-radius: var(--radius-control); padding: 20px 22px; margin-top: 40px;
+  background: var(--white);
+}
+.status-callout p { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.status-callout strong { color: var(--ink); }
+
+/* Chart bar heights.
+   These live here rather than as inline style attributes because the CSP is
+   `style-src 'self'` — an inline style= attribute is blocked outright, and
+   weakening the policy to 'unsafe-inline' for a decorative bar chart would be
+   a bad trade. The values are static illustration data, so nth-child is a
+   perfectly good home for them. */
+.bars span:nth-child(1)  { height: 30%; }
+.bars span:nth-child(2)  { height: 46%; }
+.bars span:nth-child(3)  { height: 38%; }
+.bars span:nth-child(4)  { height: 68%; }
+.bars span:nth-child(5)  { height: 52%; }
+.bars span:nth-child(6)  { height: 78%; }
+.bars span:nth-child(7)  { height: 43%; }
+.bars span:nth-child(8)  { height: 58%; }
+.bars span:nth-child(9)  { height: 64%; }
+.bars span:nth-child(10) { height: 88%; }
+.bars span:nth-child(11) { height: 70%; }
+.bars span:nth-child(12) { height: 54%; }

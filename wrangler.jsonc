@@ -1,0 +1,73 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Vroe Labs marketing site. Static assets are prerendered into dist/client;
+  // worker/index.js adds security headers, the canonical-host redirect and the
+  // three small /api endpoints. See docs/06-deployment.md.
+  "name": "vroe-labs",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-09-01",
+
+  // Free *.workers.dev address plus per-branch preview URLs. The canonical-host
+  // redirect in the worker deliberately leaves workers.dev alone so previews
+  // stay reachable.
+  "workers_dev": true,
+  "preview_urls": true,
+
+  // Workers Logs. This is the only error aggregation the site has — Sentry
+  // would be a dependency (and a third-party origin) for a static page that has
+  // almost no runtime. Revisit if /api ever grows.
+  "observability": { "enabled": true },
+
+  // ONLY dist/client is published. The repo root — docs, source, assets-src
+  // originals, wrangler config — is therefore unreachable from the web.
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    // Serves /trove from /trove/index.html and redirects /trove/ -> /trove, so
+    // each page has exactly one URL and the canonical tag always matches.
+    // "auto-trailing-slash" would do the opposite and 307 the canonical URL
+    // itself, which is why this is set explicitly.
+    "html_handling": "drop-trailing-slash",
+
+    // Hand 404s to the worker so it can return the prerendered 404 page with
+    // the correct status and the security headers attached.
+    "not_found_handling": "none",
+
+    // REQUIRED for the security headers to exist at all.
+    //
+    // By default Cloudflare serves a matching static asset directly and never
+    // invokes the worker, so every header in worker/headers.js would be absent
+    // on exactly the responses that matter most — the HTML pages. This forces
+    // every request through the worker, which then fetches the asset via the
+    // ASSETS binding and attaches the headers on the way out.
+    //
+    // The cost is one worker invocation per request. For a static marketing
+    // site that is well inside the free tier, and consistent headers on HTML,
+    // assets and errors alike is the whole point.
+    "run_worker_first": true
+  },
+
+  "kv_namespaces": [
+    // Per-IP throttle for /api/subscribe. Keys expire on their own.
+    { "binding": "RATE_LIMIT", "id": "dc61b02b65b041b4aa4e3c6ad10fbd4d" },
+    // Early-access signups, keyed by SHA-256 of the address.
+    { "binding": "SUBSCRIBERS", "id": "609b58326df24884aef3fe253af7aad9" }
+  ],
+
+  "vars": {
+    // Every other hostname 301s here, which folds www -> apex. The value is
+    // configuration, never taken from the request, so it cannot be turned into
+    // an open redirect.
+    "CANONICAL_HOST": "vroelabs.com",
+    // Public by design: this key appears in the page source of every site that
+    // uses Turnstile. The SECRET key is set with `wrangler secret put
+    // TURNSTILE_SECRET_KEY` and is never committed.
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAEjohAZuCMiZZM6u"
+  },
+
+  "routes": [
+    { "pattern": "vroelabs.com", "custom_domain": true },
+    { "pattern": "www.vroelabs.com", "custom_domain": true }
+  ]
+}

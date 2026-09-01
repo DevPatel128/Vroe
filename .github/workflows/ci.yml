@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: CI only needs to read the repository.
+permissions:
+  contents: read
+
+# Secrets are deliberately NOT referenced in this workflow, so it is safe to run
+# on pull requests from forks. Deployment lives in deploy.yml, which runs only
+# on pushes to main.
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Actions are pinned to commit SHAs, not tags. A tag can be moved to point
+      # at different code; a SHA cannot.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      # --ignore-scripts is the important flag. Install scripts are the main way
+      # a compromised package executes code on a build machine, and nothing here
+      # needs one at install time.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      # sharp ships prebuilt binaries that its install script would normally
+      # place; --ignore-scripts skips that, so fetch them explicitly.
+      - name: Prepare native deps
+        run: npm rebuild sharp
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Generate SBOM
+        run: npm run audit:sbom
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+
+      # A last look at what would actually be published. The test suite covers
+      # this too; this is the belt to its braces, and it fails loudly in the log.
+      - name: Check the build output for leaks
+        run: |
+          set -euo pipefail
+          echo "Scanning dist/client for secrets and stray files…"
+          if find dist/client -name '*.map' | grep -q .; then
+            echo "::error::source maps found in dist/client"; exit 1
+          fi
+          if find dist/client -name '.env*' -o -name '.git*' -o -name '*.dev.vars' | grep -q .; then
+            echo "::error::dotfiles found in dist/client"; exit 1
+          fi
+          if grep -rIl --exclude='*.jpg' --exclude='*.avif' --exclude='*.webp' \
+               -e 'TURNSTILE_SECRET' -e 'CLOUDFLARE_API_TOKEN' dist/client 2>/dev/null | grep -q .; then
+            echo "::error::a secret name appears in the build output"; exit 1
+          fi
+          echo "Build output is clean."
