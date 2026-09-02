@@ -79,6 +79,30 @@ jobs:
             echo "--- end ---"
           }
 
+          # A challenge is not a site failure, and must not be reported as one.
+          #
+          # Bot Fight Mode challenges datacentre IPs, which is exactly what a
+          # GitHub runner is. Cloudflare then answers 403 with its own "Just a
+          # moment..." page instead of invoking the Worker, and that page carries
+          # Cloudflare's CSP - which permits inline style. The old check saw that
+          # and reported "unsafe-inline in CSP", blaming the site for a header it
+          # never sent. Detect the challenge by name instead.
+          challenged() {
+            curl -sS -o /dev/null -D /tmp/c.txt https://vroelabs.com || true
+            grep -qi '^cf-mitigated:' /tmp/c.txt
+          }
+
+          if challenged; then
+            echo "::error::Cloudflare is challenging this runner, so the deploy cannot be verified."
+            echo "The site itself is not necessarily broken - Cloudflare answered before the Worker ran."
+            dump
+            echo "Fix by either:"
+            echo "  - turning Bot Fight Mode off (SSL/TLS is not affected; the subscribe"
+            echo "    endpoint still has Turnstile, a honeypot and a per-IP rate limit), or"
+            echo "  - adding a WAF skip rule that matches a header this job sends."
+            exit 1
+          fi
+
           # Wait for the new version to actually be live, rather than sleeping a
           # fixed ten seconds and hoping. A Worker deploy propagates across
           # Cloudflare's network over rather longer than that, and during the
