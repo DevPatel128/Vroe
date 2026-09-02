@@ -55,14 +55,36 @@ jobs:
       - name: Smoke test the live site
         run: |
           set -euo pipefail
-          sleep 10
-          echo "Checking security headers…"
-          headers=$(curl -sI https://vroelabs.com)
-          for h in "content-security-policy" "strict-transport-security" \
-                   "x-content-type-options" "x-frame-options" "referrer-policy"; do
-            echo "$headers" | grep -qi "^$h:" || { echo "::error::missing $h"; exit 1; }
+
+          # Wait for the new version to actually be live, rather than sleeping a
+          # fixed ten seconds and hoping. A Worker deploy propagates across
+          # Cloudflare's network over rather longer than that, and during the
+          # rollout an edge node can answer without the new version's headers —
+          # which failed this step once with `strict-transport-security` missing
+          # while the site itself was completely healthy. Poll instead.
+          echo "Waiting for the new version to roll out…"
+          required="content-security-policy strict-transport-security \
+                    x-content-type-options x-frame-options referrer-policy"
+          deadline=$((SECONDS + 180))
+          while :; do
+            headers=$(curl -sI https://vroelabs.com || true)
+            missing=""
+            for h in $required; do
+              echo "$headers" | grep -qi "^$h:" || missing="$missing $h"
+            done
+            [ -z "$missing" ] && break
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::after 180s these headers are still missing:$missing"
+              exit 1
+            fi
+            echo "  not yet — missing:$missing"
+            sleep 5
           done
-          echo "$headers" | grep -qi "unsafe-inline" && { echo "::error::unsafe-inline in CSP"; exit 1; }
+          echo "All security headers present."
+
+          if echo "$headers" | grep -qi "unsafe-inline"; then
+            echo "::error::unsafe-inline in CSP"; exit 1
+          fi
 
           echo "Checking routes…"
           for path in / /trove /vero /notes/trove /notes/vero /about /contact \
