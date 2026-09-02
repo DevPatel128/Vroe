@@ -68,11 +68,56 @@ jobs:
           if find dist/client -name '*.map' | grep -q .; then
             echo "::error::source maps found in dist/client"; exit 1
           fi
-          if find dist/client -name '.env*' -o -name '.git*' -o -name '*.dev.vars' | grep -q .; then
-            echo "::error::dotfiles found in dist/client"; exit 1
+          # Any dotfile other than .well-known is unexpected. This catches the
+          # named cases (.env, .git, .dev.vars) and also build metadata such as
+          # Vite's .vite/manifest.json, which maps every source path to its
+          # hashed output name and must not be published.
+          stray=$(find dist/client -name '.*' -not -name '.well-known' \
+                    -not -path '*/.well-known/*' -mindepth 1 || true)
+          if [ -n "$stray" ]; then
+            echo "::error::unexpected dotfiles in dist/client:"; echo "$stray"; exit 1
           fi
           if grep -rIl --exclude='*.jpg' --exclude='*.avif' --exclude='*.webp' \
                -e 'TURNSTILE_SECRET' -e 'CLOUDFLARE_API_TOKEN' dist/client 2>/dev/null | grep -q .; then
             echo "::error::a secret name appears in the build output"; exit 1
           fi
           echo "Build output is clean."
+
+      # GitHub's own secret scanning and push protection are not available on a
+      # private repo without Advanced Security, so this stands in for them. It
+      # deliberately adds no third-party action: everything here is grep against
+      # files git is actually tracking.
+      - name: Check the repository for committed secrets
+        run: |
+          set -euo pipefail
+          echo "Scanning tracked files for credentials…"
+          fail=0
+
+          # 1. Environment files must never be committed at all.
+          if git ls-files | grep -Ex '\.env(\..*)?|\.dev\.vars|.*/\.env(\..*)?|.*/\.dev\.vars' | grep -v '^\.env\.example$' | grep -q .; then
+            echo "::error::an environment file is tracked by git"
+            git ls-files | grep -Ex '\.env(\..*)?|\.dev\.vars' | grep -v '^\.env\.example$'
+            fail=1
+          fi
+
+          # 2. High-signal credential shapes, in tracked text files only.
+          #    .env.example is excluded: it documents NAMES and holds no values.
+          files=$(git ls-files | grep -vE '\.(jpg|jpeg|png|webp|avif|woff2|ico|pdf)$' | grep -v '^\.env\.example$')
+          patterns='
+          [A-Za-z0-9_-]*(SECRET|TOKEN|PASSWORD|PRIVATE_KEY)[A-Za-z0-9_-]*[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_\-]{16,}
+          -----BEGIN[[:space:]][A-Z ]*PRIVATE KEY-----
+          0x4[A-Za-z0-9_-]{30,}
+          '
+          while IFS= read -r pat; do
+            [ -z "$pat" ] && continue
+            # A line may opt out with a trailing "allowlist secret" comment.
+            # Test fixtures use it; a real key pasted into a test still fails.
+            hits=$(printf '%s\n' $files | xargs -r grep -InE "$pat" 2>/dev/null \
+                     | grep -v 'allowlist secret' || true)
+            if [ -n "$hits" ]; then
+              echo "::error::possible credential committed:"; echo "$hits" | head -20; fail=1
+            fi
+          done <<< "$patterns"
+
+          [ "$fail" -eq 0 ] || exit 1
+          echo "No credentials found in tracked files."

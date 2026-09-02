@@ -108,9 +108,10 @@ those. The standard anchors:
 
 ## Placeholders that still need a real value
 
-- **LinkedIn** — `SITE.linkedin` is `https://www.linkedin.com/`, the bare root,
-  because the Vroe Labs company page does not exist yet. Deliberately not an
-  invented vanity URL. Replace it in `src/content/site.js` when the page exists.
+- **LinkedIn** — `SITE.linkedin` is `""`, so the footer renders no LinkedIn
+  icon at all. It previously held the bare LinkedIn root, which shipped a link
+  labelled "Vroe Labs on LinkedIn" that went to LinkedIn's homepage instead.
+  Set it to the real company URL in `src/content/site.js` and the icon returns.
 - **`CF_ANALYTICS_TOKEN`** — empty, so no beacon is injected. Set it after
   creating the Cloudflare Web Analytics site.
 - **`GOOGLE_SITE_VERIFICATION`** — empty. DNS TXT is the primary method; see

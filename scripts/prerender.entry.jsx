@@ -12,7 +12,7 @@
  *   /notes/trove -> dist/client/notes/trove/index.html
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -159,5 +159,11 @@ for (const route of ROUTES) {
   const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
   console.log(`  ${route.path.padEnd(16)} -> ${path.relative(root, file).padEnd(38)} ${kb.padStart(6)} KB`);
 }
+
+// The Vite manifest is a build-time index of source paths to hashed filenames.
+// It has done its job by now, and dist/client is published verbatim — leaving it
+// behind would serve /.vite/manifest.json to anyone who asks and hand them the
+// source layout for free. Nothing downstream reads it. See tests/security.test.mjs.
+await rm(path.join(outRoot, ".vite"), { recursive: true, force: true });
 
 console.log(`Prerendered ${ROUTES.length} routes, ${(total / 1024).toFixed(1)} KB of HTML.`);

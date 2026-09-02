@@ -12,7 +12,7 @@ import path from "node:path";
 import test from "node:test";
 import worker from "../worker/index.js";
 import { CSP } from "../worker/headers.js";
-import { baseEnv, fakeKV, get, post } from "./helpers.mjs";
+import { baseEnv, edge, fakeKV, get, post } from "./helpers.mjs";
 
 const distClient = new URL("../dist/client/", import.meta.url);
 
@@ -78,7 +78,7 @@ test("HSTS does not claim preload", async () => {
 test("www redirects to the apex, and only to the configured host", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    new Request("https://www.vroelabs.com/trove?ref=x", { headers: { Accept: "text/html" } }),
+    edge("https://www.vroelabs.com/trove?ref=x"),
     env,
   );
   assert.equal(response.status, 301);
@@ -88,7 +88,7 @@ test("www redirects to the apex, and only to the configured host", async () => {
 test("a spoofed Host cannot produce an open redirect", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    new Request("https://evil.example.com/path", { headers: { Accept: "text/html" } }),
+    edge("https://evil.example.com/path"),
     env,
   );
   // Redirects to OUR host, never to the attacker's.
@@ -98,7 +98,7 @@ test("a spoofed Host cannot produce an open redirect", async () => {
 test("plain http is redirected to https", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    new Request("http://vroelabs.com/trove", { headers: { Accept: "text/html" } }),
+    edge("http://vroelabs.com/trove"),
     env,
   );
   assert.equal(response.status, 301);
@@ -108,7 +108,7 @@ test("plain http is redirected to https", async () => {
 test("http on the wrong host fixes both scheme and host in one hop", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    new Request("http://www.vroelabs.com/vero", { headers: { Accept: "text/html" } }),
+    edge("http://www.vroelabs.com/vero"),
     env,
   );
   assert.equal(response.status, 301);
@@ -118,10 +118,49 @@ test("http on the wrong host fixes both scheme and host in one hop", async () =>
 test("workers.dev previews are not redirected away", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    new Request("https://vroe-labs.devpatel1286.workers.dev/", { headers: { Accept: "text/html" } }),
+    edge("https://vroe-labs.devpatel1286.workers.dev/"),
     env,
   );
   assert.notEqual(response.status, 301);
+});
+
+test("a local wrangler dev request is never redirected", async () => {
+  // Regression: `wrangler dev` rewrites the request URL and Host to the custom
+  // domain in wrangler.jsonc, so the worker saw http://vroelabs.com/ locally and
+  // 301'd every request to a Location wrangler rewrote straight back — an
+  // infinite loop that made `npm run preview` serve nothing but redirects.
+  // Absence of CF-Ray is what marks a request as not-at-the-edge.
+  const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
+
+  for (const url of ["http://vroelabs.com/", "http://vroelabs.com/trove", "http://localhost:8788/"]) {
+    const response = await worker.fetch(
+      new Request(url, { headers: { Accept: "text/html" } }),
+      env,
+    );
+    assert.notEqual(response.status, 301, `${url} must not redirect without CF-Ray`);
+  }
+});
+
+test("www still folds to the apex even without CF-Ray", async () => {
+  // Only the scheme upgrade is gated on being at the edge. The canonical-host
+  // redirect must not be, or a change in edge behaviour would silently allow the
+  // site to be served from two hostnames.
+  const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
+  const response = await worker.fetch(
+    new Request("https://www.vroelabs.com/trove", { headers: { Accept: "text/html" } }),
+    env,
+  );
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://vroelabs.com/trove");
+});
+
+test("the edge still upgrades and canonicalises once CF-Ray is present", async () => {
+  // The guard above must not become a way to switch the redirect off entirely.
+  const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
+  const response = await worker.fetch(edge("http://www.vroelabs.com/notes/trove"), env);
+
+  assert.equal(response.status, 301);
+  assert.equal(response.headers.get("location"), "https://vroelabs.com/notes/trove");
 });
 
 /* ─── Subscribe endpoint ───────────────────────────────────────────────── */
@@ -238,7 +277,7 @@ test("GET on the subscribe endpoint is not allowed", async () => {
 /* ─── Information disclosure ───────────────────────────────────────────── */
 
 test("health reports booleans only, never a secret value", async () => {
-  const env = baseEnv({ TURNSTILE_SECRET_KEY: "super-secret-value", TURNSTILE_SITE_KEY: "site" });
+  const env = baseEnv({ TURNSTILE_SECRET_KEY: "super-secret-value", TURNSTILE_SITE_KEY: "site" }); // allowlist secret: fixture, not a real key
   const response = await worker.fetch(new Request("https://vroelabs.com/api/health"), env);
   const text = await response.text();
 
@@ -249,7 +288,7 @@ test("health reports booleans only, never a secret value", async () => {
 });
 
 test("config exposes only the public Turnstile site key", async () => {
-  const env = baseEnv({ TURNSTILE_SECRET_KEY: "super-secret-value", TURNSTILE_SITE_KEY: "0xPUBLIC" });
+  const env = baseEnv({ TURNSTILE_SECRET_KEY: "super-secret-value", TURNSTILE_SITE_KEY: "0xPUBLIC" }); // allowlist secret: fixture, not a real key
   const response = await worker.fetch(new Request("https://vroelabs.com/api/config"), env);
   const body = await response.json();
 
@@ -286,6 +325,13 @@ test("the published build contains no secrets, source maps or dotfiles", async (
   assert.ok(!files.some((f) => f === ".env" || f.startsWith(".env")), "no .env");
   assert.ok(!files.some((f) => f.startsWith(".git")), "no git metadata");
   assert.ok(!files.some((f) => f.includes("dev.vars")), "no .dev.vars");
+
+  // Build metadata must not ship. The Vite manifest maps every source path to
+  // its hashed output name; publishing it hands over the source layout and
+  // there is no reason for a visitor to have it. /.well-known is the one
+  // dotted path that is meant to be public.
+  const dotted = files.filter((f) => f.startsWith(".") && !f.startsWith(".well-known/"));
+  assert.deepEqual(dotted, [], `unexpected dotfiles published: ${dotted.join(", ")}`);
 
   // No secret may appear in any published byte.
   //

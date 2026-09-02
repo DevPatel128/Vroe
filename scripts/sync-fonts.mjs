@@ -18,7 +18,6 @@ const out = path.join(root, "public", "fonts");
 const FILES = [
   "@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2",
   "@fontsource/dm-sans/files/dm-sans-latin-400-normal.woff2",
-  "@fontsource/dm-sans/files/dm-sans-latin-500-normal.woff2",
   "@fontsource/dm-sans/files/dm-sans-latin-600-normal.woff2",
   "@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff2",
 ];

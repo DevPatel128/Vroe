@@ -1,5 +1,6 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { EARLY_ACCESS } from "../content/copy.js";
+import { SITE } from "../content/site.js";
 
 /**
  * Early-access signup.
@@ -18,11 +19,19 @@ import { EARLY_ACCESS } from "../content/copy.js";
  *      from keyboard users and password managers.
  *
  * No JS is required for the markup to be correct; enhance.js takes over submit
- * and only then loads Turnstile. See docs/04-security.md.
+ * and only then loads Turnstile. If Turnstile cannot load at all, enhance.js
+ * says so and points at `data-contact-email` rather than asking the visitor to
+ * complete a check that is not on screen. See docs/04-security.md.
  */
 export function SubscribeForm() {
   return (
-    <form className="access-form" data-subscribe-form noValidate>
+    <form
+      className="access-form"
+      data-subscribe-form
+      /* enhance.js falls back to this address when the bot check cannot load. */
+      data-contact-email={SITE.email}
+      noValidate
+    >
       <div className="field-row">
         <label className="sr-only" htmlFor="subscribe-email">
           Email address

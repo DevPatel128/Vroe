@@ -187,7 +187,25 @@ function canonicalRedirect(request, url, env) {
 
   const canonical = env.CANONICAL_HOST;
   const wrongHost = Boolean(canonical) && url.hostname !== canonical;
-  const insecure = url.protocol === "http:";
+
+  // The scheme upgrade — and only the scheme upgrade — has to know it is running
+  // at the edge.
+  //
+  // `wrangler dev` serves the site over plain http on localhost but rewrites both
+  // the request URL and the Host header to the first custom domain in
+  // wrangler.jsonc. The worker therefore sees http://vroelabs.com/... locally and
+  // would upgrade every request to https, while wrangler rewrites the Location
+  // straight back to http://localhost:8788/... — an infinite redirect loop that
+  // left `npm run preview` serving nothing but 301s.
+  //
+  // CF-Ray is attached by Cloudflare to every request that reaches the edge and
+  // is absent locally; this was verified against a real edge preview, not assumed.
+  // A client cannot suppress it in production, because Cloudflare sets it and
+  // overwrites anything the client sends. The canonical-host redirect below is
+  // deliberately NOT gated on it, so www -> apex keeps working regardless.
+  // See docs/07-decisions.md, ADR-014.
+  const atEdge = request.headers.has("cf-ray");
+  const insecure = url.protocol === "http:" && atEdge;
 
   if (!wrongHost && !insecure) return null;
 

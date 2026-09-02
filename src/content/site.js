@@ -16,10 +16,15 @@ export const SITE = {
     "Vroe Labs is a product studio building thoughtful digital products that remove friction, create clarity, and make everyday life a little easier.",
   email: "vroelabs@gmail.com",
   /**
-   * Placeholder until the Vroe Labs company page exists. Deliberately the
-   * LinkedIn root rather than an invented vanity URL — see docs/03-content.md.
+   * Empty until the Vroe Labs company page exists.
+   *
+   * It used to point at the bare LinkedIn root to avoid inventing a vanity URL.
+   * That still shipped a footer icon labelled "Vroe Labs on LinkedIn" that
+   * landed on LinkedIn's own homepage — a link that does not go where it says
+   * it goes. The Footer omits the icon entirely while this is empty; set it to
+   * the real company URL and the icon comes back. See docs/03-content.md.
    */
-  linkedin: "https://www.linkedin.com/",
+  linkedin: "",
   locale: "en",
   founded: "2026",
 };

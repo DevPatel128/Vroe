@@ -13,8 +13,12 @@
  * The .woff2 files are copied from @fontsource by scripts/sync-fonts.mjs, which
  * is also what keeps them in step when the package is updated.
  *
- * Latin subset only, and only the four DM Sans weights the design uses:
- * 400 body, 500 muted, 600 nav, 700 eyebrows and buttons.
+ * Latin subset only, and only the three DM Sans weights the design uses:
+ * 400 body, 600 nav and muted, 700 eyebrows and buttons.
+ *
+ * There is deliberately no 500. It was used by exactly one class (.muted), which
+ * renders three spans of 9px text inside the aria-hidden Trove mock — a 14 KB
+ * download for decoration nobody reads and no screen reader reaches.
  *
  * font-display: swap — text paints immediately in the fallback and reflows to
  * the brand face. Georgia and the system sans are close enough in metrics that
@@ -39,14 +43,6 @@
   font-weight: 400;
   font-display: swap;
   src: url("/fonts/dm-sans-latin-400-normal.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "DM Sans";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/dm-sans-latin-500-normal.woff2") format("woff2");
 }
 
 @font-face {

@@ -61,7 +61,10 @@
 .trove-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
 .trove-card { border: 1px solid rgba(8,27,74,0.1); border-radius: 12px; padding: 15px; background: var(--white); }
 .card-heading { color: var(--ink); font-size: 10px; font-weight: 700; }
-.muted { color: #7e8795; font-size: 9px; font-weight: 500; }
+/* 600, not 500. This class is the only thing on the site that used DM Sans 500,
+   and it appears three times inside the aria-hidden Trove mock at 9px — a 14 KB
+   font file for decorative micro-text. 600 is already loaded for the nav. */
+.muted { color: #7e8795; font-size: 9px; font-weight: 600; }
 .bars { display: flex; align-items: end; gap: 4px; height: 78px; margin: 21px 0 9px; border-bottom: 1px solid rgba(8,27,74,0.12); }
 .bars span { flex: 1; min-height: 8px; border-radius: 4px 4px 0 0; background: #859875; }
 .chart-labels { color: #8c929e; font-size: 8px; }

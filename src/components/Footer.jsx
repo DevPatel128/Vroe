@@ -24,14 +24,16 @@ export function Footer() {
         <a href="/contact">Contact</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
-        <a
-          href={SITE.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Vroe Labs on LinkedIn (opens in a new tab)"
-        >
-          <LinkedinLogo aria-hidden="true" />
-        </a>
+        {SITE.linkedin ? (
+          <a
+            href={SITE.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Vroe Labs on LinkedIn (opens in a new tab)"
+          >
+            <LinkedinLogo aria-hidden="true" />
+          </a>
+        ) : null}
       </nav>
     </footer>
   );

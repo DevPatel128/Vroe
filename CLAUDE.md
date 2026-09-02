@@ -33,7 +33,7 @@ vanilla JS. So:
 ```bash
 npm ci
 npm run build          # fonts → images → vite → prerender → sitemap
-npm test               # 44 tests — all must pass
+npm test               # 72 tests — all must pass
 npm run preview        # wrangler dev on :8788
 npm run deploy         # build + wrangler deploy
 ```
@@ -51,6 +51,8 @@ were invisible to the tests and obvious in a browser.
 | Security headers missing in production | `assets.run_worker_first` turned off. ADR-008 |
 | Canonical URLs 307-redirecting | `html_handling` must be `drop-trailing-slash` |
 | OG card text clipped | One long `<path>` — librsvg truncates it. One path per glyph. ADR-005 |
+| `npm run preview` returns only 301s | `wrangler dev` rewrites the URL and Host to the custom domain, so the worker sees `http://vroelabs.com/`. The HTTPS upgrade is gated on `CF-Ray`. ADR-014 |
+| A failed form submit loses the button's arrow icon | `button.textContent = …` replaces child nodes. Use `replaceChildren`. |
 
 ## Layout
 

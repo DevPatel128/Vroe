@@ -6,7 +6,7 @@
 .note-card { min-height: 460px; border-radius: var(--radius-card); padding: 34px; display: flex; flex-direction: column; }
 .note-card-trove { color: var(--ink); background: var(--lime); }
 .note-card-vero { color: var(--white); background: var(--ink); }
-.note-topline { display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; }
+.note-topline { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; }
 .note-topline svg { font-size: 20px; }
 .note-mark { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; border-radius: 8px; color: var(--ink); background: var(--lime); font-family: var(--serif); font-size: 16px; letter-spacing: 0; }
 .note-card h3 { max-width: 470px; margin: 74px 0 25px; font-size: clamp(42px, 4vw, 62px); line-height: 0.9; }
@@ -79,13 +79,21 @@
   min-width: 0; border: 1px solid transparent; border-radius: 10px;
   padding: 15px 17px; color: var(--ink); background: var(--white); font-size: 13px;
 }
-.access-form input[type="email"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; }
+/* This field sits on white, where an ink outline is already 16.3:1. It does not
+   need the ink halo the global :focus-visible adds for coral-on-light, and
+   stacking the two just thickens the ring. */
+.access-form input[type="email"]:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; box-shadow: none; }
 .access-form input[type="email"][aria-invalid="true"] { border-color: var(--coral); }
 
 .consent { display: flex; align-items: flex-start; gap: 9px; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
-.consent input[type="checkbox"] { flex: none; width: 16px; height: 16px; margin-top: 1px; accent-color: var(--coral); cursor: pointer; }
+/* 24px, not 16px: this is the one control a visitor must hit to consent, and
+   WCAG 2.5.8 asks for a 24x24 minimum target. */
+.consent input[type="checkbox"] { flex: none; width: 24px; height: 24px; margin-top: 0; accent-color: var(--coral); cursor: pointer; }
 .consent label { cursor: pointer; }
-.access-form .smallprint { color: var(--ink-soft); font-size: 10px; }
+/* 11px. This is the privacy notice shown at the point of collection and the
+   link to the policy — the text someone has to read to consent knowingly, so it
+   is the last thing that should be set at a decorative size. */
+.access-form .smallprint { color: var(--ink-soft); font-size: 11px; }
 .access-form .smallprint a { border-bottom: 1px solid var(--line); font-weight: 600; }
 
 /* The honeypot must be reachable by a naive bot but never by a person, so it is

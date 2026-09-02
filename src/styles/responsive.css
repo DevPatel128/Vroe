@@ -42,7 +42,7 @@
   .hero-copy h1 { margin: 28px 0 25px; font-size: clamp(63px, 19vw, 91px); line-height: 0.85; }
   .hero-copy p { max-width: 265px; font-size: 13px; }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 18px; margin-top: 28px; }
-  .hero-caption { right: 20px; bottom: 18px; left: 20px; font-size: 8px; }
+  .hero-caption { right: 20px; bottom: 18px; left: 20px; font-size: 11px; }
 
   .section, .site-footer, .page-hero, .access-section { width: calc(100% - 40px); }
   .page-hero { padding: 34px 0 44px; }
@@ -59,7 +59,10 @@
   .product-card-copy { width: 100%; padding: 25px 23px; }
   .product-name { font-size: 19px; }
   .product-icon { width: 36px; height: 36px; border-radius: 11px; font-size: 18px; }
-  .status-pill { padding: 6px 8px; font-size: 8px; }
+  /* Was 8px. Real content — see .status-pill in base.css. The decorative
+     .trove-* sizes below stay small: that subtree is aria-hidden and is meant to
+     read as a scaled-down app screenshot. */
+  .status-pill { padding: 6px 9px; font-size: 11px; }
   .product-card h3 { margin: 45px 0 14px; font-size: 54px; }
   .product-card-copy p { font-size: 13px; }
 

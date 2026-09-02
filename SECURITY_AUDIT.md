@@ -1,7 +1,12 @@
 # Security audit
 
 **Date:** 1 September 2026 · **Version:** 1.0.0 (initial launch)
-**Auditor:** internal review during the build. Not an independent third-party assessment.
+**Auditor:** internal review. Not an independent third-party assessment.
+
+Two rounds are recorded here. Round 1 was the build review. Round 2 was a
+pre-production audit covering functionality, accessibility, performance and
+security together — its findings are in
+[Round 2 findings](#round-2-findings-pre-production-audit).
 
 ## Scope
 
@@ -105,12 +110,13 @@ fork PRs are safe · no source maps published · scoped Cloudflare API token.
 
 ## Test results
 
-`npm test` — **44 assertions, all passing** (1 September 2026).
+`npm test` — **72 assertions, all passing** (1 September 2026, after round 2).
 
 | Suite | Count | Covers |
 | --- | --- | --- |
 | `tests/sites-worker.test.mjs` | 5 | Asset serving, 404 contract, no API fallback to the shell, cache policy |
-| `tests/security.test.mjs` | 24 | Headers on every response type, CSP has no unsafe directive, no HSTS preload, no obsolete headers, www→apex, no open redirect from a spoofed Host, hashed subscriber keys, dedupe, cross-origin 403, wrong content-type 415, oversized 413, honeypot, invalid email 422, consent required, rate limit 429, Turnstile required, health leaks no secret, config exposes only the public key, KV errors leak no address, no secrets/source maps/dotfiles in the build, external links carry `noopener noreferrer`, no inline handlers, no `javascript:` URLs, no inline `style` attributes |
+| `tests/security.test.mjs` | 29 | Headers on every response type, CSP has no unsafe directive, no HSTS preload, no obsolete headers, www→apex, no open redirect from a spoofed Host, hashed subscriber keys, dedupe, cross-origin 403, wrong content-type 415, oversized 413, honeypot, invalid email 422, consent required, rate limit 429, Turnstile required, health leaks no secret, config exposes only the public key, KV errors leak no address, no secrets/source maps/dotfiles in the build, external links carry `noopener noreferrer`, no inline handlers, no `javascript:` URLs, no inline `style` attributes, no build metadata published, the local-dev redirect regression, www→apex without CF-Ray |
+| `tests/functionality.test.mjs` | 23 | Anchors resolve, no placeholder links, no fake controls, the decorative product mock is aria-hidden and unfocusable, consent is required and never pre-ticked, the Turnstile fallback contract, the submit-button label survives a failed submit, skip link, menu toggle semantics, closed menu leaves the tab order, icon links are named, an 11px floor on real content, **computed** WCAG ratios for both coral CTAs and the focus ring, consent target size, referenced assets exist, 404 is noindex |
 | `tests/seo.test.mjs` | 15 | One h1, unique metadata, canonicals, no stray noindex, OG/Twitter completeness, JSON-LD validity and no fabricated properties, real article dates, sitemap correctness, robots, security.txt, no broken internal links, image alt/dimensions, LCP priority, no vague link text |
 
 `npm audit --audit-level=high` — **0 vulnerabilities**.
@@ -145,6 +151,75 @@ browser console clean with zero CSP violations.
 
 Findings 1, 3 and 4 were invisible to the test suite and only appeared when the
 site was actually run. That is worth remembering.
+
+## Round 2 findings: pre-production audit
+
+A second pass covering functionality, responsive behaviour, accessibility,
+performance and security together. Every item below was reproduced, fixed and
+re-verified in a browser and in the test suite.
+
+### Blocking, fixed
+
+| # | Finding | Why it mattered | Fix |
+| --- | --- | --- | --- |
+| 9 | **`npm run preview` served nothing but 301 redirects.** `wrangler dev` rewrites the request URL *and* the Host header to the first custom domain in `wrangler.jsonc`, so the worker saw `http://vroelabs.com/…`, took the HTTPS-upgrade branch, and wrangler rewrote the `Location` straight back to localhost. An infinite loop. | The project's own rule is to look at the site before shipping. Nobody could. Every visual, accessibility and functional check was blocked. | The scheme upgrade — and only the scheme upgrade — is now gated on `CF-Ray`, which Cloudflare attaches at the edge and which is absent locally. **Verified against a real edge preview (`wrangler dev --remote`), not assumed.** The canonical-host redirect is deliberately not gated, so www→apex works regardless. ADR-014 |
+| 10 | **Turnstile dead end.** If the Turnstile script was blocked by an extension or network filter, the client posted with no token, the server answered `403 Bot check failed. Please retry the verification.`, and there was no widget on screen to retry. Signing up became impossible with no way out. | The site collects an email address. This silently broke the only conversion path, and told the visitor to do something impossible. | The client now distinguishes "a check was expected" from "a check is ready" and, when the check cannot load, says so plainly and offers `vroelabs@gmail.com` as a real route. A `403` with no working widget falls back the same way. |
+| 11 | **Submit raced the bot check.** `arm()` ran on `focusin` and the submit handler never awaited it, so typing an address and pressing Enter could submit before the widget mounted — producing finding 10's dead end even when Turnstile was working perfectly. | The most common way to fill a one-field form is type-then-Enter. | The submit handler awaits an idempotent `arm()` promise, so the check is never raced. Double submission is blocked while in flight. |
+
+### Non-blocking, fixed
+
+| # | Finding | Fix |
+| --- | --- | --- |
+| 12 | **Build metadata was published.** `dist/client/.vite/manifest.json` was served at `/.vite/manifest.json`, handing out the mapping from every source path to its hashed output name. | The prerenderer deletes `.vite` once it has read it. A test now fails on any published dotfile other than `.well-known`, and the CI leak check was widened to match. |
+| 13 | **Both coral calls to action failed WCAG AA.** `--white` on `--coral` is **2.83:1**; 13px text needs 4.5:1. This affected `.button-coral` and `.nav-cta` — the latter in the header of every page. | Switched to `--ink` on coral: **5.77:1** (4.82:1 on the hover shade), with the brand coral unchanged. It matches the ink-on-lime pairing the status pill already used. |
+| 14 | **The focus ring was invisible on most of the site.** A 3px coral outline is 2.66:1 on paper, 2.83:1 on white, 2.12:1 on lime and **1.70:1 on sky** — under the 3:1 WCAG 1.4.11 asks of a focus indicator. | Two-tone ring: the coral outline kept, an ink halo added outside it. Ink clears 3:1 on every light brand surface; coral clears 5.77:1 on ink. One of the two is always visible. |
+| 15 | **Real content rendered at 8px on mobile.** The product status pill ("Taking shape" / "Upcoming") and the hero caption dropped to 8px, and `.eyebrow`, `.note-topline` and the consent smallprint sat at 10px. The status pill is what tells a visitor the products are not available yet. | An 11px floor on all real content, enforced by a test. The `aria-hidden` Trove mock keeps its small sizes — it is decoration meant to read as a scaled-down screenshot and no assistive technology reaches it. |
+| 16 | **The consent checkbox was a 16×16 target.** WCAG 2.5.8 asks for 24×24, and this is the one control a visitor must hit to consent. | Raised to 24×24. Every other undersized target was measured and passes the WCAG 2.5.8 *spacing* exception. |
+| 17 | **A footer link went nowhere it claimed.** The LinkedIn icon was labelled "Vroe Labs on LinkedIn" but pointed at `https://www.linkedin.com/`, the network's own homepage, as a placeholder. | `SITE.linkedin` is now empty and the footer omits the icon entirely. Setting a real company URL brings it back. A test fails on any bare social-root or `href="#"` placeholder. |
+
+### Checked and found correct — no change needed
+
+- **The decorative Trove product mock** is `aria-hidden="true"` and contains
+  **zero** focusable elements, so the fake product UI is never exposed as an
+  interactive control. Its overflow past the card edge is a deliberate design
+  bleed, clipped by the parent, and causes no page scroll.
+- **Write methods never fall through to the app shell.** `POST`/`PUT`/`PATCH`/
+  `DELETE` to a missing path return `404` with an empty body; to a real page,
+  `405`. A missing `/api/*` route returns JSON `404`, never HTML.
+- **No private file is reachable.** `.env`, `.dev.vars`, `wrangler.jsonc`,
+  `package.json`, `.git/config`, `node_modules/`, `src/`, `worker/` and
+  `.github/` all return 404 — only `dist/client` is published.
+- **No secrets in the client bundle, and no source maps.** `sourcemap: false`,
+  and a test scans every published byte, including against the live value in
+  `.dev.vars` when present.
+- **The only third-party origin in the built output is
+  `challenges.cloudflare.com`.** No analytics is shipped: `CF_ANALYTICS_TOKEN`
+  is empty, so the beacon is not injected at all.
+- **JSON-LD is the one `dangerouslySetInnerHTML` and it is correctly escaped** —
+  `<` becomes `\u003c`, so a `</script>` in content cannot close the block, and
+  U+2028/U+2029 are escaped too. Its content comes from trusted source files.
+- **No `localStorage`, `sessionStorage`, cookies, or browser permission
+  requests** anywhere in the client code.
+- **The closed mobile menu is `display: none`**, so its links are genuinely out
+  of the tab order rather than invisible-but-focusable. Escape closes it and
+  returns focus to the toggle.
+- **Reduced motion is honoured.** Motion is limited to 0.18s opacity and
+  transform transitions, all neutralised under `prefers-reduced-motion: reduce`,
+  along with smooth scrolling.
+- **Workflows are least-privilege.** `permissions: contents: read`, actions
+  pinned to commit SHAs, `npm ci --ignore-scripts`, and CI references no secrets
+  at all, so fork pull requests are safe to run.
+
+### Accepted, not fixed
+
+- **The decorative coral full stop** (`.accent-dot`) after display headings is
+  1.70:1 on sky and 2.66:1 on paper. It is a documented brand device, carries no
+  information, and the heading text it follows is high contrast in every case.
+  Recolouring it would remove the device rather than improve comprehension.
+  This is the one contrast deviation that remains, and it is deliberate.
+- **The CSP still allows the two Cloudflare Web Analytics origins** even though
+  no beacon is currently injected. Left in place so enabling the token later is
+  a one-line change rather than a CSP edit; documented in `worker/headers.js`.
 
 ## Known limitations
 

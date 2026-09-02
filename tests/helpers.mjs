@@ -52,6 +52,23 @@ export function baseEnv(overrides = {}) {
   };
 }
 
+/**
+ * A request as Cloudflare's edge delivers it.
+ *
+ * CF-Ray is what tells the worker it is running in production rather than under
+ * `wrangler dev`; canonicalRedirect ignores anything without it. Redirect tests
+ * must therefore go through here to exercise the real code path.
+ *
+ * @param {string} url Absolute URL
+ * @param {RequestInit} [init]
+ */
+export function edge(url, init = {}) {
+  return new Request(url, {
+    ...init,
+    headers: { Accept: "text/html", "CF-Ray": "8f2a1c0d4e6b0000-LHR", ...init.headers },
+  });
+}
+
 export function post(path, body, headers = {}) {
   return new Request(`https://vroelabs.com${path}`, {
     method: "POST",

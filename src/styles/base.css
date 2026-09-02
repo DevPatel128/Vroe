@@ -25,10 +25,18 @@ h1, h2, h3, h4, p { margin: 0; }
 h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0.045em; }
 
 /* Keyboard focus must always be visible. The prototype relied on the browser
-   default, which disappears against the darker brand surfaces. */
+   default, which disappears against the darker brand surfaces.
+
+   Two-tone on purpose. Coral alone is the brand's focus colour but it does not
+   meet the 3:1 that WCAG 1.4.11 asks of a focus indicator against most of the
+   surfaces it lands on — 2.66:1 on paper, 2.83:1 on white, 2.12:1 on lime and
+   1.70:1 on sky. The ink halo sitting just outside the coral ring carries the
+   contrast on every light surface (9.8:1 or better), and on ink surfaces the
+   coral ring itself is 5.77:1. One of the two is always clearly visible. */
 :focus-visible {
   outline: 3px solid var(--coral);
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--ink);
   border-radius: 4px;
 }
 
@@ -50,7 +58,7 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0
 .eyebrow {
   display: inline-flex; align-items: center; gap: 10px;
   color: var(--ink-soft);
-  font-size: 10px; font-weight: 700; letter-spacing: 0.16em; line-height: 1.2;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.16em; line-height: 1.2;
   text-transform: uppercase;
 }
 .eyebrow.with-rule::before { width: 22px; height: 1px; content: ""; background: var(--ink); }
@@ -67,7 +75,12 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0
 .button svg, .text-link svg { font-size: 17px; flex: none; }
 .button-primary { color: var(--white); background: var(--ink); }
 .button-primary:hover { background: #112d67; }
-.button-coral { color: var(--white); background: var(--coral); }
+/* Ink rather than white on coral. White on coral is 2.83:1, which fails the
+   4.5:1 WCAG AA needs for 13px text, and this is the site's primary call to
+   action. Ink on coral is 5.77:1 (4.82:1 on the hover shade) and keeps the
+   brand coral exactly as the brand guide specifies — the same ink-on-accent
+   pairing already used by .status-pill.building on lime. */
+.button-coral { color: var(--ink); background: var(--coral); }
 .button-coral:hover { background: #f2543b; }
 
 .text-link {
@@ -80,9 +93,13 @@ h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; letter-spacing: -0
 .text-link:hover { opacity: 0.65; }
 .dark-link { margin-top: 25px; }
 
+/* 11px, not 9px. This pill is what tells a visitor that Trove and Vero are not
+   available yet, so it is load-bearing content rather than decoration and has to
+   be readable. Uppercase, 700 and the letter-spacing are unchanged, so it still
+   reads as the same small badge. */
 .status-pill {
   border-radius: var(--radius-pill); padding: 7px 10px;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   white-space: nowrap;
 }
 /* Both statuses read as "not yet available". Lime for the one further along,
