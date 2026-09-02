@@ -38,8 +38,12 @@ if any of these break. Nothing here needs doing by hand.
 - Install with `--ignore-scripts`; actions pinned to commit SHAs
 - Build, then the full test suite
 - Deploy via `wrangler deploy` using a scoped API token (not a global key)
-- Post-deploy smoke test against production: five security headers present, no
-  `unsafe-inline` in the CSP, twelve routes returning 200, `/api/health` ready
+- Post-deploy smoke test: eight security headers present, no `unsafe-inline`,
+  twelve routes returning 200, an unknown path returning 404, and `/api/health`
+  ready. Run against the `workers.dev` address, because Bot Fight Mode
+  challenges the runner on the custom domain — same Worker, same assets, and no
+  injected script. The production hostname is probed too; a challenge there is a
+  notice rather than a failure
 
 `.github/workflows/ci.yml` additionally runs `npm audit`, generates an SBOM, and
 fails on any source map, unexpected dotfile, or secret name in `dist/client`.
@@ -148,9 +152,11 @@ These cannot be done from the CLI or need a real browser session.
    page exists. It is empty, so the footer renders no LinkedIn icon at all. It
    previously pointed at LinkedIn's homepage, which is worse than absent.
 
-4. **Watch `/api/csp-report`** in Workers Logs for the first few days. The CSP
-   was validated locally with zero violations, but production traffic is the
-   real test.
+4. **Watch `/api/csp-report`** in Workers Logs — with one caveat. Bot Fight
+   Mode injects an inline script that the CSP blocks, so **roughly one violation
+   per page view is the expected baseline**. Anything with a different directive
+   or blocked URI is worth investigating. See "Bot Fight Mode" in
+   [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
 
 5. **External scans**, once, against production. A score is an input to
    judgement, not proof of anything: Mozilla Observatory · Lighthouse

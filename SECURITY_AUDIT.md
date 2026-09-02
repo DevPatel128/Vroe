@@ -210,6 +210,56 @@ re-verified in a browser and in the test suite.
   pinned to commit SHAs, `npm ci --ignore-scripts`, and CI references no secrets
   at all, so fork pull requests are safe to run.
 
+### Bot Fight Mode: enabled by decision, with known costs
+
+Enabled 2 September 2026 and **kept on deliberately**. It is not free, and the
+costs below are accepted rather than unknown.
+
+**What works.** Its edge challenging functions: it correctly served a managed
+challenge (`403`, `cf-mitigated: challenge`) to a datacentre client.
+
+**What does not.** It injects a 938-byte inline `<script>` into every HTML
+response. The CSP is `script-src 'self' …` with no `'unsafe-inline'` and no
+nonce, so the browser blocks it. Confirmed in a browser against production:
+
+> Executing inline script violates the following Content Security Policy
+> directive 'script-src 'self' …'. The action has been blocked.
+
+Consequences, all verified on the live site:
+
+| Effect | Detail |
+| --- | --- |
+| Console error for every visitor | one blocked-inline-script violation per page load |
+| A report POST per page view | `POST /api/csp-report → 204`, plus a Workers Logs line each time |
+| 938 wasted bytes per HTML response | live HTML 25,353 B vs 24,415 B in the build |
+| The JS-detection layer never runs | its script is blocked, so only the request-level signals apply |
+
+**Reading `/api/csp-report` now.** Expect roughly one violation per page view
+from Cloudflare's injected script. That is the baseline. Anything with a
+different directive or blocked URI is worth investigating.
+
+These reports are deliberately **not** filtered server-side. Suppressing them
+would mean pattern-matching on inline-script violations, which is precisely
+what a real inline-script injection also looks like — the noise is preferable
+to a filter that could hide an attack.
+
+**Deploy verification.** Bot Fight Mode challenges datacentre IPs, so a GitHub
+runner is handed an interstitial instead of the site. The smoke test therefore
+verifies the deployment on its `workers.dev` address, which sits outside the
+`vroelabs.com` zone and is not subject to that zone's bot settings — the same
+Worker and assets, arriving byte-identical to the build. That check is stricter
+than the one it replaced: eight security headers rather than five, all twelve
+public routes, a 404 on an unknown path, and `/api/health`. The production
+hostname is still probed; a challenge there is reported as a notice and
+accepted, and if the challenge ever stops being served the full check against
+the production hostname resumes with no code change.
+
+**A correction to the record.** An earlier round of this audit reported
+`Strict-Transport-Security` as possibly missing for real visitors in some
+regions. That was wrong. The runner was being served challenge pages, which
+carried no HSTS before zone-level HSTS was enabled. Production was serving the
+header correctly throughout.
+
 ### Accepted, not fixed
 
 - **The decorative coral full stop** (`.accent-dot`) after display headings is
