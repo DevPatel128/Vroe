@@ -53,96 +53,109 @@ jobs:
         run: npx wrangler deploy
 
       - name: Smoke test the live site
+        env:
+          # Bot Fight Mode is a setting on the vroelabs.com zone and it challenges
+          # datacentre IPs, which is exactly what a GitHub runner is. workers.dev
+          # is outside that zone, so the same deployment can be verified there
+          # without being handed a "Just a moment..." interstitial. Same Worker,
+          # same assets — and the HTML arrives byte-identical to the build, with
+          # none of the script Bot Fight Mode injects on the custom domain.
+          WORKER_URL: https://vroe-labs.devpatel1286.workers.dev
+          SITE_URL: https://vroelabs.com
         run: |
           set -euo pipefail
 
-          # Print exactly what this runner received, before failing on it.
-          #
-          # The same request can be answered differently for different clients:
-          # a header present from one location can be absent from another, and a
-          # bot-management challenge is served from Cloudflare rather than from
-          # the Worker, carrying its own headers. Neither is diagnosable from a
-          # bare "missing X", so every failure path dumps the real response.
+          REQUIRED="content-security-policy strict-transport-security
+                    x-content-type-options x-frame-options referrer-policy
+                    cross-origin-opener-policy cross-origin-resource-policy
+                    permissions-policy"
+
+          PAGES="/ /trove /vero /notes/trove /notes/vero /about /contact
+                 /privacy /terms /robots.txt /sitemap.xml /.well-known/security.txt"
+
+          # Print what was actually received. A response can differ by client —
+          # a bot challenge comes from Cloudflare rather than the Worker and
+          # carries its own headers — so a bare "missing X" is not diagnosable.
           dump() {
-            echo "--- status line and headers as this runner sees them ---"
-            curl -sS -o /dev/null -D /tmp/h.txt -w 'http_code=%{http_code} http_version=%{http_version}\n' \
-              https://vroelabs.com || true
+            echo "--- response from this runner: $1 ---"
+            curl -sS -o /dev/null -D /tmp/h.txt -w 'http_code=%{http_code}\n' "$1" || true
             cat /tmp/h.txt || true
-            echo "--- content-security-policy headers returned (more than one is the tell) ---"
-            grep -ic '^content-security-policy:' /tmp/h.txt || true
-            grep -i '^content-security-policy:' /tmp/h.txt || true
-            echo "--- bot-management / mitigation headers ---"
-            grep -iE '^(cf-mitigated|cf-chl|server|cf-ray|cf-cache-status):' /tmp/h.txt || echo "(none)"
-            echo "--- first 400 bytes of body ---"
-            curl -sS https://vroelabs.com | head -c 400 || true
-            echo
             echo "--- end ---"
           }
 
-          # A challenge is not a site failure, and must not be reported as one.
-          #
-          # Bot Fight Mode challenges datacentre IPs, which is exactly what a
-          # GitHub runner is. Cloudflare then answers 403 with its own "Just a
-          # moment..." page instead of invoking the Worker, and that page carries
-          # Cloudflare's CSP - which permits inline style. The old check saw that
-          # and reported "unsafe-inline in CSP", blaming the site for a header it
-          # never sent. Detect the challenge by name instead.
+          # True when Cloudflare answered instead of the Worker.
           challenged() {
-            curl -sS -o /dev/null -D /tmp/c.txt https://vroelabs.com || true
+            curl -sS -o /dev/null -D /tmp/c.txt "$1" || true
             grep -qi '^cf-mitigated:' /tmp/c.txt
           }
 
-          if challenged; then
-            echo "::error::Cloudflare is challenging this runner, so the deploy cannot be verified."
-            echo "The site itself is not necessarily broken - Cloudflare answered before the Worker ran."
-            dump
-            echo "Fix by either:"
-            echo "  - turning Bot Fight Mode off (SSL/TLS is not affected; the subscribe"
-            echo "    endpoint still has Turnstile, a honeypot and a per-IP rate limit), or"
-            echo "  - adding a WAF skip rule that matches a header this job sends."
-            exit 1
-          fi
-
-          # Wait for the new version to actually be live, rather than sleeping a
-          # fixed ten seconds and hoping. A Worker deploy propagates across
-          # Cloudflare's network over rather longer than that, and during the
-          # rollout an edge node can answer without the new version's headers —
-          # which failed this step once with `strict-transport-security` missing
-          # while the site itself was completely healthy. Poll instead.
-          echo "Waiting for the new version to roll out…"
-          required="content-security-policy strict-transport-security \
-                    x-content-type-options x-frame-options referrer-policy"
-          deadline=$((SECONDS + 180))
-          while :; do
-            headers=$(curl -sI https://vroelabs.com || true)
+          check_headers() {
+            local target="$1" headers missing
+            headers=$(curl -sI "$target" || true)
             missing=""
-            for h in $required; do
+            for h in $REQUIRED; do
               echo "$headers" | grep -qi "^$h:" || missing="$missing $h"
             done
+            echo "$missing"
+          }
+
+          # ── 1. Verify the deployment itself, where nothing intercepts it ───
+          echo "Verifying the deployed Worker at $WORKER_URL"
+
+          # Poll: a Worker deploy propagates over rather longer than a fixed sleep.
+          deadline=$((SECONDS + 180))
+          while :; do
+            missing=$(check_headers "$WORKER_URL/")
             [ -z "$missing" ] && break
             if [ "$SECONDS" -ge "$deadline" ]; then
               echo "::error::after 180s these headers are still missing:$missing"
-              dump; exit 1
+              dump "$WORKER_URL/"; exit 1
             fi
-            echo "  not yet — missing:$missing"
+            echo "  waiting for rollout — missing:$missing"
             sleep 5
           done
-          echo "All security headers present."
+          echo "  all 8 security headers present"
 
-          if echo "$headers" | grep -qi "unsafe-inline"; then
-            echo "::error::unsafe-inline appeared in a response header"
-            dump; exit 1
+          if curl -sI "$WORKER_URL/" | grep -qi "unsafe-inline"; then
+            echo "::error::unsafe-inline in a response header"
+            dump "$WORKER_URL/"; exit 1
           fi
+          echo "  CSP carries no unsafe-inline"
 
-          echo "Checking routes…"
-          for path in / /trove /vero /notes/trove /notes/vero /about /contact \
-                      /privacy /terms /robots.txt /sitemap.xml /.well-known/security.txt; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "https://vroelabs.com$path")
-            [ "$code" = "200" ] || { echo "::error::$path returned $code"; exit 1; }
+          for path in $PAGES; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$WORKER_URL$path")
+            [ "$code" = "200" ] || { echo "::error::$path returned $code"; dump "$WORKER_URL$path"; exit 1; }
           done
+          echo "  all 12 public routes return 200"
 
-          echo "Checking health…"
-          curl -s https://vroelabs.com/api/health | grep -q '"ready":true' \
-            || { echo "::error::/api/health not ready"; exit 1; }
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept: text/html' "$WORKER_URL/definitely-not-a-page")
+          [ "$code" = "404" ] || { echo "::error::unknown path returned $code, expected 404"; exit 1; }
+          echo "  unknown path returns 404"
+
+          curl -s "$WORKER_URL/api/health" | grep -q '"ready":true' \
+            || { echo "::error::/api/health not ready"; dump "$WORKER_URL/api/health"; exit 1; }
+          echo "  /api/health reports ready"
+
+          # ── 2. The custom domain ───────────────────────────────────────────
+          #
+          # Bot Fight Mode is deliberately on, so Cloudflare may answer this
+          # runner before the Worker ever runs. That is the configured
+          # behaviour, not a fault, so it is reported and accepted rather than
+          # failing a deploy that is otherwise verified above. If the challenge
+          # is ever not served — Bot Fight Mode turned off, or a skip rule added
+          # — the full check below runs automatically and verification of the
+          # production hostname comes back with no change to this file.
+          echo "Checking $SITE_URL"
+          if challenged "$SITE_URL/"; then
+            echo "::notice::$SITE_URL served this runner a Cloudflare bot challenge (Bot Fight Mode is on), so the production hostname cannot be verified from CI. The deployment itself is verified above via $WORKER_URL."
+          else
+            missing=$(check_headers "$SITE_URL/")
+            [ -z "$missing" ] || { echo "::error::missing on the production hostname:$missing"; dump "$SITE_URL/"; exit 1; }
+            for path in $PAGES; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL$path")
+              [ "$code" = "200" ] || { echo "::error::$path returned $code"; exit 1; }
+            done
+            echo "  production hostname fully verified"
+          fi
 
           echo "Live site verified."
