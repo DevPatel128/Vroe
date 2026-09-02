@@ -56,6 +56,29 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Print exactly what this runner received, before failing on it.
+          #
+          # The same request can be answered differently for different clients:
+          # a header present from one location can be absent from another, and a
+          # bot-management challenge is served from Cloudflare rather than from
+          # the Worker, carrying its own headers. Neither is diagnosable from a
+          # bare "missing X", so every failure path dumps the real response.
+          dump() {
+            echo "--- status line and headers as this runner sees them ---"
+            curl -sS -o /dev/null -D /tmp/h.txt -w 'http_code=%{http_code} http_version=%{http_version}\n' \
+              https://vroelabs.com || true
+            cat /tmp/h.txt || true
+            echo "--- content-security-policy headers returned (more than one is the tell) ---"
+            grep -ic '^content-security-policy:' /tmp/h.txt || true
+            grep -i '^content-security-policy:' /tmp/h.txt || true
+            echo "--- bot-management / mitigation headers ---"
+            grep -iE '^(cf-mitigated|cf-chl|server|cf-ray|cf-cache-status):' /tmp/h.txt || echo "(none)"
+            echo "--- first 400 bytes of body ---"
+            curl -sS https://vroelabs.com | head -c 400 || true
+            echo
+            echo "--- end ---"
+          }
+
           # Wait for the new version to actually be live, rather than sleeping a
           # fixed ten seconds and hoping. A Worker deploy propagates across
           # Cloudflare's network over rather longer than that, and during the
@@ -75,15 +98,7 @@ jobs:
             [ -z "$missing" ] && break
             if [ "$SECONDS" -ge "$deadline" ]; then
               echo "::error::after 180s these headers are still missing:$missing"
-              # Print what the edge actually returned. Without this the failure is
-              # undebuggable from anywhere else: the header can be present from one
-              # Cloudflare colo and absent from another, so the ray ID, the colo and
-              # the cache status are the only things that identify which edge
-              # answered and why.
-              echo "--- full response from this runner ---"
-              curl -sSI https://vroelabs.com || true
-              echo "--- end ---"
-              exit 1
+              dump; exit 1
             fi
             echo "  not yet — missing:$missing"
             sleep 5
@@ -91,7 +106,8 @@ jobs:
           echo "All security headers present."
 
           if echo "$headers" | grep -qi "unsafe-inline"; then
-            echo "::error::unsafe-inline in CSP"; exit 1
+            echo "::error::unsafe-inline appeared in a response header"
+            dump; exit 1
           fi
 
           echo "Checking routes…"
