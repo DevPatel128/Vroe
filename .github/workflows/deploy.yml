@@ -75,6 +75,14 @@ jobs:
             [ -z "$missing" ] && break
             if [ "$SECONDS" -ge "$deadline" ]; then
               echo "::error::after 180s these headers are still missing:$missing"
+              # Print what the edge actually returned. Without this the failure is
+              # undebuggable from anywhere else: the header can be present from one
+              # Cloudflare colo and absent from another, so the ray ID, the colo and
+              # the cache status are the only things that identify which edge
+              # answered and why.
+              echo "--- full response from this runner ---"
+              curl -sSI https://vroelabs.com || true
+              echo "--- end ---"
               exit 1
             fi
             echo "  not yet — missing:$missing"
