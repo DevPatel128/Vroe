@@ -8,7 +8,7 @@ The honest boundary, stated first:
 > protection, and preventing unsafe future expansion.
 
 It is not "bank-grade" and not "unhackable". This document describes what is
-actually implemented, and [SECURITY_AUDIT.md](../SECURITY_AUDIT.md) records what
+actually implemented, and [SECURITY_AUDIT.md](SECURITY_AUDIT.md) records what
 is not.
 
 ## Threat model

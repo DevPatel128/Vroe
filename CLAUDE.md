@@ -24,18 +24,19 @@ vanilla JS. So:
    In particular: **no inline `style` attributes** — they are blocked and the
    browser drops the styling silently. Use a class.
    → [docs/04-security.md](docs/04-security.md)
-3. **All copy lives in `src/content/`,** never hard-coded in a component.
+3. **All copy lives in `code/src/content/`,** never hard-coded in a component.
 4. **No React in the browser.** → [docs/02-architecture.md](docs/02-architecture.md)
 5. **No invented structured data.** No ratings, reviews, offers or counts.
 
 ## Commands
 
 ```bash
+cd code                # the buildable app lives here, not the repo root
 npm ci
-npm run build          # fonts → images → vite → prerender → sitemap
-npm test               # 72 tests — all must pass
-npm run preview        # wrangler dev on :8788
-npm run deploy         # build + wrangler deploy
+npm run build           # fonts → images → vite → prerender → sitemap
+npm test                # 72 tests — all must pass
+npm run preview         # wrangler dev on :8788
+npm run deploy          # build + wrangler deploy
 ```
 
 Always finish with `npm run build && npm test && npm audit --audit-level=high`,
@@ -47,7 +48,7 @@ were invisible to the tests and obvious in a browser.
 | Symptom | Cause |
 | --- | --- |
 | Styling silently missing | Inline `style` attribute — CSP blocks it. ADR-009 |
-| Worker won't start: "not of type 'function or ExportedHandler'" | Non-function named export in `worker/index.js`. Constants go in `worker/headers.js`. ADR-007 |
+| Worker won't start: "not of type 'function or ExportedHandler'" | Non-function named export in `code/worker/index.js`. Constants go in `code/worker/headers.js`. ADR-007 |
 | Security headers missing in production | `assets.run_worker_first` turned off. ADR-008 |
 | Canonical URLs 307-redirecting | `html_handling` must be `drop-trailing-slash` |
 | OG card text clipped | One long `<path>` — librsvg truncates it. One path per glyph. ADR-005 |
@@ -57,16 +58,17 @@ were invisible to the tests and obvious in a browser.
 ## Layout
 
 ```
-src/content/   copy + metadata (site, routes, products, notes, legal, copy)
-src/seo/       SeoHead.jsx, JsonLd.jsx
-src/pages/     one component per page type
-src/styles/    tokens → fonts → base → layout → hero → products → sections → responsive
-src/client/    enhance.js — the only browser JS
-worker/        index.js (routing, /api) + headers.js (CSP, security headers)
-scripts/       optimize-images, prerender, generate-sitemap, generate-og, sync-fonts
-docs/          full documentation
+code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
+  src/content/   copy + metadata (site, routes, products, notes, legal, copy)
+  src/seo/       SeoHead.jsx, JsonLd.jsx
+  src/pages/     one component per page type
+  src/styles/    tokens → fonts → base → layout → hero → products → sections → responsive
+  src/client/    enhance.js — the only browser JS
+  worker/        index.js (routing, /api) + headers.js (CSP, security headers)
+  scripts/       optimize-images, prerender, generate-sitemap, generate-og, sync-fonts
+docs/             full documentation
 ```
 
 If you change what the subscribe endpoint stores, **update
-`src/content/legal.js` in the same change** — the privacy policy is written
-against the worker's actual behaviour.
+`code/src/content/legal.js` in the same change** — the privacy policy is
+written against the worker's actual behaviour.

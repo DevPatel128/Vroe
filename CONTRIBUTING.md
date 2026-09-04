@@ -3,6 +3,7 @@
 ## Setup
 
 ```bash
+cd code           # the buildable app lives here, not the repo root
 npm ci
 npm run build
 npm test          # 44 tests — all must pass before you start
@@ -44,6 +45,7 @@ the lockfile, and run `npm audit --audit-level=high`.
 ## Before you open a PR
 
 ```bash
+cd code
 npm run build
 npm test
 npm audit --audit-level=high

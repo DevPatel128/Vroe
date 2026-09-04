@@ -10,6 +10,7 @@ JavaScript.
 ## Quick start
 
 ```bash
+cd code             # the buildable app lives here, not the repo root
 npm ci
 npm run build
 npm run preview     # wrangler dev on http://localhost:8788
@@ -32,13 +33,14 @@ npm run preview     # wrangler dev on http://localhost:8788
 ## Where things are
 
 ```
-src/content/   ALL copy and metadata — change wording here, never in a component
-src/pages/     one component per page type
-src/styles/    tokens → fonts → base → components → responsive
-src/client/    enhance.js — the only JavaScript that reaches the browser
-worker/        Cloudflare Worker: security headers, canonical redirect, /api
-scripts/       build pipeline (images, prerender, sitemap, OG cards, fonts)
-docs/          full documentation — start with docs/README.md
+code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
+  src/content/   ALL copy and metadata — change wording here, never in a component
+  src/pages/     one component per page type
+  src/styles/    tokens → fonts → base → components → responsive
+  src/client/    enhance.js — the only JavaScript that reaches the browser
+  worker/        Cloudflare Worker: security headers, canonical redirect, /api
+  scripts/       build pipeline (images, prerender, sitemap, OG cards, fonts)
+docs/             full documentation — start with docs/README.md
 ```
 
 ## Documentation

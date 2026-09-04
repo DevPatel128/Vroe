@@ -115,4 +115,4 @@ those. The standard anchors:
 - **`CF_ANALYTICS_TOKEN`** — empty, so no beacon is injected. Set it after
   creating the Cloudflare Web Analytics site.
 - **`GOOGLE_SITE_VERIFICATION`** — empty. DNS TXT is the primary method; see
-  [SEARCH_CONSOLE_SETUP.md](../SEARCH_CONSOLE_SETUP.md).
+  [SEARCH_CONSOLE_SETUP.md](SEARCH_CONSOLE_SETUP.md).

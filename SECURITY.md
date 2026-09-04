@@ -64,7 +64,7 @@ subscribe endpoint, the security headers, and the deployment pipeline.
 - Scoped Cloudflare API tokens, never a global key
 
 We do **not** claim this site is "bank-grade", "fully secure" or "unhackable".
-[SECURITY_AUDIT.md](SECURITY_AUDIT.md) records the known limitations.
+[SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md) records the known limitations.
 
 ## Disclosure
 

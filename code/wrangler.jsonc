@@ -19,8 +19,9 @@
   // almost no runtime. Revisit if /api ever grows.
   "observability": { "enabled": true },
 
-  // ONLY dist/client is published. The repo root — docs, source, assets-src
-  // originals, wrangler config — is therefore unreachable from the web.
+  // ONLY dist/client is published. Everything else in this repo — docs,
+  // source, assets-src originals, wrangler config — is therefore unreachable
+  // from the web.
   "assets": {
     "directory": "./dist/client",
     "binding": "ASSETS",

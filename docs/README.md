@@ -21,6 +21,9 @@ Then, as needed: [05-seo.md](05-seo.md), [06-deployment.md](06-deployment.md),
 
 ## Where do I change…?
 
+All paths below are inside `code/` (e.g. "`src/content/`" means
+`code/src/content/`) — the buildable app lives there, not at the repo root.
+
 | I want to change | Edit | Then |
 | --- | --- | --- |
 | Any wording on any page | `src/content/` — never a component | `npm run build` |
@@ -58,5 +61,7 @@ Then, as needed: [05-seo.md](05-seo.md), [06-deployment.md](06-deployment.md),
 | [08-ai-workflow.md](08-ai-workflow.md) | Conventions for agents working in this repo |
 | [09-qa/](09-qa/) | QA records from the prototype and the responsive/a11y matrix |
 
-Root-level `README.md`, `SECURITY.md`, `SECURITY_AUDIT.md`, `SEO_AUDIT.md` and
-`SEARCH_CONSOLE_SETUP.md` are the outward-facing versions of the same material.
+Root-level `README.md` and `SECURITY.md` stay at the true repo root — GitHub
+convention, and `SECURITY.md` powers the repo's Security tab.
+`SECURITY_AUDIT.md`, `SEO_AUDIT.md`, `SEARCH_CONSOLE_SETUP.md` and
+`PRODUCTION_CHECKLIST.md` live in this `docs/` folder.

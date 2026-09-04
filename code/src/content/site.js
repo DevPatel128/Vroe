@@ -34,7 +34,7 @@ export const SITE = {
  *
  * DNS TXT is the primary verification method for the domain property, so this
  * stays empty and the meta tag is simply not rendered. Set it only if you fall
- * back to the HTML-tag method. See SEARCH_CONSOLE_SETUP.md.
+ * back to the HTML-tag method. See docs/SEARCH_CONSOLE_SETUP.md.
  */
 export const GOOGLE_SITE_VERIFICATION = "";
 

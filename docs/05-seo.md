@@ -110,5 +110,5 @@ npm run test:seo
 
 Then, on the deployed site: Google Rich Results Test, Search Console URL
 Inspection, Lighthouse, PageSpeed Insights. See
-[SEARCH_CONSOLE_SETUP.md](../SEARCH_CONSOLE_SETUP.md) and
-[SEO_AUDIT.md](../SEO_AUDIT.md).
+[SEARCH_CONSOLE_SETUP.md](SEARCH_CONSOLE_SETUP.md) and
+[SEO_AUDIT.md](SEO_AUDIT.md).

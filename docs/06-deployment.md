@@ -17,6 +17,9 @@ Other workers on this account — `trove`, `janki` — are unrelated. Do not tou
 them, and do not create the `trove.vroelabs.com` DNS record from here; it belongs
 to the Trove deploy.
 
+Every command below assumes you're in `code/` (`cd code` first) — that's
+where `package.json` and `wrangler.jsonc` live.
+
 ## Deploy
 
 ```bash

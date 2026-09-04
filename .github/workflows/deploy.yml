@@ -20,6 +20,11 @@ jobs:
     timeout-minutes: 10
     environment: production
 
+    # The buildable app lives in code/; every step below runs there.
+    defaults:
+      run:
+        working-directory: code
+
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -29,6 +34,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: code/package-lock.json
 
       - name: Install
         run: npm ci --ignore-scripts

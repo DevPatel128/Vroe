@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "vroe-labs",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["wrangler", "dev", "--port", "8788", "--local"],
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd code && npx wrangler dev --port 8788 --local"],
       "port": 8788
     }
   ]

@@ -13,7 +13,7 @@
 ### Automated — 44 assertions, all passing
 
 `npm test` covers worker behaviour, security and SEO. Full breakdown in
-[SECURITY_AUDIT.md](../../SECURITY_AUDIT.md) and [SEO_AUDIT.md](../../SEO_AUDIT.md).
+[SECURITY_AUDIT.md](../SECURITY_AUDIT.md) and [SEO_AUDIT.md](../SEO_AUDIT.md).
 
 ### Responsive
 
