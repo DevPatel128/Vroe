@@ -235,5 +235,71 @@ function initSubscribe() {
   });
 }
 
+/* ─── Evidence: country panels and ranking switch (/trove) ─────────────── */
+
+/**
+ * The prerendered page already shows every country panel stacked and the
+ * default ranking, so it reads fine without this. Enhanced, it shows one panel at
+ * a time (the primary country by default, or the one named in the URL hash),
+ * and lets the visitor re-rank by any comparable measure.
+ */
+function initEvidence() {
+  const list = document.querySelector("[data-ranking-list]");
+  const panels = [...document.querySelectorAll("[data-country-panel]")];
+  if (!list || panels.length === 0) return;
+
+  const links = [...list.querySelectorAll("[data-country-link]")];
+  const primary = list.querySelector("[data-pinned]")?.dataset.iso ?? panels[0].dataset.countryPanel;
+
+  const showCountry = (iso) => {
+    const target = panels.find((p) => p.dataset.countryPanel === iso)
+      ?? panels.find((p) => p.dataset.countryPanel === primary);
+    for (const panel of panels) panel.hidden = panel !== target;
+    for (const link of links) {
+      if (link.dataset.countryLink === target.dataset.countryPanel) link.setAttribute("aria-current", "true");
+      else link.removeAttribute("aria-current");
+    }
+    return target;
+  };
+
+  for (const link of links) {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const panel = showCountry(link.dataset.countryLink);
+      history.replaceState(null, "", `#${panel.id}`);
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      panel.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      panel.focus({ preventScroll: true });
+    });
+  }
+
+  const fromHash = panels.find((p) => `#${p.id}` === window.location.hash);
+  showCountry(fromHash ? fromHash.dataset.countryPanel : primary);
+
+  const controls = document.querySelector("[data-rank-controls]");
+  const buttons = controls ? [...controls.querySelectorAll("button[data-rank-by]")] : [];
+  if (buttons.length < 2) return;
+
+  const rankedBy = document.querySelector("[data-ranked-by]");
+  const section = list.closest("section");
+  const rows = [...list.children];
+  const rankIn = (row, metric) => Number(row.getAttribute(`data-rank-${metric}`)) || Infinity;
+
+  const rankBy = (button) => {
+    const metric = button.dataset.rankBy;
+    const pinned = rows.filter((row) => row.hasAttribute("data-pinned"));
+    const others = rows.filter((row) => !row.hasAttribute("data-pinned"))
+      .sort((a, b) => rankIn(a, metric) - rankIn(b, metric));
+    list.append(...pinned, ...others);
+    for (const b of buttons) b.setAttribute("aria-pressed", String(b === button));
+    for (const el of section.querySelectorAll("[data-show-for]")) el.hidden = el.dataset.showFor !== metric;
+    if (rankedBy) rankedBy.textContent = button.dataset.rankLabel;
+  };
+
+  for (const button of buttons) button.addEventListener("click", () => rankBy(button));
+  controls.hidden = false;
+}
+
 initMenu();
 initSubscribe();
+initEvidence();

@@ -31,6 +31,8 @@ All paths below are inside `code/` (e.g. "`src/content/`" means
 | A page title or meta description | `src/content/routes.js` | `npm run test:seo` |
 | Add a page | `src/content/routes.js`, then `src/pages/`, then a case in `scripts/prerender.entry.jsx` | It joins the sitemap and nav automatically |
 | A note/article | `src/content/notes.js` | Set a real `updated` date |
+| An evidence figure on `/trove` | `src/content/evidence/countries.js` (value), `metrics.js`, `sources.js` | Archive the source in `docs/impact-research/`; `npm run build && npm run test:evidence`. See [10-evidence.md](10-evidence.md) |
+| Evidence copy on `/trove` | `src/content/evidence/trove.js` — no numbers in it | `npm run test:evidence` |
 | Colours, spacing, type | `src/styles/tokens.css` | Must match the brand guide |
 | Anything visual | `src/styles/*.css` — **never** an inline `style` attribute | The CSP blocks inline styles; `npm run test:security` enforces it |
 | Security headers or the CSP | `worker/headers.js` | `npm run test:security` |

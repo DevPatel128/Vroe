@@ -68,6 +68,18 @@ written. `updated` changes only when the text actually changes. Both feed the
 `Article` JSON-LD directly, so backdating either puts a false date in front of
 Google.
 
+### 6. Evidence describes the problem, never Trove's effect
+
+The research figures on `/trove` (see [10-evidence.md](10-evidence.md)) come
+from external sources and describe what people face today. Copy around them may
+not say or imply that Trove saves, returns or reduces anything — Trove has no
+users. Time, people and fragility figures are "costs associated with the problem
+Trove is designed to help people understand and manage", not savings.
+
+- No number is typed in `src/content/evidence/trove.js`; copy points at metrics.
+- Measured impact appears only from product data, dated, in its own block.
+- `npm run test:evidence` fails on "Trove saves", "Trove users" and similar.
+
 ## One deviation from the supplied SEO brief
 
 The brief specified this Trove meta description:

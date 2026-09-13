@@ -29,6 +29,15 @@ import { ContactPage } from "../src/pages/contact.jsx";
 import { LegalPage } from "../src/pages/legal.jsx";
 import { NotFoundPage } from "../src/pages/not-found.jsx";
 import * as ld from "../src/seo/JsonLd.jsx";
+import { evidenceProblems } from "../src/content/evidence/index.js";
+
+// A figure without a source, a calculation that does not reproduce, or a story
+// item pointing at data that does not exist fails the build rather than shipping.
+// See src/content/evidence/derive.js and docs/10-evidence.md.
+const evidenceIssues = evidenceProblems();
+if (evidenceIssues.length > 0) {
+  throw new Error(`Evidence data failed validation:\n  ${evidenceIssues.join("\n  ")}`);
+}
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outRoot = path.join(root, "dist", "client");

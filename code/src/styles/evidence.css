@@ -1,0 +1,176 @@
+/* Evidence layer on product pages: India story, global ranking, country panels,
+   product response and method. Brand tokens only — see tokens.css.
+
+   Editorial, not a dashboard: one large number per beat, generous space, and
+   the source directly under every figure. */
+
+/* Classes below set display on elements the ranking switch toggles with the
+   `hidden` attribute. An author display rule beats the browser's own
+   [hidden] { display: none }, so restate it for this layer. */
+.evidence-section [hidden],
+.evidence-method [hidden] { display: none !important; }
+
+.evidence-section { padding: 120px 0 30px; }
+.evidence-section > h2,
+.evidence-response > h2 { margin-top: 20px; font-size: clamp(52px, 6vw, 86px); line-height: 0.89; }
+.evidence-lede { max-width: 580px; margin-top: 26px; color: var(--ink-soft); font-size: 15px; line-height: 1.6; }
+
+/* ─── The sequence: one number, one statement, one explanation, one source ── */
+.evidence-sequence { display: grid; gap: 90px; margin: 84px 0 0; padding: 0; list-style: none; }
+.evidence-stat {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: end; gap: 20px 64px;
+  border-top: 1px solid var(--line); padding-top: 36px;
+}
+.evidence-figure { font-family: var(--serif); line-height: 0.8; letter-spacing: -0.06em; }
+.evidence-number { font-size: clamp(120px, 17vw, 236px); }
+.evidence-scale { margin-left: 10px; font-size: clamp(60px, 7.5vw, 104px); }
+.evidence-unit {
+  display: block; margin-top: 22px;
+  color: var(--ink-soft); font-family: var(--sans); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.16em; line-height: 1.2; text-transform: uppercase;
+}
+.evidence-statement { font-family: var(--serif); font-size: clamp(28px, 3vw, 40px); line-height: 1.02; letter-spacing: -0.03em; }
+.evidence-explanation { margin-top: 16px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+
+.evidence-breakdowns { margin-top: 18px; }
+.evidence-breakdowns-label { color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.evidence-breakdowns ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.evidence-breakdowns li {
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 5px 11px;
+  color: var(--ink); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+
+.source-note { margin-top: 14px; color: var(--ink-soft); font-size: 12px; line-height: 1.5; }
+.source-note a { border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 700; transition: border-color var(--ease); }
+.source-note a:hover { border-color: var(--coral); }
+.source-confidence { font-weight: 700; }
+
+/* ─── What the numbers mean ───────────────────────────────────────────── */
+.evidence-meaning {
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px;
+  margin-top: 110px; border-radius: var(--radius-card); padding: 46px 44px;
+  color: var(--ink); background: var(--lime);
+}
+.evidence-meaning h3 { font-size: clamp(38px, 4vw, 56px); line-height: 0.9; }
+.evidence-meaning p { font-size: 15px; line-height: 1.65; }
+.evidence-meaning p + p { margin-top: 14px; }
+
+/* ─── Where the burden comes from ─────────────────────────────────────── */
+.burden-heading { margin-top: 110px; font-size: clamp(44px, 5vw, 68px); line-height: 0.9; }
+/* 300px: six sources fall into two even rows of three on a desktop rather than
+   four and an orphan pair. */
+.burden-sources {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;
+  margin: 44px 0 0; padding: 0; list-style: none;
+}
+.burden-source {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line); border-radius: var(--radius-card); padding: 26px 24px; background: var(--white);
+}
+.burden-source > .eyebrow { margin-bottom: 30px; }
+.burden-figure { font-family: var(--serif); font-size: 68px; line-height: 0.86; letter-spacing: -0.05em; }
+.burden-figure-pair { margin-top: 22px; font-size: 44px; }
+.burden-unit { margin-top: 8px; color: var(--ink-soft); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.burden-statement { margin-top: 12px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.burden-source .source-note { margin-top: auto; padding-top: 20px; }
+
+/* ─── Global ranking ──────────────────────────────────────────────────── */
+.ranking-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 46px; }
+.ranking-controls-label { color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.rank-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.rank-button {
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 11px 17px;
+  color: var(--ink); background: var(--white); font-size: 13px; font-weight: 700;
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+.rank-button:hover { border-color: var(--ink); }
+.rank-button[aria-pressed="true"] { border-color: var(--ink); color: var(--white); background: var(--ink); }
+
+.ranked-by { max-width: 760px; margin-top: 28px; color: var(--ink); font-size: 14px; font-weight: 600; line-height: 1.5; }
+
+.ranking-list { margin: 24px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
+.ranking-row { border-bottom: 1px solid var(--line); }
+.ranking-link {
+  display: grid;
+  grid-template-columns: 112px minmax(140px, 1.1fr) minmax(150px, 1.2fr) repeat(3, minmax(0, 1fr));
+  align-items: center; gap: 22px; padding: 22px 12px;
+  transition: background var(--ease);
+}
+.ranking-link:hover, .ranking-link[aria-current="true"] { background: var(--white); }
+.ranking-rank { display: grid; gap: 4px; color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.ranking-pin { color: var(--coral); }
+.ranking-country { font-family: var(--serif); font-size: 34px; line-height: 1; letter-spacing: -0.04em; }
+.ranking-measure-item { display: grid; gap: 8px; }
+.ranking-bar { display: block; width: 100%; height: 8px; }
+.bar-track { fill: rgba(8, 27, 74, 0.1); }
+.bar-value { fill: var(--ink); }
+.is-pinned .bar-value { fill: var(--coral); }
+.ranking-cell { display: grid; gap: 4px; }
+.ranking-cell-label { color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.row-figure { color: var(--ink); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.row-missing { color: var(--ink-soft); font-size: 13px; line-height: 1.4; }
+.tag {
+  justify-self: start; display: inline-block; margin-top: 6px;
+  border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 3px 9px;
+  color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+}
+.ranking-relevance { margin-top: 22px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+
+/* ─── Country panels ──────────────────────────────────────────────────── */
+.country-panels { display: grid; gap: 16px; margin-top: 56px; }
+.country-panel { border: 1px solid var(--line); border-radius: var(--radius-card); padding: 42px 44px; background: var(--white); scroll-margin-top: 24px; }
+.country-panel h3 { margin-top: 16px; font-size: clamp(48px, 5vw, 72px); line-height: 0.88; }
+.panel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 36px; margin: 38px 0 0; }
+.panel-cell { border-top: 1px solid var(--line); padding-top: 16px; }
+.panel-cell dt { margin-bottom: 14px; }
+.panel-cell dd { margin: 0; }
+.panel-figure { display: block; font-family: var(--serif); font-size: 56px; line-height: 0.88; letter-spacing: -0.05em; }
+.panel-unit { color: var(--ink-soft); font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.panel-label { display: block; margin-top: 10px; color: var(--ink-soft); font-size: 13px; line-height: 1.5; }
+.panel-missing { color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+.panel-cost-list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.panel-cost-figure { font-family: var(--serif); font-size: 36px; line-height: 0.9; letter-spacing: -0.04em; }
+.panel-missing-note { max-width: 640px; margin-top: 30px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.panel-relevance { margin-top: 18px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+.panel-relevance strong { color: var(--ink); }
+
+/* ─── Product response ────────────────────────────────────────────────── */
+.evidence-response { padding: 30px 0 90px; }
+.capability-addresses { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 18px; }
+.capability-addresses-label { margin-right: 4px; color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.burden-chip { border-radius: var(--radius-pill); padding: 4px 10px; color: var(--ink); background: var(--lime); font-size: 11px; font-weight: 700; }
+
+/* ─── Method and impact ───────────────────────────────────────────────── */
+.evidence-method { padding: 20px 0 60px; }
+.evidence-method h2 { font-size: clamp(42px, 4.6vw, 62px); line-height: 0.92; }
+.method-stages-label { margin-top: 26px; color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.method-stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 14px 0 38px; padding: 0; list-style: none; }
+.method-stages li { display: grid; align-content: start; gap: 6px; border-top: 3px solid var(--ink); padding-top: 12px; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
+.method-stages li.is-pending { border-top-color: var(--line); }
+.method-stage-name { color: var(--ink); font-weight: 700; }
+.method-stage-status { color: var(--coral); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.method-details { border-top: 1px solid var(--line); }
+.method-details details { border-bottom: 1px solid var(--line); }
+.method-details summary { padding: 20px 0; color: var(--ink); font-size: 16px; font-weight: 700; cursor: pointer; }
+.method-details summary:hover { color: var(--ink-soft); }
+.method-details details > div { max-width: 780px; padding: 0 0 26px; }
+.method-details p { color: var(--ink-soft); font-size: 14px; line-height: 1.65; }
+.method-details p + p, .method-details p + ul { margin-top: 12px; }
+.method-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+.method-list li { display: grid; gap: 3px; color: var(--ink-soft); font-size: 13px; line-height: 1.55; }
+.method-list strong { color: var(--ink); font-size: 14px; }
+.method-formula { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.source-list { display: grid; gap: 22px; margin: 0; padding: 0; list-style: none; }
+.source-list a { border-bottom: 1px solid var(--line); color: var(--ink); font-size: 14px; font-weight: 700; line-height: 1.5; }
+.source-list a:hover { border-color: var(--coral); }
+.source-list dl { display: grid; gap: 4px; margin: 10px 0 0; }
+.source-list dl > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; font-size: 13px; line-height: 1.5; }
+.source-list dt { color: var(--ink); font-weight: 700; }
+.source-list dd { margin: 0; color: var(--ink-soft); }
+
+.impact-layer { margin-top: 48px; border-radius: var(--radius-card); padding: 36px 40px; color: var(--white); background: var(--ink); }
+.impact-layer h3 { font-size: clamp(34px, 3.4vw, 44px); line-height: 0.95; }
+.impact-layer p, .impact-layer li { max-width: 640px; margin-top: 14px; color: rgba(255, 253, 249, 0.84); font-size: 14px; line-height: 1.65; }

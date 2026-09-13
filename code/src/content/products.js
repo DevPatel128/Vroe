@@ -27,29 +27,39 @@ export const PRODUCTS = {
     /** Longer positioning used on /trove. */
     intro:
       "Most people do not have a money problem so much as a money-visibility problem. The current account says one thing, the card app says another, three subscriptions renew quietly, and the only place the whole picture ever comes together is a spreadsheet somebody maintains by hand.",
-    /** Capability list. Written as intent, never as shipped features. */
+    /**
+     * Capability list. Written as intent, never as shipped features.
+     * `id` is what the evidence layer maps burdens to (content/evidence/trove.js),
+     * so a title can be reworded without breaking that mapping.
+     */
     capabilities: [
       {
+        id: "accounts",
         title: "Accounts in one view",
         body: "Balances across current accounts, savings and cards, so the total is something you can see rather than assemble.",
       },
       {
+        id: "spending",
         title: "Spending you can read",
         body: "Categorised spending over time, designed to answer where the month actually went instead of listing every transaction back at you.",
       },
       {
+        id: "subscriptions",
         title: "Subscriptions surfaced",
         body: "Recurring payments gathered in one list, including the ones that renew quietly at a price you no longer remember agreeing to.",
       },
       {
+        id: "budgets-goals",
         title: "Budgets and goals",
         body: "A budget you can keep to and goals that show progress honestly, including when progress has stalled.",
       },
       {
+        id: "investments",
         title: "Investments in context",
         body: "Holdings sit alongside everything else, because an investment balance means little on its own.",
       },
       {
+        id: "currencies",
         title: "Money across currencies",
         body: "Dated conversion, so a transaction from eight months ago keeps the rate it actually happened at rather than today's.",
       },

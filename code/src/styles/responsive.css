@@ -121,3 +121,38 @@
 
   .notfound { padding: 70px 0 90px; }
 }
+
+/* ─── Evidence layer ──────────────────────────────────────────────────── */
+
+@media (max-width: 980px) {
+  .evidence-stat { grid-template-columns: 1fr; gap: 26px; }
+  .evidence-meaning { grid-template-columns: 1fr; gap: 22px; }
+  .ranking-link { grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr); row-gap: 14px; }
+  .panel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .method-stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .evidence-section { padding-top: 80px; }
+  .evidence-section > h2, .evidence-response > h2 { margin-top: 14px; font-size: 54px; }
+  .evidence-lede { font-size: 14px; }
+  .evidence-sequence { gap: 64px; margin-top: 54px; }
+  .evidence-number { font-size: clamp(96px, 30vw, 132px); }
+  .evidence-scale { font-size: 52px; }
+  .evidence-statement { font-size: 28px; }
+  .evidence-meaning { margin-top: 80px; padding: 28px 24px; }
+  .burden-heading { margin-top: 80px; font-size: 46px; }
+  .burden-figure { font-size: 58px; }
+
+  .ranking-link { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 18px; padding: 20px 4px; }
+  .ranking-rank, .ranking-country, .ranking-measure { grid-column: 1 / -1; }
+  .ranking-country { font-size: 30px; }
+  .country-panel { padding: 28px 22px; }
+  .panel-grid { grid-template-columns: 1fr; gap: 22px; }
+  .panel-figure { font-size: 48px; }
+
+  .evidence-response { padding-bottom: 70px; }
+  .method-stages { grid-template-columns: 1fr; }
+  .source-list dl > div { grid-template-columns: 1fr; gap: 0; }
+  .impact-layer { padding: 26px 22px; }
+}

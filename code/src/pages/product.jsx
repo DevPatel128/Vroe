@@ -1,9 +1,14 @@
 import { ArrowRight, ArrowUpRight, Wallet } from "@phosphor-icons/react/dist/ssr";
 import { PRODUCTS } from "../content/products.js";
 import { NOTE_BY_ID } from "../content/notes.js";
+import { EVIDENCE } from "../content/evidence/index.js";
 import { Breadcrumbs } from "../components/Breadcrumbs.jsx";
 import { Picture } from "../components/Picture.jsx";
 import { TrovePreview } from "../components/TrovePreview.jsx";
+import { EvidenceIndia } from "../components/evidence/EvidenceIndia.jsx";
+import { CountryRanking } from "../components/evidence/CountryRanking.jsx";
+import { CapabilityGrid } from "../components/evidence/CapabilityGrid.jsx";
+import { Methodology } from "../components/evidence/Methodology.jsx";
 
 /**
  * Shared template for /trove and /vero.
@@ -11,15 +16,26 @@ import { TrovePreview } from "../components/TrovePreview.jsx";
  * The status callout is not decoration — it is the page's honesty guarantee.
  * Every product page states in plain words that the product is not available,
  * so a visitor can never leave thinking they could sign up today.
+ *
+ * A product with an evidence story (content/evidence/index.js) gets the evidence
+ * layer: problem, evidence and resource cost before the product, the method
+ * after it. A product without one — Vero, for now — renders exactly as before.
  */
 export function ProductPage({ id }) {
   const p = PRODUCTS[id];
   const note = NOTE_BY_ID[id];
+  const evidence = EVIDENCE[id] ?? null;
 
   const statusText =
     id === "trove"
       ? "Trove is being built and is not yet available to use. There is no download, no sign-up and no waiting list beyond the email updates below."
       : "Vero is an exploration rather than a product. Nothing described here has been built yet — there is no escrow, no payments, no dispute process and no public profiles.";
+
+  const statusCallout = (
+    <div className="status-callout">
+      <p><strong>Where this stands.</strong> {statusText}</p>
+    </div>
+  );
 
   return (
     <>
@@ -45,21 +61,25 @@ export function ProductPage({ id }) {
         <p className="lede">{p.intro}</p>
       </div>
 
-      <section className="section" aria-labelledby="capabilities-title">
-        <h2 id="capabilities-title" className="sr-only">What {p.name} is being built to do</h2>
-        <div className="capability-grid">
-          {p.capabilities.map((c) => (
-            <div className="capability" key={c.title}>
-              <h3>{c.title}</h3>
-              <p>{c.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="status-callout">
-          <p><strong>Where this stands.</strong> {statusText}</p>
-        </div>
-      </section>
+      {evidence ? (
+        <>
+          <EvidenceIndia product={id} />
+          <CountryRanking product={id} />
+        </>
+      ) : (
+        <section className="section" aria-labelledby="capabilities-title">
+          <h2 id="capabilities-title" className="sr-only">What {p.name} is being built to do</h2>
+          <div className="capability-grid">
+            {p.capabilities.map((c) => (
+              <div className="capability" key={c.title}>
+                <h3>{c.title}</h3>
+                <p>{c.body}</p>
+              </div>
+            ))}
+          </div>
+          {statusCallout}
+        </section>
+      )}
 
       {id === "trove" ? (
         <section className="section products-section" aria-label="A look at the Trove interface">
@@ -94,6 +114,18 @@ export function ProductPage({ id }) {
         </section>
       )}
 
+      {evidence ? (
+        <section className="section evidence-response" id={evidence.story.response.id} aria-labelledby={`${evidence.story.response.id}-title`}>
+          <span className="eyebrow with-rule">{evidence.story.response.eyebrow}</span>
+          <h2 id={`${evidence.story.response.id}-title`}>
+            {evidence.story.response.headline[0]}<br />{evidence.story.response.headline[1]}<span className="accent-dot">.</span>
+          </h2>
+          <p className="evidence-lede">{evidence.story.response.lede}</p>
+          <CapabilityGrid product={id} capabilities={p.capabilities} />
+          {statusCallout}
+        </section>
+      ) : null}
+
       {id === "trove" ? (
         <section className="section pad-end-md" aria-labelledby="principles-title">
           <h2 id="principles-title">How we are building it<span className="accent-dot">.</span></h2>
@@ -102,6 +134,8 @@ export function ProductPage({ id }) {
           </ul>
         </section>
       ) : null}
+
+      {evidence ? <Methodology product={id} /> : null}
 
       <section className="section pad-end-xl">
         <div className="article-footer flush-top">

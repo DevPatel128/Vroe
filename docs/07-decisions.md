@@ -237,3 +237,95 @@ for anyone running `wrangler dev` without it.
 `tests/security.test.mjs` covers both directions: a request without `CF-Ray` is
 never redirected, an edge request still upgrades and canonicalises, and www
 still folds to the apex without `CF-Ray`.
+
+---
+
+## ADR-015 — An evidence layer where research and product impact never mix
+
+**Context.** `/trove` should show, India first, what managing personal finances
+costs people in time, attention and money, then how other countries compare,
+then Trove's response — and one day what Trove has measurably changed. The same
+structure should serve every future Vroe product. The risk is obvious: a page of
+striking numbers is exactly where invented, mismatched or quietly rounded-up
+figures creep in.
+
+**Decision.** A data layer in `src/content/evidence/`:
+
+- `sources.js`, `metrics.js` and `countries.js` hold studies, questions and raw
+  published values. `countries.js` is the only place a number is typed.
+- `derive.js` computes every calculated value, population aggregate, rank and
+  formatted number at build time, and validates the lot. The prerenderer fails
+  the build on any problem.
+- `trove.js` holds the copy and contains no numbers.
+- Research is `origin: "external"`; measured impact is a separate `impact` array
+  with `origin: "product"`, rendered in its own block. Validation rejects any mix.
+- A product appears in `EVIDENCE` only once it has a researched story. Vero does
+  not, so `/vero` is unchanged.
+
+Raw source files live in `docs/impact-research/raw/` (gitignored for size), with
+URLs and SHA-256 checksums in the README there. The India time figure is
+computed from MoSPI microdata by a committed script whose method first
+reproduces MoSPI's published tables.
+
+**Consequences.** `/trove` grows to about 98 KB of HTML and `enhance.js` to
+2.3 KB gzipped, for the country switch. `tests/evidence.test.mjs` recomputes
+every displayed figure from the data. Changing a figure means archiving its
+source first — slower, on purpose.
+
+**Alternatives rejected.** Typing figures into copy (they drift from their
+sources). Fetching data at runtime (it would need a `connect-src` origin, and
+figures would change without review). `Dataset` structured data (the page is not
+a dataset distribution; see rule 5).
+
+---
+
+## ADR-016 — Rank only by a recent comparable measure; no composite index
+
+**Context.** The brief suggested a Financial Management Burden Index built from
+time, money, complexity and literacy — and, in the same breath, not to build one
+unless comparable data exists across countries. Countries were to be ranked by
+burden, never by population, with the measure always named.
+
+**Decision.** Countries are ranked only by a single measure that was asked
+identically in every listed country and meets the recency rule (ADR-017). The
+page names the measure, source and year; India is listed first as Trove's
+primary market but shows its true rank. There is no composite.
+
+Today no measure qualifies, so **nothing is ranked**. The global section says so
+and shows each country's recent national figures on their own.
+
+**Rationale.** An earlier version ranked all ten countries by Findex 2021
+fragility and the S&P 2014 literacy gap. Both fell to the recency rule. Among
+recent sources, the 2024 Findex fragility and worry questions are blank for every
+high-income country listed, and time-use surveys are not comparable: India's
+diary drops activities under 10 minutes when a half-hour slot holds several, and
+the US series is rounded to 0.01 hours, so India's 0.14 and the US's 1.8 minutes
+a day differ mostly by method. Money has no comparable source at all. A ranking
+or composite built from this would present gaps as precision.
+
+**Consequences.** The global section is thin: India and the United States only.
+Time figures appear per country, tagged "not comparable", and never rank.
+
+**Revisit** when a recent measure covers every listed country with one
+instrument. The ranking code, the "Ranked by" label and the switch between
+measures are still in place and appear automatically once the data does.
+
+---
+
+## ADR-017 — Only data collected and published in 2024 or later
+
+**Context.** The first release used the best-verified sources, several of them
+old: S&P Global FinLit (2014), Findex (2021) and NCFE-FLIS (2019). Dev asked for
+recent data only, and for nothing to be shown where recent data does not exist.
+
+**Decision.** Every metric must be collected, and every source published, in
+2024 or later; so must every population a figure is multiplied by.
+`MINIMUM_DATA_YEAR` in `src/content/evidence/index.js` sets the year once, and
+`recencyProblems()` fails the build otherwise. Older studies are removed from
+the content, not hidden.
+
+**Consequences.** India keeps its time, fragility and worry figures (2024), gains
+SEBI 2025 figures on investor knowledge and barriers, and loses its national
+literacy rate. Eight of the ten researched countries drop off the page, and the
+country ranking disappears (ADR-016). The old source files remain in
+`docs/impact-research/raw/`, marked "not used", as a research record.

@@ -4,15 +4,15 @@
 
 **React runs at build time only. No React reaches the browser.**
 
-The site is a marketing site. Apart from a menu toggle and one form, nothing on
-it is interactive. So React is used as a template engine: `scripts/prerender.mjs`
-imports the components, renders each route with `renderToStaticMarkup`, and
-writes finished HTML. The browser receives HTML, CSS, and a ~1.4 KB enhancement
-script.
+The site is a marketing site. Apart from a menu toggle, one form and the
+country switch on `/trove`, nothing on it is interactive. So React is used as a
+template engine: `scripts/prerender.mjs` imports the components, renders each
+route with `renderToStaticMarkup`, and writes finished HTML. The browser receives
+HTML, CSS, and a ~2.3 KB enhancement script.
 
 | | Codex prototype | Now |
 | --- | --- | --- |
-| JS shipped | 71 KB gzipped (React + Phosphor) | **1.4 KB gzipped** |
+| JS shipped | 71 KB gzipped (React + Phosphor) | **2.3 KB gzipped** (1.4 KB before the evidence layer) |
 | Images | 5.2 MB PNG | ~36 KB AVIF for a desktop view |
 | What a crawler sees | `<div id="root">` and nothing else | The full page |
 | CSP | would need bundler allowances | `script-src 'self'` |

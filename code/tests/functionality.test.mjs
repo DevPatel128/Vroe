@@ -209,7 +209,7 @@ test("no real content is set below 11px", async () => {
     const leaf = sel.split(/\s+/).pop().replace(/::?[a-z-]+$/, "");
     return DECORATIVE.has(leaf) || DECORATIVE.has(sel.split(/\s+/)[0]);
   };
-  for (const file of ["base.css", "layout.css", "hero.css", "sections.css", "products.css", "responsive.css"]) {
+  for (const file of ["base.css", "layout.css", "hero.css", "sections.css", "products.css", "evidence.css", "responsive.css"]) {
     const css = await read(`styles/${file}`, src);
     for (const [, selector, size] of css.matchAll(/([^{};\n]+)\{[^}]*font-size:\s*(\d+(?:\.\d+)?)px/g)) {
       const sel = selector.trim().split(",")[0].trim().replace(/^[\s>+~]+/, "");

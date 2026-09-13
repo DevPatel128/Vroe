@@ -1,0 +1,791 @@
+{
+  "source": "MoSPI Time Use Survey 2024, unit-level person file TUS106PER",
+  "input_file": "TUS106PER.csv",
+  "input_sha256": "32106d7f9c4ef8893481f35b67fea5e229b2929f4763047c4306c1de8f8763a6",
+  "rows_read": 10211478,
+  "rows_without_diary_skipped": 83262,
+  "persons": 450457,
+  "person_key_reappeared_non_contiguously": 0,
+  "method_notes": {
+    "A": "whole slot allotted to the major activity (README p.3, method a)",
+    "B": "slot split equally among all activities in it (README p.3, method b)",
+    "weight": "MULT/100",
+    "reference_day": "04:00 to 04:00, persons aged 6+"
+  },
+  "published_benchmarks_press_note_2025_03_28": {
+    "table1_participation_pct_age_15_59": {
+      "male": 30.4,
+      "female": 92.9,
+      "person": 61.7
+    },
+    "table2_minutes_per_participant_age_15_59": {
+      "male": 86,
+      "female": 305,
+      "person": 251
+    },
+    "table3_minutes_per_person_age_15_59": {
+      "male": 26,
+      "female": 283,
+      "person": 155
+    }
+  },
+  "computed_on": "2026-09-13",
+  "results": {
+    "age_15_24": {
+      "persons_sampled": 80902,
+      "persons_weighted": 181048570,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 110.707,
+        "participation_rate_pct": 49.21,
+        "minutes_per_participant_per_day": 224.9
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 106.424,
+        "participation_rate_pct": 50.78,
+        "minutes_per_participant_per_day": 209.6
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.064,
+        "participation_rate_pct": 0.13,
+        "minutes_per_participant_per_day": 49.2
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.06,
+        "participation_rate_pct": 0.15,
+        "minutes_per_participant_per_day": 40.7
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.021,
+        "participation_rate_pct": 0.05,
+        "minutes_per_participant_per_day": 46.0
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.018,
+        "participation_rate_pct": 0.05,
+        "minutes_per_participant_per_day": 33.5
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.044,
+        "participation_rate_pct": 0.09,
+        "minutes_per_participant_per_day": 50.9
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.043,
+        "participation_rate_pct": 0.1,
+        "minutes_per_participant_per_day": 44.7
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.19,
+        "participation_rate_pct": 1.34,
+        "minutes_per_participant_per_day": 89.1
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.175,
+        "participation_rate_pct": 1.4,
+        "minutes_per_participant_per_day": 83.8
+      }
+    },
+    "age_15_29": {
+      "persons_sampled": 130550,
+      "persons_weighted": 290045962,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 139.166,
+        "participation_rate_pct": 54.94,
+        "minutes_per_participant_per_day": 253.3
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 133.523,
+        "participation_rate_pct": 56.43,
+        "minutes_per_participant_per_day": 236.6
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.074,
+        "participation_rate_pct": 0.14,
+        "minutes_per_participant_per_day": 51.1
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.072,
+        "participation_rate_pct": 0.17,
+        "minutes_per_participant_per_day": 42.2
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.024,
+        "participation_rate_pct": 0.05,
+        "minutes_per_participant_per_day": 49.2
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.021,
+        "participation_rate_pct": 0.06,
+        "minutes_per_participant_per_day": 36.2
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.05,
+        "participation_rate_pct": 0.1,
+        "minutes_per_participant_per_day": 52.0
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.051,
+        "participation_rate_pct": 0.11,
+        "minutes_per_participant_per_day": 45.4
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.195,
+        "participation_rate_pct": 1.4,
+        "minutes_per_participant_per_day": 85.5
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.181,
+        "participation_rate_pct": 1.48,
+        "minutes_per_participant_per_day": 80.1
+      }
+    },
+    "age_15_59": {
+      "persons_sampled": 332914,
+      "persons_weighted": 724206107,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 161.496,
+        "participation_rate_pct": 60.22,
+        "minutes_per_participant_per_day": 268.2
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 155.063,
+        "participation_rate_pct": 61.69,
+        "minutes_per_participant_per_day": 251.3
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.127,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 44.9
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.127,
+        "participation_rate_pct": 0.34,
+        "minutes_per_participant_per_day": 37.4
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.027,
+        "participation_rate_pct": 0.06,
+        "minutes_per_participant_per_day": 46.9
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.026,
+        "participation_rate_pct": 0.08,
+        "minutes_per_participant_per_day": 33.6
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.101,
+        "participation_rate_pct": 0.23,
+        "minutes_per_participant_per_day": 43.5
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.101,
+        "participation_rate_pct": 0.27,
+        "minutes_per_participant_per_day": 37.7
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.305,
+        "participation_rate_pct": 1.54,
+        "minutes_per_participant_per_day": 84.7
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.285,
+        "participation_rate_pct": 1.64,
+        "minutes_per_participant_per_day": 78.2
+      }
+    },
+    "age_15plus": {
+      "persons_sampled": 388890,
+      "persons_weighted": 845239336,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 154.428,
+        "participation_rate_pct": 59.57,
+        "minutes_per_participant_per_day": 259.3
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 148.348,
+        "participation_rate_pct": 61.05,
+        "minutes_per_participant_per_day": 243.0
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.139,
+        "participation_rate_pct": 0.3,
+        "minutes_per_participant_per_day": 45.8
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.138,
+        "participation_rate_pct": 0.36,
+        "minutes_per_participant_per_day": 38.3
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.031,
+        "participation_rate_pct": 0.07,
+        "minutes_per_participant_per_day": 47.6
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.03,
+        "participation_rate_pct": 0.08,
+        "minutes_per_participant_per_day": 35.3
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.107,
+        "participation_rate_pct": 0.24,
+        "minutes_per_participant_per_day": 44.5
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.108,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 38.4
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.339,
+        "participation_rate_pct": 1.56,
+        "minutes_per_participant_per_day": 85.6
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.318,
+        "participation_rate_pct": 1.66,
+        "minutes_per_participant_per_day": 79.4
+      }
+    },
+    "age_25plus": {
+      "persons_sampled": 307988,
+      "persons_weighted": 664190765,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 166.346,
+        "participation_rate_pct": 62.39,
+        "minutes_per_participant_per_day": 266.6
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 159.775,
+        "participation_rate_pct": 63.85,
+        "minutes_per_participant_per_day": 250.2
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.159,
+        "participation_rate_pct": 0.35,
+        "minutes_per_participant_per_day": 45.5
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.159,
+        "participation_rate_pct": 0.42,
+        "minutes_per_participant_per_day": 38.1
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.034,
+        "participation_rate_pct": 0.07,
+        "minutes_per_participant_per_day": 47.9
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.033,
+        "participation_rate_pct": 0.09,
+        "minutes_per_participant_per_day": 35.5
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.125,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 44.0
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.126,
+        "participation_rate_pct": 0.33,
+        "minutes_per_participant_per_day": 37.9
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.38,
+        "participation_rate_pct": 1.63,
+        "minutes_per_participant_per_day": 84.8
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.357,
+        "participation_rate_pct": 1.73,
+        "minutes_per_participant_per_day": 78.4
+      }
+    },
+    "all_6plus": {
+      "persons_sampled": 450457,
+      "persons_weighted": 982707358,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 134.294,
+        "participation_rate_pct": 52.75,
+        "minutes_per_participant_per_day": 254.6
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 129.036,
+        "participation_rate_pct": 54.14,
+        "minutes_per_participant_per_day": 238.3
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.12,
+        "participation_rate_pct": 0.26,
+        "minutes_per_participant_per_day": 45.9
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.119,
+        "participation_rate_pct": 0.31,
+        "minutes_per_participant_per_day": 38.4
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.027,
+        "participation_rate_pct": 0.06,
+        "minutes_per_participant_per_day": 48.1
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.026,
+        "participation_rate_pct": 0.07,
+        "minutes_per_participant_per_day": 35.6
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.093,
+        "participation_rate_pct": 0.21,
+        "minutes_per_participant_per_day": 44.5
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.093,
+        "participation_rate_pct": 0.24,
+        "minutes_per_participant_per_day": 38.4
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.183,
+        "participation_rate_pct": 1.39,
+        "minutes_per_participant_per_day": 85.4
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.165,
+        "participation_rate_pct": 1.47,
+        "minutes_per_participant_per_day": 79.2
+      }
+    },
+    "female": {
+      "persons_sampled": 223885,
+      "persons_weighted": 488121135,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 245.59,
+        "participation_rate_pct": 80.87,
+        "minutes_per_participant_per_day": 303.7
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 235.638,
+        "participation_rate_pct": 81.52,
+        "minutes_per_participant_per_day": 289.1
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.079,
+        "participation_rate_pct": 0.16,
+        "minutes_per_participant_per_day": 48.9
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.077,
+        "participation_rate_pct": 0.19,
+        "minutes_per_participant_per_day": 40.3
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.019,
+        "participation_rate_pct": 0.03,
+        "minutes_per_participant_per_day": 56.5
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.017,
+        "participation_rate_pct": 0.04,
+        "minutes_per_participant_per_day": 40.4
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.06,
+        "participation_rate_pct": 0.13,
+        "minutes_per_participant_per_day": 46.6
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.06,
+        "participation_rate_pct": 0.15,
+        "minutes_per_participant_per_day": 39.9
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.895,
+        "participation_rate_pct": 2.11,
+        "minutes_per_participant_per_day": 89.9
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.878,
+        "participation_rate_pct": 2.25,
+        "minutes_per_participant_per_day": 83.5
+      }
+    },
+    "female_15_59": {
+      "persons_sampled": 166995,
+      "persons_weighted": 362959541,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 295.428,
+        "participation_rate_pct": 92.38,
+        "minutes_per_participant_per_day": 319.8
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 283.297,
+        "participation_rate_pct": 92.86,
+        "minutes_per_participant_per_day": 305.1
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.084,
+        "participation_rate_pct": 0.18,
+        "minutes_per_participant_per_day": 46.7
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.084,
+        "participation_rate_pct": 0.22,
+        "minutes_per_participant_per_day": 38.8
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.016,
+        "participation_rate_pct": 0.03,
+        "minutes_per_participant_per_day": 50.9
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.016,
+        "participation_rate_pct": 0.04,
+        "minutes_per_participant_per_day": 36.1
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.068,
+        "participation_rate_pct": 0.15,
+        "minutes_per_participant_per_day": 45.6
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.068,
+        "participation_rate_pct": 0.17,
+        "minutes_per_participant_per_day": 39.2
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 2.1,
+        "participation_rate_pct": 2.35,
+        "minutes_per_participant_per_day": 89.5
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 2.082,
+        "participation_rate_pct": 2.52,
+        "minutes_per_participant_per_day": 82.8
+      }
+    },
+    "gender_other": {
+      "persons_sampled": 49,
+      "persons_weighted": 100427,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 278.843,
+        "participation_rate_pct": 83.4,
+        "minutes_per_participant_per_day": 334.4
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 266.613,
+        "participation_rate_pct": 83.4,
+        "minutes_per_participant_per_day": 319.7
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.424,
+        "participation_rate_pct": 2.37,
+        "minutes_per_participant_per_day": 60.0
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.424,
+        "participation_rate_pct": 2.37,
+        "minutes_per_participant_per_day": 60.0
+      }
+    },
+    "male": {
+      "persons_sampled": 226523,
+      "persons_weighted": 494485796,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 24.401,
+        "participation_rate_pct": 24.98,
+        "minutes_per_participant_per_day": 97.7
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 23.777,
+        "participation_rate_pct": 27.11,
+        "minutes_per_participant_per_day": 87.7
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.161,
+        "participation_rate_pct": 0.36,
+        "minutes_per_participant_per_day": 44.6
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.161,
+        "participation_rate_pct": 0.43,
+        "minutes_per_participant_per_day": 37.6
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.036,
+        "participation_rate_pct": 0.08,
+        "minutes_per_participant_per_day": 44.7
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.035,
+        "participation_rate_pct": 0.1,
+        "minutes_per_participant_per_day": 33.6
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.125,
+        "participation_rate_pct": 0.29,
+        "minutes_per_participant_per_day": 43.6
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.127,
+        "participation_rate_pct": 0.34,
+        "minutes_per_participant_per_day": 37.8
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 0.48,
+        "participation_rate_pct": 0.67,
+        "minutes_per_participant_per_day": 71.4
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 0.462,
+        "participation_rate_pct": 0.71,
+        "minutes_per_participant_per_day": 65.5
+      }
+    },
+    "male_15_59": {
+      "persons_sampled": 165879,
+      "persons_weighted": 361161327,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 26.86,
+        "participation_rate_pct": 27.89,
+        "minutes_per_participant_per_day": 96.3
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 26.155,
+        "participation_rate_pct": 30.36,
+        "minutes_per_participant_per_day": 86.2
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.171,
+        "participation_rate_pct": 0.39,
+        "minutes_per_participant_per_day": 44.0
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.17,
+        "participation_rate_pct": 0.46,
+        "minutes_per_participant_per_day": 36.7
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.037,
+        "participation_rate_pct": 0.08,
+        "minutes_per_participant_per_day": 45.4
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.035,
+        "participation_rate_pct": 0.11,
+        "minutes_per_participant_per_day": 32.5
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.134,
+        "participation_rate_pct": 0.31,
+        "minutes_per_participant_per_day": 42.5
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.135,
+        "participation_rate_pct": 0.36,
+        "minutes_per_participant_per_day": 37.0
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 0.507,
+        "participation_rate_pct": 0.73,
+        "minutes_per_participant_per_day": 69.1
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 0.483,
+        "participation_rate_pct": 0.77,
+        "minutes_per_participant_per_day": 63.0
+      }
+    },
+    "other_15_59": {
+      "persons_sampled": 40,
+      "persons_weighted": 85239,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 315.47,
+        "participation_rate_pct": 93.03,
+        "minutes_per_participant_per_day": 339.1
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 301.291,
+        "participation_rate_pct": 93.03,
+        "minutes_per_participant_per_day": 323.9
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.0,
+        "participation_rate_pct": 0.0,
+        "minutes_per_participant_per_day": null
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.678,
+        "participation_rate_pct": 2.8,
+        "minutes_per_participant_per_day": 60.0
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.678,
+        "participation_rate_pct": 2.8,
+        "minutes_per_participant_per_day": 60.0
+      }
+    },
+    "rural": {
+      "persons_sampled": 283015,
+      "persons_weighted": 678173264,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 135.887,
+        "participation_rate_pct": 52.89,
+        "minutes_per_participant_per_day": 256.9
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 130.861,
+        "participation_rate_pct": 54.25,
+        "minutes_per_participant_per_day": 241.2
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.126,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 45.0
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.122,
+        "participation_rate_pct": 0.33,
+        "minutes_per_participant_per_day": 37.6
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.022,
+        "participation_rate_pct": 0.04,
+        "minutes_per_participant_per_day": 48.5
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.019,
+        "participation_rate_pct": 0.05,
+        "minutes_per_participant_per_day": 35.7
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.104,
+        "participation_rate_pct": 0.24,
+        "minutes_per_participant_per_day": 43.6
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.103,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 37.3
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 1.317,
+        "participation_rate_pct": 1.55,
+        "minutes_per_participant_per_day": 85.2
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 1.297,
+        "participation_rate_pct": 1.64,
+        "minutes_per_participant_per_day": 79.2
+      }
+    },
+    "urban": {
+      "persons_sampled": 167442,
+      "persons_weighted": 304534093,
+      "div3_domestic_A": {
+        "minutes_per_person_per_day": 130.748,
+        "participation_rate_pct": 52.43,
+        "minutes_per_participant_per_day": 249.4
+      },
+      "div3_domestic_B": {
+        "minutes_per_person_per_day": 124.97,
+        "participation_rate_pct": 53.91,
+        "minutes_per_participant_per_day": 231.8
+      },
+      "finance_351_352_A": {
+        "minutes_per_person_per_day": 0.108,
+        "participation_rate_pct": 0.22,
+        "minutes_per_participant_per_day": 48.3
+      },
+      "finance_351_352_B": {
+        "minutes_per_person_per_day": 0.112,
+        "participation_rate_pct": 0.28,
+        "minutes_per_participant_per_day": 40.4
+      },
+      "code_351_A": {
+        "minutes_per_person_per_day": 0.039,
+        "participation_rate_pct": 0.08,
+        "minutes_per_participant_per_day": 47.6
+      },
+      "code_351_B": {
+        "minutes_per_person_per_day": 0.041,
+        "participation_rate_pct": 0.12,
+        "minutes_per_participant_per_day": 35.5
+      },
+      "code_352_A": {
+        "minutes_per_person_per_day": 0.068,
+        "participation_rate_pct": 0.14,
+        "minutes_per_participant_per_day": 47.8
+      },
+      "code_352_B": {
+        "minutes_per_person_per_day": 0.071,
+        "participation_rate_pct": 0.17,
+        "minutes_per_participant_per_day": 42.5
+      },
+      "code_359_A": {
+        "minutes_per_person_per_day": 0.885,
+        "participation_rate_pct": 1.03,
+        "minutes_per_participant_per_day": 86.0
+      },
+      "code_359_B": {
+        "minutes_per_person_per_day": 0.873,
+        "participation_rate_pct": 1.1,
+        "minutes_per_participant_per_day": 79.2
+      }
+    }
+  }
+}
