@@ -50,13 +50,28 @@ jobs:
         run: npm test
 
       - name: Deploy to Cloudflare
+        id: deploy
         # The token is scoped to Workers Scripts:Edit, Workers KV Storage:Edit,
         # Account Settings:Read and Zone:Workers Routes:Edit on vroelabs.com.
         # It is not a global API key. See docs/06-deployment.md.
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        run: |
+          set -euo pipefail
+          npx wrangler deploy | tee wrangler-deploy.log
+
+          # The workers.dev hostname contains the account's workers.dev
+          # subdomain, which can be renamed in the dashboard. It was renamed
+          # once, from devpatel1286 to dvpatel, and the smoke test went on
+          # probing a hostname that no longer resolved. So take the address
+          # wrangler reports for this deploy instead of hard-coding it.
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' wrangler-deploy.log | head -n 1 || true)
+          if [ -z "$url" ]; then
+            echo "::error::wrangler deploy did not report a workers.dev address; is workers_dev still true in wrangler.jsonc?"
+            exit 1
+          fi
+          echo "worker_url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test the live site
         env:
@@ -66,7 +81,7 @@ jobs:
           # without being handed a "Just a moment..." interstitial. Same Worker,
           # same assets — and the HTML arrives byte-identical to the build, with
           # none of the script Bot Fight Mode injects on the custom domain.
-          WORKER_URL: https://vroe-labs.devpatel1286.workers.dev
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
           SITE_URL: https://vroelabs.com
         run: |
           set -euo pipefail
@@ -95,9 +110,16 @@ jobs:
             grep -qi '^cf-mitigated:' /tmp/c.txt
           }
 
+          # Prints the missing header names, or " unreachable" when curl could
+          # not get a response at all. Those are different failures: a host
+          # that does not resolve used to be reported as "every header
+          # missing", which pointed at the Worker instead of the address.
           check_headers() {
             local target="$1" headers missing
-            headers=$(curl -sI "$target" || true)
+            if ! headers=$(curl -sSI "$target" 2>/tmp/curl-error.txt); then
+              echo " unreachable"
+              return
+            fi
             missing=""
             for h in $REQUIRED; do
               echo "$headers" | grep -qi "^$h:" || missing="$missing $h"
@@ -114,10 +136,18 @@ jobs:
             missing=$(check_headers "$WORKER_URL/")
             [ -z "$missing" ] && break
             if [ "$SECONDS" -ge "$deadline" ]; then
-              echo "::error::after 180s these headers are still missing:$missing"
+              if [ "$missing" = " unreachable" ]; then
+                echo "::error::after 180s $WORKER_URL still cannot be reached: $(cat /tmp/curl-error.txt)"
+              else
+                echo "::error::after 180s these headers are still missing:$missing"
+              fi
               dump "$WORKER_URL/"; exit 1
             fi
-            echo "  waiting for rollout — missing:$missing"
+            if [ "$missing" = " unreachable" ]; then
+              echo "  waiting for rollout — cannot reach host yet: $(cat /tmp/curl-error.txt)"
+            else
+              echo "  waiting for rollout — missing:$missing"
+            fi
             sleep 5
           done
           echo "  all 8 security headers present"

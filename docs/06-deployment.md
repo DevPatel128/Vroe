@@ -8,6 +8,7 @@
 | Zone ID | `ba73e5f4b36a0cd90f45f7c4e1a02194` |
 | Account ID | `c42e8966ce7200b9ff9a5e0e30aa0eb3` |
 | Worker | `vroe-labs` |
+| workers.dev address | `https://vroe-labs.dvpatel.workers.dev` — the subdomain is an account setting and was once renamed from `devpatel1286`, so CI reads it from `wrangler deploy` output rather than trusting this row |
 | KV: `RATE_LIMIT` | `dc61b02b65b041b4aa4e3c6ad10fbd4d` |
 | KV: `SUBSCRIBERS` | `609b58326df24884aef3fe253af7aad9` |
 | Turnstile site key | `0x4AAAAAAEjohAZuCMiZZM6u` (public) |
@@ -27,7 +28,8 @@ npm run deploy
 ```
 
 That runs `npm run build` then `wrangler deploy`. Pushing to `main` does the same
-through GitHub Actions.
+through GitHub Actions, then smoke-tests the deployment on its workers.dev
+address (Bot Fight Mode challenges CI on the custom domain; see the workflow).
 
 ## First-time setup
 
@@ -137,4 +139,6 @@ Then submit the form once for real and read the record back out of KV.
 | Security headers missing in production | `run_worker_first` disabled. ADR-008 |
 | `/trove` returns 307 | `html_handling` is not `drop-trailing-slash` |
 | Build fails, "Vite manifest not found" | `vite build` did not run before the prerenderer |
+| Build fails, "Evidence data failed validation" | A figure lacks a source, is older than 2024, or cannot be recomputed. See [10-evidence.md](10-evidence.md) |
+| Smoke test: "still cannot be reached" | The workers.dev address did not resolve. Check `workers_dev` in `wrangler.jsonc` and the account's workers.dev subdomain |
 | Custom domain not resolving | First deploy can take a few minutes to provision the certificate |
