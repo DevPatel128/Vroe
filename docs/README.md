@@ -34,6 +34,7 @@ All paths below are inside `code/` (e.g. "`src/content/`" means
 | An evidence figure on `/trove` | `src/content/evidence/countries.js` (value), `metrics.js`, `sources.js` | Archive the source in `docs/impact-research/`; `npm run build && npm run test:evidence`. See [10-evidence.md](10-evidence.md) |
 | Evidence copy on `/trove` | `src/content/evidence/trove.js` — no numbers in it | `npm run test:evidence` |
 | Colours, spacing, type | `src/styles/tokens.css` | Must match the brand guide |
+| The icon in Safari Favourites or on a home screen | `scripts/generate-icons.mjs` | `npm run build:icons`, then commit `public/apple-touch-icon.png` |
 | Anything visual | `src/styles/*.css` — **never** an inline `style` attribute | The CSP blocks inline styles; `npm run test:security` enforces it |
 | Security headers or the CSP | `worker/headers.js` | `npm run test:security` |
 | The signup pipeline | `worker/index.js` | Update `src/content/legal.js` if what you store changes |

@@ -28,6 +28,7 @@ npm run preview     # wrangler dev on http://localhost:8788
 | `npm run audit:deps` | `npm audit --audit-level=high` |
 | `npm run audit:sbom` | CycloneDX SBOM → `sbom.json` |
 | `npm run build:og` | Regenerate the three social cards (not part of `build`) |
+| `npm run build:icons` | Regenerate the Safari touch icon (not part of `build`) |
 | `npm run deploy` | Build and deploy to Cloudflare |
 
 ## Where things are

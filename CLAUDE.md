@@ -36,7 +36,7 @@ vanilla JS. So:
 cd code                # the buildable app lives here, not the repo root
 npm ci
 npm run build           # fonts → images → vite → prerender → sitemap
-npm test                # 98 tests — all must pass
+npm test                # 99 tests — all must pass
 npm run preview         # wrangler dev on :8788
 npm run deploy          # build + wrangler deploy
 ```
@@ -71,7 +71,7 @@ code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
   src/styles/    tokens → fonts → base → layout → hero → products → evidence → sections → responsive
   src/client/    enhance.js — the only browser JS
   worker/        index.js (routing, /api) + headers.js (CSP, security headers)
-  scripts/       optimize-images, prerender, generate-sitemap, generate-og, sync-fonts
+  scripts/       optimize-images, prerender, generate-sitemap, generate-og, generate-icons, sync-fonts
 docs/             full documentation
   impact-research/  evidence source files (raw/ gitignored), scripts, derived outputs
 ```

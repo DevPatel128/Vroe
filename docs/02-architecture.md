@@ -44,9 +44,10 @@ Node cannot parse JSX, and `packages: "external"` is required because
 `react-dom/server` is CommonJS and calls `require("util")` at load time — which
 throws if esbuild rewrites it into an ES module.
 
-`npm run build:og` is deliberately **not** part of the build. The three social
-cards are committed brand assets; regenerate them only when the artwork or
-wording changes. See [07-decisions.md](07-decisions.md), ADR-005.
+`npm run build:og` and `npm run build:icons` are deliberately **not** part of
+the build. The three social cards and the touch icon are committed brand assets;
+regenerate them only when the artwork or wording changes. Both draw text through
+`scripts/glyphs.mjs`. See [07-decisions.md](07-decisions.md), ADR-005.
 
 ## The route table is the source of truth
 
