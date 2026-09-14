@@ -62,6 +62,19 @@ export const ROUTES = [
     nav: null,
   },
   {
+    path: "/products",
+    page: "products",
+    title: "Products | Vroe Labs",
+    description:
+      "Trove and Vero: two products Vroe Labs is building, a personal finance app and an exploration of verified work history. Neither is available yet.",
+    ogImage: "/assets/og-vroe-labs.jpg",
+    ogType: "website",
+    priority: "0.9",
+    changefreq: "monthly",
+    indexable: true,
+    nav: null,
+  },
+  {
     path: "/notes/trove",
     page: "note",
     noteId: "trove",
@@ -163,7 +176,7 @@ export const ROUTE_BY_PATH = Object.fromEntries(ROUTES.map((r) => [r.path, r]));
  * About and Contact are real pages, so they come from the route table above.
  */
 export const NAV_ITEMS = [
-  { label: "Products", href: "/#products" },
+  { label: "Products", href: "/products" },
   { label: "Notes", href: "/#notes" },
   ...ROUTES.filter((r) => r.nav).map((r) => ({ label: r.nav, href: r.path })),
 ];

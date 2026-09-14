@@ -18,6 +18,7 @@ export function Footer() {
       </div>
 
       <nav className="footer-nav" aria-label="Footer">
+        <a href="/products">Products</a>
         <a href="/trove">Trove</a>
         <a href="/vero">Vero</a>
         <a href="/about">About</a>

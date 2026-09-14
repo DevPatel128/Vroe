@@ -23,6 +23,7 @@ import { NOTE_BY_ID } from "../src/content/notes.js";
 import { Document } from "../src/layout/Document.jsx";
 import { HomePage } from "../src/pages/home.jsx";
 import { ProductPage } from "../src/pages/product.jsx";
+import { ProductsHubPage } from "../src/pages/products.jsx";
 import { NotePage } from "../src/pages/note.jsx";
 import { AboutPage } from "../src/pages/about.jsx";
 import { ContactPage } from "../src/pages/contact.jsx";
@@ -97,6 +98,12 @@ function renderRoute(route) {
           ld.organization(),
           ld.breadcrumbs([home, crumb("Vero", "/vero")]),
         ],
+      };
+
+    case "products":
+      return {
+        element: h(ProductsHubPage),
+        jsonLd: [ld.webPage(route), ld.organization(), ld.breadcrumbs([home, crumb("Products", "/products")])],
       };
 
     case "note": {

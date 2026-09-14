@@ -3,8 +3,8 @@ import { PRODUCTS } from "../content/products.js";
 import { NOTE_BY_ID } from "../content/notes.js";
 import { EVIDENCE } from "../content/evidence/index.js";
 import { Breadcrumbs } from "../components/Breadcrumbs.jsx";
-import { Picture } from "../components/Picture.jsx";
 import { TrovePreview } from "../components/TrovePreview.jsx";
+import { VeroPreview } from "../components/VeroPreview.jsx";
 import { EvidenceIndia } from "../components/evidence/EvidenceIndia.jsx";
 import { CountryRanking } from "../components/evidence/CountryRanking.jsx";
 import { CapabilityGrid } from "../components/evidence/CapabilityGrid.jsx";
@@ -14,12 +14,14 @@ import { Methodology } from "../components/evidence/Methodology.jsx";
  * Shared template for /trove and /vero.
  *
  * The status callout is not decoration — it is the page's honesty guarantee.
- * Every product page states in plain words that the product is not available,
- * so a visitor can never leave thinking they could sign up today.
+ * It sits directly under the hero, before anything else, so a visitor never
+ * has to scroll past a pitch to find out the product is not available yet.
  *
- * A product with an evidence story (content/evidence/index.js) gets the evidence
- * layer: problem, evidence and resource cost before the product, the method
- * after it. A product without one — Vero, for now — renders exactly as before.
+ * A product with an evidence story (content/evidence/index.js) gets the
+ * evidence layer instead of a plain capability showcase: problem and evidence
+ * first, then the product's response, mapped to the burden each capability is
+ * meant to reduce. A product without one — Vero, for now — gets its own
+ * capability showcase and illustration, built to the same standard.
  */
 export function ProductPage({ id }) {
   const p = PRODUCTS[id];
@@ -30,12 +32,6 @@ export function ProductPage({ id }) {
     id === "trove"
       ? "Trove is being built and is not yet available to use. There is no download, no sign-up and no waiting list beyond the email updates below."
       : "Vero is an exploration rather than a product. Nothing described here has been built yet — there is no escrow, no payments, no dispute process and no public profiles.";
-
-  const statusCallout = (
-    <div className="status-callout">
-      <p><strong>Where this stands.</strong> {statusText}</p>
-    </div>
-  );
 
   return (
     <>
@@ -61,6 +57,12 @@ export function ProductPage({ id }) {
         <p className="lede">{p.intro}</p>
       </div>
 
+      <div className="section pad-end-sm">
+        <div className="status-callout">
+          <p><strong>Where this stands.</strong> {statusText}</p>
+        </div>
+      </div>
+
       {evidence ? (
         <>
           <EvidenceIndia product={id} />
@@ -68,16 +70,23 @@ export function ProductPage({ id }) {
         </>
       ) : (
         <section className="section" aria-labelledby="capabilities-title">
-          <h2 id="capabilities-title" className="sr-only">What {p.name} is being built to do</h2>
-          <div className="capability-grid">
-            {p.capabilities.map((c) => (
-              <div className="capability" key={c.title}>
-                <h3>{c.title}</h3>
-                <p>{c.body}</p>
+          <span className="eyebrow with-rule">WHAT WE’RE BUILDING</span>
+          <h2 id="capabilities-title">
+            What {p.name} is being built to do<span className="accent-dot">.</span>
+          </h2>
+          <div className="capability-feature-list">
+            {p.capabilities.map((c, i) => (
+              <div className="capability-feature" key={c.title}>
+                <span className={`capability-feature-index ${i % 2 === 0 ? "coral" : "lime"}`}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3>{c.title}</h3>
+                  <p>{c.body}</p>
+                </div>
               </div>
             ))}
           </div>
-          {statusCallout}
         </section>
       )}
 
@@ -96,20 +105,17 @@ export function ProductPage({ id }) {
           </div>
         </section>
       ) : (
-        <section className="section products-section" aria-label="Vero">
+        <section className="section products-section" aria-label="A look at a Vero record">
           <div className="product-card vero-card-shell">
-            <div className="vero-copy pad-start-md">
-              <h3>What we are<br />working out<span className="accent-dot">.</span></h3>
-              <ul className="principles">
-                {p.principles.map((line) => <li key={line}>{line}</li>)}
-              </ul>
+            <div className="product-card-copy">
+              <span className="eyebrow">A ROUGH LOOK</span>
+              <h3>Early<br />record<span className="accent-dot">.</span></h3>
+              <p>
+                An impression of what a confirmed record might look like. The names and
+                details are invented for the illustration.
+              </p>
             </div>
-            <Picture
-              className="vero-image"
-              name="vero-still-life"
-              alt="A chartreuse circle resting against a textured cream art object"
-              sizes="(max-width: 700px) 100vw, 900px"
-            />
+            <VeroPreview />
           </div>
         </section>
       )}
@@ -122,18 +128,18 @@ export function ProductPage({ id }) {
           </h2>
           <p className="evidence-lede">{evidence.story.response.lede}</p>
           <CapabilityGrid product={id} capabilities={p.capabilities} />
-          {statusCallout}
         </section>
       ) : null}
 
-      {id === "trove" ? (
-        <section className="section pad-end-md" aria-labelledby="principles-title">
-          <h2 id="principles-title">How we are building it<span className="accent-dot">.</span></h2>
-          <ul className="principles">
-            {p.principles.map((line) => <li key={line}>{line}</li>)}
-          </ul>
-        </section>
-      ) : null}
+      <section className="section pad-end-md" aria-labelledby="principles-title">
+        <h2 id="principles-title">
+          {id === "trove" ? "How we are building it" : "What we are working out"}
+          <span className="accent-dot">.</span>
+        </h2>
+        <ul className="principles">
+          {p.principles.map((line) => <li key={line}>{line}</li>)}
+        </ul>
+      </section>
 
       {evidence ? <Methodology product={id} /> : null}
 

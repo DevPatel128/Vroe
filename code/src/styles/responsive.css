@@ -89,6 +89,14 @@
   .vero-copy { padding: 0 23px; }
   .vero-copy h3 { margin-top: 42px; }
   .vero-image { height: 56%; }
+  .vero-preview {
+    right: -14px; bottom: 18px; width: 88%; max-width: 300px;
+    transform: rotate(-2deg) scale(0.94); transform-origin: bottom right;
+  }
+  .vero-preview-card { padding: 20px 18px; }
+
+  .capability-feature { grid-template-columns: 36px 1fr; gap: 16px; padding: 24px 0; }
+  .capability-feature-index { width: 36px; height: 36px; font-size: 12px; }
 
   .notes-section { padding-bottom: 90px; }
   .notes-grid { grid-template-columns: 1fr; gap: 12px; }
