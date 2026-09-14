@@ -2,28 +2,18 @@
 /**
  * Open Graph social cards — 1200x630, one per product plus the studio card.
  *
- * WHY THE FONT IS RENDERED AS PATHS
- * ---------------------------------
- * librsvg (which sharp uses for SVG) resolves font-family through fontconfig,
- * and Instrument Serif is not a system font. On this machine it silently falls
- * back to a sans-serif; on a CI runner it would fall back to something else
- * again, so the same command would produce different images on different
- * machines. Converting text to outlines with opentype.js removes fontconfig
- * from the picture entirely and makes output byte-stable everywhere.
- *
- * opentype.js's own getPath() throws on this font (an unsupported ccmp GSUB
- * lookup), so glyphs are positioned individually with kerning applied by hand.
+ * Text is rendered as vector outlines; glyphs.mjs explains why.
  *
  * These are brand assets that change rarely, so the generated JPEGs are
  * committed. This is NOT part of `npm run build`; run `npm run build:og` when
  * the wording or artwork changes.
  */
 
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import opentype from "opentype.js";
 import sharp from "sharp";
+import { layout, loadFont } from "./glyphs.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(root, "public", "assets");
@@ -39,39 +29,8 @@ const CORAL = "#ff674f";
 const fontPath = path.join(root, "node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff");
 const sansPath = path.join(root, "node_modules/@fontsource/dm-sans/files/dm-sans-latin-700-normal.woff");
 
-const buf = await readFile(fontPath);
-const serif = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
-const sbuf = await readFile(sansPath);
-const sans = opentype.parse(sbuf.buffer.slice(sbuf.byteOffset, sbuf.byteOffset + sbuf.byteLength));
-
-/**
- * Lay out a string glyph by glyph and return one <path> element per glyph.
- *
- * Each glyph gets its own element rather than one concatenated `d` attribute:
- * librsvg silently truncates a very long path-data string, which clipped the
- * tail off every line of text. Twelve small paths render; one 6 KB path does
- * not. This is also why `layout` returns markup instead of path data.
- *
- * @param {opentype.Font} font
- * @param {string} str
- * @param {number} size px
- * @param {number} tracking extra px between glyphs (negative tightens)
- * @param {string} fill
- */
-function layout(font, str, size, tracking = 0, fill = INK) {
-  const scale = size / font.unitsPerEm;
-  const glyphs = [...str].map((c) => font.charToGlyph(c));
-  const els = [];
-  let x = 0;
-  glyphs.forEach((g, i) => {
-    const d = g.getPath(x, 0, size).toPathData(2);
-    if (d) els.push(`<path d="${d}" fill="${fill}"/>`);
-    x += g.advanceWidth * scale + tracking;
-    const next = glyphs[i + 1];
-    if (next) x += font.getKerningValue(g, next) * scale;
-  });
-  return { els: els.join(""), width: x };
-}
+const serif = await loadFont(fontPath);
+const sans = await loadFont(sansPath);
 
 /** A <g> of glyph paths with the text baseline at (x, y). */
 function text(font, str, { x, y, size, tracking = 0, fill = INK, anchor = "start" }) {

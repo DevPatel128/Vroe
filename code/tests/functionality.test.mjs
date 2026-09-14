@@ -289,6 +289,20 @@ test("the favicon is referenced and actually present", async () => {
   await access(new URL(href.replace(/^\//, ""), distClient));
 });
 
+test("the touch icon is referenced, 180x180 and opaque", async () => {
+  // Without it Safari's Favourites show a letter tile instead of the logo.
+  const home = await read("index.html");
+  const href = home.match(/<link rel="apple-touch-icon"[^>]*href="([^"]+)"/)?.[1];
+  assert.ok(href, "no apple-touch-icon link in <head>");
+  const png = await readFile(new URL(href.replace(/^\//, ""), distClient));
+  // IHDR: width and height are big-endian at bytes 16 and 20, colour type at 25.
+  assert.equal(png.toString("ascii", 1, 4), "PNG");
+  assert.equal(png.readUInt32BE(16), 180);
+  assert.equal(png.readUInt32BE(20), 180);
+  // Colour type 2 is RGB with no alpha. iOS paints transparent pixels black.
+  assert.equal(png[25], 2, "the touch icon must have no alpha channel");
+});
+
 test("every local asset referenced by a page exists in the build", async () => {
   const missing = [];
   for (const [route, html] of await pages()) {

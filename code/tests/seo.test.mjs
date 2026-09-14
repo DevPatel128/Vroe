@@ -205,7 +205,7 @@ test("no internal link points at a page that was not built", async () => {
     if (file === "404.html") continue;
     built.add(file === "index.html" ? "/" : `/${file.replace(/\/index\.html$/, "")}`);
   }
-  const extras = new Set(["/robots.txt", "/sitemap.xml", "/.well-known/security.txt", "/favicon.svg"]);
+  const extras = new Set(["/robots.txt", "/sitemap.xml", "/.well-known/security.txt", "/favicon.svg", "/apple-touch-icon.png"]);
 
   for (const file of await htmlFiles()) {
     const html = await read(file);

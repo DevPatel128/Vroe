@@ -59,6 +59,16 @@ Each is the still-life artwork over Sky with the headline in Instrument Serif â€
 not the logo, which makes a poor social card. Regenerate with
 `npm run build:og`; see ADR-005 for why the text is rendered as vector outlines.
 
+## Touch icon
+
+`/apple-touch-icon.png` is 180Ã—180: the Vroe Labs wordmark in ink on paper, with
+no alpha channel. Safari uses it for Favourites, Add to Dock and the iOS home
+screen, none of which read `favicon.svg`. Without it Safari draws a tile with the
+letter "V". Regenerate with `npm run build:icons`.
+
+Safari caches touch icons for a long time. To see a new icon on a Mac, remove
+the favourite and add it again.
+
 ## Sitemap and robots
 
 Both are generated from the route table by `scripts/generate-sitemap.mjs`, so a

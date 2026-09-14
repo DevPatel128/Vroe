@@ -34,6 +34,9 @@ export function SeoHead({ route, jsonLd = [] }) {
       <meta name="theme-color" content={THEME_COLOR} />
       <meta name="color-scheme" content="light" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      {/* Safari's Favourites, the macOS Dock and the iOS home screen ignore SVG
+          favicons and draw a letter tile without this. scripts/generate-icons.mjs */}
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
       {/* Open Graph */}
       <meta property="og:site_name" content={SITE.name} />
