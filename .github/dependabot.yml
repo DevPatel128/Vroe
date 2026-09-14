@@ -3,8 +3,10 @@ updates:
   # Dependencies are reviewed, never auto-merged: a lockfile change is the main
   # way a compromised package reaches a build machine. Read the changelog and
   # the lockfile diff before approving.
+  # The app moved into code/ on 4 September 2026. Pointed at "/", every weekly
+  # run since then has failed with "/package.json not found".
   - package-ecosystem: npm
-    directory: "/"
+    directory: "/code"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

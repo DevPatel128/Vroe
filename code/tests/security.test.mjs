@@ -118,7 +118,7 @@ test("http on the wrong host fixes both scheme and host in one hop", async () =>
 test("workers.dev previews are not redirected away", async () => {
   const env = baseEnv({ CANONICAL_HOST: "vroelabs.com" });
   const response = await worker.fetch(
-    edge("https://vroe-labs.devpatel1286.workers.dev/"),
+    edge("https://vroe-labs.dvpatel.workers.dev/"),
     env,
   );
   assert.notEqual(response.status, 301);
