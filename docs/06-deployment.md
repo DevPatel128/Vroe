@@ -5,14 +5,14 @@
 | | |
 | --- | --- |
 | Domain | `vroelabs.com` (registrar: Cloudflare) |
-| Zone ID | `ba73e5f4b36a0cd90f45f7c4e1a02194` |
-| Account ID | `c42e8966ce7200b9ff9a5e0e30aa0eb3` |
+| Zone ID | look up in the Cloudflare dashboard, or `wrangler whoami` |
+| Account ID | look up in the Cloudflare dashboard, or `wrangler whoami` — also stored as the `CLOUDFLARE_ACCOUNT_ID` GitHub secret |
 | Worker | `vroe-labs` |
-| workers.dev address | `https://vroe-labs.dvpatel.workers.dev` — the subdomain is an account setting and was once renamed from `devpatel1286`, so CI reads it from `wrangler deploy` output rather than trusting this row |
+| workers.dev address | the subdomain is an account setting, so CI reads it from `wrangler deploy` output rather than a value recorded here |
 | KV: `RATE_LIMIT` | `dc61b02b65b041b4aa4e3c6ad10fbd4d` |
 | KV: `SUBSCRIBERS` | `609b58326df24884aef3fe253af7aad9` |
 | Turnstile site key | `0x4AAAAAAEjohAZuCMiZZM6u` (public) |
-| Repo | `DevPatel128/Vroe` (private) |
+| Repo | `DevPatel128/Vroe` (public) |
 
 Other workers on this account — `trove`, `janki` — are unrelated. Do not touch
 them, and do not create the `trove.vroelabs.com` DNS record from here; it belongs
@@ -46,7 +46,7 @@ dashboard step. Go to **My Profile → API Tokens → Create Token → Custom to
 
 | Permission | Scope |
 | --- | --- |
-| Account → Workers Scripts → Edit | `Devpatel1286@gmail.com's Account` |
+| Account → Workers Scripts → Edit | your Cloudflare account |
 | Account → Workers KV Storage → Edit | same |
 | Account → Account Settings → Read | same |
 | Zone → Workers Routes → Edit | `vroelabs.com` |
@@ -55,7 +55,7 @@ Then store it:
 
 ```bash
 gh secret set CLOUDFLARE_API_TOKEN --repo DevPatel128/Vroe
-gh secret set CLOUDFLARE_ACCOUNT_ID --repo DevPatel128/Vroe --body c42e8966ce7200b9ff9a5e0e30aa0eb3
+gh secret set CLOUDFLARE_ACCOUNT_ID --repo DevPatel128/Vroe
 ```
 
 Use a scoped token, never a Global API Key. Rotate immediately if exposure is

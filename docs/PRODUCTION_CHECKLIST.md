@@ -222,7 +222,7 @@ Give it exactly these permissions and nothing more:
 | Account | Account Settings | Read |
 | Zone | Workers Routes | Edit |
 
-Scope it under **Account Resources** to `Devpatel1286@gmail.com's Account`, and
+Scope it under **Account Resources** to your Cloudflare account, and
 under **Zone Resources** to `vroelabs.com` only. Set a TTL if you want one —
 the deploy will start failing when it expires, which is a loud, safe failure.
 
