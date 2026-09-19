@@ -4,3 +4,7 @@
 # Editors
 .idea/
 .vscode/
+
+# Company framework reference copy — internal strategy/decision templates,
+# kept locally for AI-assisted work, never published with this public repo.
+The Framework./

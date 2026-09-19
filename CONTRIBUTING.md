@@ -6,7 +6,7 @@
 cd code           # the buildable app lives here, not the repo root
 npm ci
 npm run build
-npm test          # 44 tests — all must pass before you start
+npm test          # all must pass before you start
 ```
 
 Node 22 or newer. `npm run preview` serves the built site through the real

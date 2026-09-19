@@ -70,6 +70,13 @@ export const PRODUCTS = {
       "Manual control is a feature. Automatic categorisation is a suggestion, not a verdict.",
       "History should stay true. Restating the past with today's exchange rate is a quiet form of lying.",
     ],
+    /**
+     * Explicit non-claims, same discipline as Vero's `notYetBuilt` below.
+     * Trove is being built and is not yet available; this is what
+     * src/pages/product.jsx's status callout already says in prose — kept
+     * here too so it's the one place both draw from.
+     */
+    notYetBuilt: ["a download", "sign-up", "a waiting list beyond the email updates"],
   },
 
   vero: {

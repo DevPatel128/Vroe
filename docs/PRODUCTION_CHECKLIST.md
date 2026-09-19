@@ -17,14 +17,19 @@ npm audit --audit-level=high
 npm run preview          # then actually look at the site on :8788
 ```
 
-All four must pass. `npm test` is **72 assertions** across four suites. The last
-step is not optional: three of the worst defects found in this project were
-invisible to the tests and obvious in a browser within a minute.
+All four must pass. `npm test` runs every suite, including the byte budgets in
+`tests/performance.test.mjs`. The last step is not optional: three of the worst
+defects found in this project were invisible to the tests and obvious in a
+browser within a minute.
+
+CI additionally runs the Lighthouse budgets (`npm run perf`, against a running
+`npm run preview`; needs Chrome and `cd perf && npm ci` once). You do not have to
+run them by hand, but that is where to look if the `performance` job goes red.
 
 | Gate | Expected |
 | --- | --- |
 | `npm run build` | Exit 0, 10 routes prerendered, sitemap written |
-| `npm test` | 72 passing, 0 failing |
+| `npm test` | Every suite passing, 0 failing |
 | `npm audit --audit-level=high` | `found 0 vulnerabilities` |
 | `npm run preview` → `http://localhost:8788` | Loads, no console errors, no redirect loop |
 
@@ -165,19 +170,27 @@ These cannot be done from the CLI or need a real browser session.
 6. **GitHub repository settings.** Partly done:
    - **Branch protection on `main`** — **done.** Force pushes and deletions are
      blocked, and the rule applies to admins too (otherwise it is theatre on a
-     solo repo). Direct pushes to `main` still work, so the normal workflow is
-     unchanged. To force-push deliberately, turn "Do not allow bypassing the
-     above settings" off in Settings → Branches, push, then turn it back on.
+     solo repo). The `verify` CI check is **required**, so nothing reaches
+     `main` — and therefore production — except through a pull request that
+     passes it. Direct pushes no longer work; merging the pull request is the
+     human approval before production. For a genuine emergency, turn "Do not
+     allow bypassing the above settings" off in Settings → Branches, push, then
+     turn it back on. The `performance` job is deliberately **not** required
+     yet: add it under the same rule once it has a track record of not flaking.
+     ADR-020.
    - **Secret scanning / push protection** — **not available.** The API returns
      `422 Secret scanning is not available for this repository`: it needs GitHub
      Advanced Security on a private repo. The CI job "Check the repository for
      committed secrets" stands in for it — see below.
-   - **`CLOUDFLARE_API_TOKEN`** — still missing. See item 7.
+   - **`CLOUDFLARE_API_TOKEN`** — set (2 September 2026), and deploys run. See
+     item 7.
+   - **`WORKER_URL` variable** — set, for the scheduled health check. It is a
+     repository *variable*, not a secret: it is only the public `workers.dev`
+     address. Update it if the account's workers.dev subdomain is ever renamed.
+     See [06-deployment.md](06-deployment.md#monitoring).
 
-7. **Create the `CLOUDFLARE_API_TOKEN` GitHub secret.** Until this exists the
-   Deploy workflow builds, tests, then fails at `wrangler deploy`, so pushing to
-   `main` does not deploy. Creating and storing an API token is yours to do —
-   it must not pass through anyone else's hands. Exact steps are in
+7. **The `CLOUDFLARE_API_TOKEN` GitHub secret** — **done.** Exact steps, should
+   it ever need recreating, are in
    [Creating the Cloudflare API token](#creating-the-cloudflare-api-token).
 
 8. **Google Search Console verification.** Neither the DNS TXT record nor the
@@ -250,6 +263,34 @@ next push to `main` will then deploy.
 
 If the token ever leaks, revoke it in the same Cloudflare API Tokens screen —
 that invalidates it immediately — then create a new one and re-run step 2.
+
+---
+
+## If a secret or subscriber data is exposed
+
+The same flow applies to any exposure, not only the Cloudflare API token:
+suspect → contain → rotate/revoke → assess → restore → verify → document →
+review. Don't leave a known-exposed credential active while you investigate.
+
+**`TURNSTILE_SECRET_KEY` leaks** (e.g. pasted somewhere public, or found in a
+log). Generate a new secret pair in the Cloudflare Turnstile dashboard for the
+`vroelabs.com` widget, set it with `wrangler secret put TURNSTILE_SECRET_KEY`,
+and update `TURNSTILE_SITE_KEY` in `wrangler.jsonc` to match — the site key is
+public by design and appears in every page's source, but it must stay paired
+with the current secret. The old pair stops working the moment you rotate.
+
+**`SUBSCRIBERS` or `RATE_LIMIT` KV data is exposed** (e.g. a Cloudflare
+account-access incident, not a code bug — the worker never returns KV values
+to a caller). Confirm what's actually in scope: `SUBSCRIBERS` keys are
+SHA-256 hashes of email addresses, never the address itself (ADR-010), and
+`RATE_LIMIT` holds only IP-derived throttle keys that expire on their own.
+Rotate Cloudflare account credentials first, then assess whether the hashed
+keys are reversible for the affected addresses (they generally aren't without
+the original list) before deciding whether affected users need notifying.
+
+**In every case:** revoke/rotate before investigating further, then record
+what happened as a new ADR in [07-decisions.md](07-decisions.md) — what was
+exposed, how it was contained, and what changed to prevent it recurring.
 
 ---
 

@@ -30,13 +30,21 @@ vanilla JS. So:
 4. **No React in the browser.** → [docs/02-architecture.md](docs/02-architecture.md)
 5. **No invented structured data.** No ratings, reviews, offers or counts.
 
+## Before a consequential change
+
+Answer why, impact, how, cost, and whether the cost is justified — and label
+claims as fact, assumption or unknown. Record non-obvious decisions as an ADR
+using the template in [docs/07-decisions.md](docs/07-decisions.md).
+→ [docs/08-ai-workflow.md](docs/08-ai-workflow.md). How this repo maps to the
+company framework, and its open gaps: [docs/00-framework-map.md](docs/00-framework-map.md).
+
 ## Commands
 
 ```bash
 cd code                # the buildable app lives here, not the repo root
 npm ci
 npm run build           # fonts → images → vite → prerender → sitemap
-npm test                # 99 tests — all must pass
+npm test                # every suite — all must pass
 npm run preview         # wrangler dev on :8788
 npm run deploy          # build + wrangler deploy
 ```
@@ -58,6 +66,9 @@ were invisible to the tests and obvious in a browser.
 | A failed form submit loses the button's arrow icon | `button.textContent = …` replaces child nodes. Use `replaceChildren`. |
 | Build fails: "Evidence data failed validation" | A figure lacks a source or locator, a calculated metric has a typed value, or a population's age band or year does not match. Fix in `code/src/content/evidence/`. ADR-015 |
 | An element toggled with `hidden` stays visible | A class sets `display`, which beats the browser's `[hidden]` rule. `evidence.css` restates it for the evidence layer. |
+| Build fails: "Cannot find package 'x'" after a Dependabot bump | A script imports `x` directly, but `x` only arrived as a dependency of something else that has since dropped it. Declare it in `package.json`. ADR-019 |
+| `npm test` fails "over budget" | Something got bigger than `tests/performance.test.mjs` allows. Find out why before raising the number; if the growth is right, record it as an ADR. ADR-021 |
+| Can't push to `main` | It requires a pull request that passes `verify`. That is intended. ADR-020 |
 
 ## Layout
 

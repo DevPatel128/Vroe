@@ -31,6 +31,68 @@ That runs `npm run build` then `wrangler deploy`. Pushing to `main` does the sam
 through GitHub Actions, then smoke-tests the deployment on its workers.dev
 address (Bot Fight Mode challenges CI on the custom domain; see the workflow).
 
+**Nothing reaches `main` except through a pull request.** `main` requires the
+`verify` check (audit, build, every test, the secret scans), and the rule applies
+to admins, so a red pull request cannot be merged and a direct push is rejected.
+Merging the pull request is the human approval before production; the merge is
+what deploys. A second CI job, `performance`, runs the Lighthouse budgets on
+every pull request; it is not yet a required check (see
+[PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md), item 6).
+
+## Performance budgets
+
+Two layers, because they catch different things.
+
+**Bytes — `tests/performance.test.mjs`, part of `npm test`.** Deterministic, so
+it never flakes, and it runs in CI and again before every deploy. Budgets for
+gzipped JavaScript (one ~2 KB script; this is what keeps ADR-001 true), CSS, each
+HTML page, fonts and each image. Going over is sometimes right: raise the number
+in the test and record why as an ADR, so the increase is a decision.
+
+**Timing and audits — `perf/run.mjs`, the CI `performance` job.** Lighthouse,
+mobile emulation, median of three runs, on six pages. It fails on a performance
+score below 0.95, on FCP, LCP, TBT or CLS past Google's "good" thresholds, and on
+any failing accessibility, best-practice or SEO audit that is not listed in
+`KNOWN_ISSUES` at the top of the file. Two are listed today (colour contrast in
+the product illustrations, and heading order on `/products`). Remove an entry
+when it is fixed; the runner tells you when one no longer applies.
+
+Run it yourself:
+
+```bash
+cd perf && npm ci && cd ..   # once. Lighthouse has its own dependency tree
+npm run build
+npm run preview              # in one terminal
+npm run perf                 # in another; needs Chrome (set CHROME_PATH if it isn't found)
+```
+
+Lighthouse is installed from `perf/`, not from the app's `package.json`, on
+purpose: the deploy job holds the Cloudflare token, and its install should never
+include a browser-automation tree of a hundred packages. ADR-021.
+
+## Monitoring
+
+`.github/workflows/health.yml` runs every three hours and checks the deployed
+Worker: `/api/health` reports ready, `/`, `/trove` and `/vero` return 200, the CSP
+header is present, and the custom domain answers. It tries three times, 30 seconds
+apart, so one dropped request is not an alert. A failure is a failed Actions run,
+and GitHub emails those. There is no other alerting.
+
+Two things to set up, once:
+
+1. **The `WORKER_URL` repository variable** (Settings → Secrets and variables →
+   Actions → Variables): the deployed Worker's workers.dev address, which the last
+   successful Deploy run prints. It is a variable, not a secret, because it is
+   public. If the account's workers.dev subdomain is ever renamed, update it. The
+   check fails loudly, saying so, while the variable is missing or wrong.
+2. **Your notifications** (github.com → Settings → Notifications → Actions):
+   enable "Send notifications for failed workflows only". Scheduled-run failures
+   go to whoever last edited the cron line in the workflow file.
+
+Bot Fight Mode challenges GitHub runners on `vroelabs.com`, so the check leans on
+the workers.dev address for the real verdict and treats a challenge on the custom
+domain as "cannot verify from here", not as an outage.
+
 ## First-time setup
 
 Both KV namespaces and the Turnstile widget already exist. What remains:
@@ -109,6 +171,10 @@ node -e 'console.log(require("crypto").createHash("sha256").update(process.argv[
 npx wrangler kv key delete "sub:<that hash>" --binding SUBSCRIBERS --remote
 ```
 
+Then append a row to [deletion-log.md](deletion-log.md) — date and the hashed
+key only, never the address. This is a manual command with no admin endpoint
+behind it, so the log is the only record that it happened.
+
 ## Rollback
 
 ```bash
@@ -118,6 +184,15 @@ npx wrangler rollback --message "reason"
 
 Assets and worker roll back together. HTML is `must-revalidate`, so a rollback is
 visible immediately; hashed assets are immutable and unaffected.
+
+**The deploy workflow does this itself.** If a deploy succeeds but then fails its
+smoke test, the workflow runs `wrangler rollback` to the version uploaded before
+it, waits for `/api/health` to report ready, and still ends red, so a bad deploy
+is visible even though it was undone. It does nothing when the build or the tests
+fail, because nothing was deployed. A rollback changes code only: KV data and
+bindings are untouched, and Cloudflare refuses one if a binding the older version
+uses has since been deleted. If the automatic rollback fails, the run says so and
+you roll back by hand as above. ADR-020.
 
 ## Verifying a deploy
 

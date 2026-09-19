@@ -2,6 +2,35 @@
 
 Every non-obvious choice, and what it cost. Read before reversing any of them.
 
+## Template for new entries
+
+Copy this for every ADR from 018 onward. ADRs 001–017 predate it and are not
+being retrofitted — the fields below are required going forward, per the
+company decision framework (why, impact, cost, is the cost justified).
+
+```
+## ADR-NNN — [Title]
+
+**Status.** Proposed / Approved / Superseded by ADR-NNN
+
+**Context.** What problem or opportunity requires this?
+
+**Decision.** What was decided?
+
+**Why.** Why this, and not the status quo?
+
+**Cost.** Money, complexity, maintenance. Cheaper alternatives considered,
+and why they weren't chosen.
+
+**Consequences.** What changes as a result? Risks and trade-offs.
+
+**Alternatives.** What else was considered, and why not.
+
+**Revisit when.** What would justify reopening this.
+
+**Approved by.** — **Date.**
+```
+
 ---
 
 ## ADR-001 — Prerender with React rather than ship a SPA
@@ -329,3 +358,197 @@ SEBI 2025 figures on investor knowledge and barriers, and loses its national
 literacy rate. Eight of the ten researched countries drop off the page, and the
 country ranking disappears (ADR-016). The old source files remain in
 `docs/impact-research/raw/`, marked "not used", as a research record.
+
+---
+
+## ADR-018 — Infrastructure cost review: Cloudflare free tier only
+
+**Status.** Approved — documents the current, already-live state (see
+ADR-010, ADR-011, ADR-012).
+
+**Context.** The company engineering framework asks for a recorded cost
+estimate, a cheaper-alternative comparison, and a justification for
+significant infrastructure choices. ADR-010, ADR-011 and ADR-012 each reasoned
+about cost individually; nothing consolidated the total picture.
+
+**Decision.** Run the entire site — Workers, two KV namespaces
+(`RATE_LIMIT`, `SUBSCRIBERS`), Web Analytics, Workers Logs — on Cloudflare's
+free tier. No paid Cloudflare product, no Supabase, no Sentry, no PostHog.
+
+**Why.** The site is a prerendered marketing page plus three small `/api`
+endpoints (ADR-008) and one KV-backed mailing list (ADR-010). None of that
+approaches the complexity that would justify a paid tier or an additional
+service.
+
+**Cost.** $0/month in Cloudflare charges today. `wrangler.jsonc`'s own
+comments record the reasoning at each binding: `run_worker_first` costs one
+extra Worker invocation per request — "well inside the free tier" for a
+static site; the two KV namespaces are read/write-light (a per-IP throttle
+and keyed signups). Cheaper alternatives were already the deciding factor in
+ADR-010 (Supabase's two-project cap) and ADR-011 (PostHog's ~50 KB and
+consent banner versus Web Analytics' ~5 KB).
+
+**Consequences.** No invoice to review, no billing alert to configure. The
+trade-off is Cloudflare's free-tier request and storage ceilings, which this
+site is nowhere near.
+
+**Alternatives.** Supabase, PostHog and Sentry were each considered and
+rejected on cost/complexity grounds in ADR-010, ADR-011 and ADR-012
+respectively; this entry records that the *combined* picture was reviewed
+too, not just each piece in isolation.
+
+**Revisit when.** Traffic, subscribe volume, or Worker invocations approach
+Cloudflare's published free-tier limits — check the Cloudflare dashboard's
+usage panel for the current figures, not this document, since the limits are
+Cloudflare's to change.
+
+**Approved by.** — **Date.**
+
+---
+
+## ADR-019 — Declare `esbuild` as a direct devDependency
+
+**Status.** Proposed — in the pull request that adds ADR-020 and ADR-021;
+approved when that merges.
+
+**Context.** `scripts/prerender.mjs` imports `esbuild` directly. That only
+resolved because Vite up to 7 depended on esbuild and npm hoisted it. The
+Dependabot bump from Vite 6 to 8 (#9) removed that transitive copy, and CI and
+Deploy both failed with `ERR_MODULE_NOT_FOUND` on 2026-09-16, leaving `main`
+red. Vite 8 lists esbuild only as an optional peer, `^0.27.0 || ^0.28.0`.
+
+**Decision.** Add `esbuild` 0.28.1 as an exact `devDependency`.
+
+**Why.** A package a script imports directly has to be a direct dependency.
+Relying on a transitive one is what let a routine version bump break the build.
+
+**Cost.** Nothing recurring. No new package to trust: 0.28.1 was already in the
+tree through wrangler, and the lockfile changes by two packages in, two out.
+
+**Consequences.** The build is restored. `esbuild` now gets its own Dependabot
+updates and must stay inside Vite's peer range, or `npm install` reports a
+conflict.
+
+**Alternatives.** Pin Vite back to 6.4.3 and `@vitejs/plugin-react` to 5.x:
+undoes a supported major upgrade and only defers the same problem. Rewrite the
+prerenderer on Vite 8's own bundler: a larger change with no user-facing
+benefit. Keep esbuild 0.25.12 with `--force`: accepts a known peer conflict.
+
+**Revisit when.** The prerenderer is rewritten, or Vite offers a supported way
+to bundle SSR scripts programmatically.
+
+**Approved by.** — **Date.**
+
+---
+
+## ADR-020 — Production safeguards: a required check, a health check, automatic rollback
+
+**Status.** Approved.
+
+**Context.** On 2026-09-16 Dependabot's Vite 6→8 pull request (#9) was merged
+while its `verify` check was failing (ADR-019). CI and Deploy went red on
+`main` and nothing told anyone. Production kept serving the previous version
+only because the failed build never reached `wrangler deploy`. That exposed
+three separate gaps: nothing stopped a red merge; nothing detected a broken
+`main` or a broken production; and a deploy that built fine but failed its
+smoke test would have stayed live until a human noticed and rolled it back.
+
+**Decision.** Three measures.
+
+1. Branch protection on `main` requires the `verify` check, and applies to
+   admins. Every change goes through a pull request, and merging it is the
+   human approval before production.
+2. `.github/workflows/health.yml` checks the deployed Worker every three hours
+   and fails loudly, so GitHub's own Actions notifications reach the maintainer.
+3. `deploy.yml` runs `wrangler rollback` when a deployed version fails its
+   smoke test, waits for `/api/health` to report ready, and still ends red.
+
+**Why.** The engineering framework asks for human approval before production
+(sections 16 and 20), alerts (17), and detect → contain → recover → verify
+(18). All three were missing, and the first one has now cost something.
+
+**Cost.** No new service and no new dependency. GitHub Actions minutes: about
+eight health-check runs a day, each billed at the one-minute minimum, is
+roughly 240 of the 2,000 free minutes a month on a private repository — an
+estimate, so confirm in Settings → Billing; it costs nothing once the
+repository is public. The rollback step runs only when a deploy fails. The
+real cost is friction: no more pushing straight to `main`. Cheaper
+alternatives: do nothing and rely on discipline, which is what failed on
+2026-09-16; or rely on GitHub's default emails, which would have said the run
+failed but not that production was at risk.
+
+**Consequences.** Direct pushes to `main` are rejected, admin included; an
+emergency bypass is documented in `PRODUCTION_CHECKLIST.md`. A required
+*review* is not possible on a solo repository, since nobody else can approve,
+so it is not required. The automatic rollback could misfire on a false alarm.
+It is limited by the smoke test polling for three minutes before it fails, by
+rolling back to the last version that itself passed, and by the run staying
+red. A rollback changes code only, so KV data is untouched. Monitoring depends
+on the `WORKER_URL` repository variable staying correct.
+
+**Alternatives.** A required-reviewer rule on the `production` environment:
+not evaluated, because the pull-request merge already is the approval step and
+a solo maintainer would be approving their own deploy. An external uptime
+service: a new third party for something GitHub Actions already does, and
+rejected under lowest justified cost. Manual rollback only: the status quo,
+which leaves a bad deploy live for as long as it takes someone to notice.
+
+**Revisit when.** The repository goes public (shorten the health interval,
+since minutes stop counting); a second maintainer joins (require a review);
+or the health check raises a false alarm.
+
+**Approved by.** Dev — **Date.** 2026-09-19.
+
+---
+
+## ADR-021 — Performance and accessibility budgets: bytes in the tests, Lighthouse in CI
+
+**Status.** Approved.
+
+**Context.** The engineering framework asks for performance to be measured
+where it matters (section 13). This repository's docs claimed "Lighthouse
+budgets in CI" that did not exist; Lighthouse was only ever an unchecked item
+on a manual checklist.
+
+**Decision.** Two layers.
+
+1. `tests/performance.test.mjs`, part of `npm test`: budgets for gzipped
+   JavaScript, CSS and each HTML page, and for fonts and each image. It runs
+   in CI and again before every deploy.
+2. A CI job, `performance`, running Lighthouse 13.5.0 from its own dependency
+   tree in `code/perf/`. Median of three runs on six pages, mobile emulation.
+   It asserts a performance score of 0.95 or more, Google's "good" thresholds
+   for FCP, LCP, TBT and CLS, and that no accessibility, best-practice or SEO
+   audit fails except those listed in `KNOWN_ISSUES` in `perf/run.mjs`.
+
+**Why.** Bytes are deterministic and catch the change of kind that matters
+most for this architecture, a framework or library arriving in the bundle
+(ADR-001); a test that injects a 60 KB script confirms it does. Timing needs a
+browser. Asserting audit by audit, not on a category score, means a new failure
+cannot hide behind an old one.
+
+**Cost.** One new dependency, `lighthouse` 13.5.0, pinned exactly: 114 packages
+in `perf/package-lock.json`, installed only by the `performance` job and never
+by the app or the deploy job. Measured locally, 18 Lighthouse runs take about
+three minutes; the CI figure is not yet measured. Ongoing: a monthly Dependabot
+entry for `perf/`, and the `KNOWN_ISSUES` list. Cheaper alternatives: the byte
+test alone costs nothing but sees neither render timing nor accessibility. Not
+chosen: `@lhci/cli`, last published June 2025, bundling Lighthouse 12 and
+pulling about 250 packages, over four times this app's whole tree; adding
+Lighthouse to the app's `devDependencies`, which would put it in the deploy
+job that holds the Cloudflare token; and an unpinned `npx lighthouse` in the
+workflow, which runs unlocked transitive dependencies on the runner.
+
+**Consequences.** Baseline, measured locally with Lighthouse 13.5.0: performance
+1.0, LCP 1.4 to 1.5 s, TBT 0 ms, CLS about 0 on every page. It also found two
+real, pre-existing accessibility problems: insufficient colour contrast in the
+product illustrations (four pages) and skipped heading levels on `/products`.
+They are recorded in `KNOWN_ISSUES` rather than fixed here, because fixing
+contrast changes the visual design. The `performance` job is not a required
+check to begin with, because timing metrics can vary on shared runners;
+promote it once it has shown it does not flake.
+
+**Revisit when.** The job flakes, the known issues are fixed (empty the list),
+or the repository goes public and free minutes allow more runs.
+
+**Approved by.** Dev — **Date.** 2026-09-19.

@@ -40,6 +40,8 @@ All paths below are inside `code/` (e.g. "`src/content/`" means
 | The signup pipeline | `worker/index.js` | Update `src/content/legal.js` if what you store changes |
 | The production domain | `SITE_URL` in `src/content/site.js` | One value drives canonicals, OG, sitemap and robots |
 | Deploy config | `wrangler.jsonc` | See [06-deployment.md](06-deployment.md) |
+| A performance budget | `tests/performance.test.mjs` (bytes), `perf/run.mjs` (Lighthouse) | Record the reason as an ADR. See [06-deployment.md](06-deployment.md#performance-budgets) |
+| The production health check or the auto-rollback | `.github/workflows/health.yml`, `.github/workflows/deploy.yml` | See [06-deployment.md](06-deployment.md#monitoring); these are the safeguards, so change them deliberately (ADR-020) |
 
 ## The five rules
 
@@ -56,13 +58,14 @@ All paths below are inside `code/` (e.g. "`src/content/`" means
 
 | File | What it covers |
 | --- | --- |
-| [00-framework-map.md](00-framework-map.md) | How this repo relates to the 5-step company framework, and which parts do not apply |
+| [00-framework-map.md](00-framework-map.md) | How this repo relates to the company product framework — what's followed, what's not applicable, and the open gaps |
 | [01-brand/design-system.md](01-brand/design-system.md) | Brand token → CSS custom property → where it is used |
 | [05-seo.md](05-seo.md) | Metadata, structured data shapes, internal linking, keywords |
 | [06-deployment.md](06-deployment.md) | Cloudflare and GitHub Actions runbook, secrets, rollback |
 | [07-decisions.md](07-decisions.md) | ADR log — every non-obvious choice and why |
 | [08-ai-workflow.md](08-ai-workflow.md) | Conventions for agents working in this repo |
 | [09-qa/](09-qa/) | QA records from the prototype and the responsive/a11y matrix |
+| [deletion-log.md](deletion-log.md) | Audit trail for manual subscriber-deletion requests |
 
 Root-level `README.md` and `SECURITY.md` stay at the true repo root — GitHub
 convention, and `SECURITY.md` powers the repo's Security tab.

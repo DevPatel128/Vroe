@@ -8,7 +8,7 @@ change…?" table. This file is the conventions.
 ```bash
 npm ci
 npm run build
-npm test          # 44 assertions; all must pass before you start
+npm test          # all must pass before you start
 ```
 
 If tests fail on a clean checkout, fix that before doing anything else.
@@ -25,6 +25,37 @@ If tests fail on a clean checkout, fix that before doing anything else.
 4. **No React in the browser.** No hooks, no state, no client framework.
    [02-architecture.md](02-architecture.md).
 5. **No invented structured data.** No ratings, reviews, offers or counts.
+
+## Before a consequential change
+
+Mirrors the company framework's AI operating rules (see
+[00-framework-map.md](00-framework-map.md)). Before proposing anything beyond
+a wording fix or a routine bug fix, answer:
+
+- **Why** should this change be made?
+- **Impact** — what changes, what results should it yield, what are the
+  risks and trade-offs?
+- **How** will it be implemented?
+- **Cost** — money, complexity, maintenance. Is there a cheaper way to get
+  the same result?
+- **Is the cost justified?**
+
+Record the answer in a new [07-decisions.md](07-decisions.md) ADR for
+anything non-obvious — that file has a template with the same fields.
+
+## Fact, assumption, or unknown?
+
+When a change touches a product claim, a number, or anything a user reads —
+not internal engineering — say which of these it is before proposing it:
+
+- **Fact** — verified, with a source. [10-evidence.md](10-evidence.md)'s
+  evidence layer enforces a stricter version of this for `/trove`'s figures.
+- **Assumption** — plausible, not verified. Say so.
+- **Unknown** — a valid answer. Don't fill a gap with a guess.
+
+The test suite catches fabricated structured data and evidence figures
+(`tests/seo.test.mjs`, `tests/evidence.test.mjs`); it does not catch a false
+claim written into prose copy, so this is a discipline, not a safety net.
 
 ## Things that will bite you
 

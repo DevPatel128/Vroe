@@ -22,9 +22,11 @@ npm run preview     # wrangler dev on http://localhost:8788
 | --- | --- |
 | `npm run build` | Fonts → images → Vite → prerender → sitemap |
 | `npm run preview` | Serve the built site through the real worker |
-| `npm test` | All 44 tests: worker behaviour, security, SEO |
+| `npm test` | Every suite: worker behaviour, security, SEO, evidence, performance budgets |
 | `npm run test:security` | Headers, CSP, subscribe pipeline, build hygiene |
 | `npm run test:seo` | Metadata, structured data, sitemap, links, images |
+| `npm run test:performance` | Byte budgets: JavaScript, CSS, HTML, fonts, images |
+| `npm run perf` | Lighthouse budgets against `npm run preview` (needs Chrome and `cd perf && npm ci`) |
 | `npm run audit:deps` | `npm audit --audit-level=high` |
 | `npm run audit:sbom` | CycloneDX SBOM → `sbom.json` |
 | `npm run build:og` | Regenerate the three social cards (not part of `build`) |
