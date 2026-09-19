@@ -182,7 +182,7 @@ jobs:
         env:
           CI: "true"
           WRANGLER_SEND_METRICS: "false"
-        run: nohup npm run preview > preview.log 2>&1 &
+        run: nohup npm run preview -- --port 8788 > preview.log 2>&1 &
 
       - name: Lighthouse budget
         env:
