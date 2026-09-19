@@ -195,3 +195,35 @@ jobs:
           fi
 
           echo "Live site verified."
+
+      # If the version that was just deployed fails its own smoke test, put the
+      # previous one back. Detect, contain, recover, verify (ENGINEERING.md,
+      # section 18). The run still ends red: this shortens how long a bad
+      # deploy stays live, it does not hide that there was one. ADR-020.
+      #
+      # `steps.deploy.conclusion == 'success'` limits this to a failure after a
+      # version really went out. A failed build or test never deployed anything,
+      # so there is nothing to undo. With no version argument, wrangler restores
+      # the version uploaded before the latest one. A rollback changes the code
+      # only; KV data and bindings are untouched.
+      - name: Roll back a failed deploy
+        if: failure() && steps.deploy.conclusion == 'success'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WORKER_URL: ${{ steps.deploy.outputs.worker_url }}
+        run: |
+          set -euo pipefail
+          echo "::warning::The smoke test failed. Rolling back to the previous version."
+          npx wrangler rollback --yes --message "Automatic rollback: smoke test failed for ${GITHUB_SHA}"
+
+          # Confirm the previous version is what is serving now.
+          deadline=$((SECONDS + 120))
+          until curl -sf "$WORKER_URL/api/health" | grep -q '"ready":true'; do
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::Rolled back, but $WORKER_URL/api/health is still not ready. Fix this by hand."
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "::warning::Rolled back to the previous version and /api/health is ready. Commit ${GITHUB_SHA} is NOT live; fix it and push again."

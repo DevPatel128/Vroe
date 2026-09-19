@@ -1,0 +1,13 @@
+{
+  "name": "vroe-labs-perf",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lighthouse budget runner. Kept out of the app's dependency tree on purpose: CI-only, no secrets in its job, and never installed by the deploy job.",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "devDependencies": {
+    "lighthouse": "13.5.0"
+  }
+}

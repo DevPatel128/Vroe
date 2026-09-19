@@ -1,0 +1,82 @@
+name: Health check
+
+# Nothing else notifies anyone when production breaks, so this does. A failed
+# run emails the person who last edited the schedule below, through GitHub's own
+# Actions notifications, with no extra service. ADR-020.
+#
+# Every three hours: a run is billed to the minute, and the free allowance on a
+# private repo is 2,000 minutes a month. Tighten it once the repository is
+# public and minutes stop counting.
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check the live site
+        env:
+          # The workers.dev address of the deployed Worker, from the repository
+          # variable of the same name (Settings, Secrets and variables, Actions,
+          # Variables). It is a variable rather than a hard-coded value because
+          # the account's workers.dev subdomain can be renamed, and it has been.
+          # Bot Fight Mode challenges datacentre IPs on vroelabs.com, so this is
+          # the address that gives a real answer from a GitHub runner.
+          WORKER_URL: ${{ vars.WORKER_URL }}
+          SITE_URL: https://vroelabs.com
+        run: |
+          set -uo pipefail
+
+          if [ -z "$WORKER_URL" ]; then
+            echo "::error::The repository variable WORKER_URL is not set, so nothing is being monitored. See docs/06-deployment.md."
+            exit 1
+          fi
+
+          # One pass over everything. Prints a reason and returns 1 on failure.
+          check() {
+            local body code headers
+
+            body=$(curl -sS --max-time 20 "$WORKER_URL/api/health" 2>&1) || { echo "$WORKER_URL/api/health unreachable: $body"; return 1; }
+            echo "$body" | grep -q '"ready":true' || { echo "$WORKER_URL/api/health is not ready: $body"; return 1; }
+
+            for path in / /trove /vero; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$WORKER_URL$path") || code=000
+              [ "$code" = "200" ] || { echo "$WORKER_URL$path returned $code"; return 1; }
+            done
+
+            headers=$(curl -sSI --max-time 20 "$WORKER_URL/") || { echo "could not read headers from $WORKER_URL/"; return 1; }
+            echo "$headers" | grep -qi '^content-security-policy:' || { echo "the Content-Security-Policy header is missing"; return 1; }
+
+            # The custom domain is what visitors use. A Cloudflare bot challenge
+            # means Cloudflare answered, so DNS and the edge are fine but the
+            # Worker cannot be checked from here; anything else must be a 200.
+            code=$(curl -s -o /dev/null -D /tmp/site.txt -w '%{http_code}' --max-time 20 "$SITE_URL/") || code=000
+            if grep -qi '^cf-mitigated:' /tmp/site.txt 2>/dev/null; then
+              echo "::notice::$SITE_URL served a bot challenge, so the custom domain cannot be checked from a runner."
+            elif [ "$code" != "200" ]; then
+              echo "$SITE_URL/ returned $code"
+              return 1
+            fi
+            return 0
+          }
+
+          # Three tries, so one dropped request is not an alert.
+          for attempt in 1 2 3; do
+            if reason=$(check); then
+              echo "$reason"
+              echo "Healthy (attempt $attempt)."
+              exit 0
+            fi
+            echo "Attempt $attempt failed: $reason"
+            [ "$attempt" -lt 3 ] && sleep 30
+          done
+
+          echo "::error::Production failed three health checks in a row. Last failure: $reason"
+          exit 1

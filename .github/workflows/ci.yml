@@ -131,3 +131,73 @@ jobs:
 
           [ "$fail" -eq 0 ] || exit 1
           echo "No credentials found in tracked files."
+
+  # Lab performance, accessibility and SEO budgets, against the real Worker.
+  # Byte budgets are not here: they are deterministic, so they live in the test
+  # suite and run inside `verify` (and again before every deploy). This job
+  # covers render timing and the Lighthouse audits, which need a browser.
+  #
+  # It is a separate job, and Lighthouse a separate dependency tree in
+  # code/perf/, so that nothing in the deploy job's install ever includes it.
+  # Like `verify`, it references no secrets.
+  performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: code
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            code/package-lock.json
+            code/perf/package-lock.json
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Prepare native deps
+        run: npm rebuild sharp
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Lighthouse
+        working-directory: code/perf
+        run: |
+          npm ci --ignore-scripts
+          npm audit --audit-level=high
+
+      # The real Worker, so headers, redirects and the CSP are what Lighthouse
+      # measures. The runner waits on /api/health itself.
+      - name: Start the site
+        env:
+          CI: "true"
+          WRANGLER_SEND_METRICS: "false"
+        run: nohup npm run preview > preview.log 2>&1 &
+
+      - name: Lighthouse budget
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: npm run perf
+
+      - name: Show the Worker log on failure
+        if: failure()
+        run: cat preview.log || true
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse
+          path: code/perf/reports
+          retention-days: 14
+          if-no-files-found: ignore
