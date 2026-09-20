@@ -29,7 +29,7 @@ was taken. No target has been set for any outcome ([PRODUCT.md](../02_PRODUCT/PR
 | --- | --- | --- |
 | Performance, accessibility, best-practice and SEO scores; Core Web Vitals | Lighthouse in CI on every pull request | Measured on every pull request |
 | Page weight | Byte budgets in `npm test` | Measured on every test run |
-| Availability | The scheduled health check ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md)) | Part of pull request #11, so it has no history yet; every three hours once merged |
+| Availability | The scheduled health check ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md)) | Added on 2026-09-20, so it has no history yet; it runs every three hours |
 | Subscriber-backup freshness | `npm run backup:check` on the maintainer's computer ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)) | Measured only when someone runs it. One backup of production exists, from 2026-09-20 |
 | Documentation kept in step with the code | `test:docs-sync` and the `docs-impact` check ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)) | Enforced on every pull request |
 
