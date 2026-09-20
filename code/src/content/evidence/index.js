@@ -7,7 +7,7 @@
  *
  * The first four come from external research. The fifth comes only from a
  * product's own data, and stays empty until that data exists — the two are never
- * merged (see derive.js, `problems()`, and docs/10-evidence.md).
+ * merged (see derive.js, `problems()`, and docs/03_RESEARCH/RESEARCH.md).
  *
  * MATURITY GATE. A product appears in `EVIDENCE` only once it has a researched
  * story. Trove does. Vero does not yet, so /vero renders no evidence layer at all.

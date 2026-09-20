@@ -6,7 +6,7 @@
  * countries.js, so the copy and the data cannot disagree. Where a sentence needs
  * a figure, it is a function that receives the figure already formatted.
  *
- * HONESTY (docs/03-content.md). Everything here describes the problem, never
+ * HONESTY (docs/04_DESIGN/CONTENT.md). Everything here describes the problem, never
  * Trove's effect on it. Trove has no users, so nothing may say or imply that it
  * saves time or money. `impact` stays empty until real product data exists, and
  * the tests fail if a Trove-impact claim appears in this copy.

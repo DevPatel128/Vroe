@@ -18,13 +18,20 @@
 .product-icon.coral { background: var(--coral); }
 .product-icon.lime { color: var(--ink); background: var(--lime); font-family: var(--serif); font-size: 25px; }
 .product-name { font-size: 22px; font-weight: 700; letter-spacing: -0.05em; }
-.product-card h3 { margin: 66px 0 19px; font-size: clamp(44px, 4.4vw, 66px); line-height: 0.86; }
+.product-card .product-card-title { margin: 66px 0 19px; font-size: clamp(44px, 4.4vw, 66px); line-height: 0.86; }
 .product-card-copy p { max-width: 270px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
 .product-card-copy .button { margin-top: 29px; }
 
 /* ─── Trove preview ──────────────────────────────────────────────────────
    Decorative illustration of the product UI. Marked aria-hidden and carrying
-   invented sample figures, so it must never be read as real account data. */
+   invented sample figures, so it must never be read as real account data.
+
+   The illustration's own greens and greys sit outside the brand tokens. Each is
+   defined once here and is dark enough to meet WCAG AA (4.5:1) on every surface
+   it is drawn on: the green on #eae8e1, #f2f0eb and #fffdf9, the grey on #fffdf9.
+   tests/accessibility.test.mjs recomputes that, so they cannot drift lighter. */
+.trove-preview, .vero-preview { --preview-green: #4e6e3f; --preview-muted: #6a7381; }
+
 .trove-preview {
   position: absolute; right: 27px; bottom: 27px;
   display: grid; grid-template-columns: 118px minmax(0, 1fr);
@@ -49,13 +56,13 @@
 .trove-main { padding: 25px 24px; }
 .trove-preview-topline, .card-heading, .chart-labels { display: flex; align-items: center; justify-content: space-between; }
 .trove-preview-topline .eyebrow { font-size: 8px; }
-.trove-status { display: inline-flex; align-items: center; gap: 4px; color: #617c4c; font-size: 8px; font-weight: 700; }
+.trove-status { display: inline-flex; align-items: center; gap: 4px; color: var(--preview-green); font-size: 8px; font-weight: 700; }
 .trove-status span { width: 5px; height: 5px; border-radius: 50%; background: #76a653; }
 .trove-balance-row { display: flex; justify-content: space-between; margin: 31px 0 22px; }
 .trove-balance-row > div { display: grid; gap: 5px; }
 .trove-balance-row .eyebrow { font-size: 8px; }
 .trove-balance-row strong { font-size: clamp(26px, 3vw, 40px); letter-spacing: -0.08em; }
-.positive { color: #5c824a; font-size: 10px; font-weight: 700; }
+.positive { color: var(--preview-green); font-size: 10px; font-weight: 700; }
 .mini-action { display: inline-flex; align-items: center; justify-content: center; align-self: start; width: 27px; height: 27px; border: 1px solid rgba(8,27,74,0.16); border-radius: 50%; background: var(--white); }
 .mini-action svg { font-size: 14px; }
 .trove-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; }
@@ -64,10 +71,10 @@
 /* 600, not 500. This class is the only thing on the site that used DM Sans 500,
    and it appears three times inside the aria-hidden Trove mock at 9px — a 14 KB
    font file for decorative micro-text. 600 is already loaded for the nav. */
-.muted { color: #7e8795; font-size: 9px; font-weight: 600; }
+.muted { color: var(--preview-muted); font-size: 9px; font-weight: 600; }
 .bars { display: flex; align-items: end; gap: 4px; height: 78px; margin: 21px 0 9px; border-bottom: 1px solid rgba(8,27,74,0.12); }
 .bars span { flex: 1; min-height: 8px; border-radius: 4px 4px 0 0; background: #859875; }
-.chart-labels { color: #8c929e; font-size: 8px; }
+.chart-labels { color: var(--preview-muted); font-size: 8px; }
 .goal-card { display: grid; align-content: start; gap: 9px; }
 .goal-card .card-heading svg { color: #9cae69; font-size: 16px; }
 .goal-card strong { margin-top: 25px; font-size: 11px; }
@@ -78,14 +85,14 @@
 .transaction-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 7px; color: #637452; background: #e5ead9; }
 .transaction-icon svg { font-size: 13px; }
 .transaction strong { display: block; font-size: 9px; }
-.transaction small { display: block; margin-top: 2px; color: #88909c; font-size: 8px; }
+.transaction small { display: block; margin-top: 2px; color: var(--preview-muted); font-size: 8px; }
 .transaction-amount { font-size: 9px !important; }
 
 /* ─── Vero teaser ─────────────────────────────────────────────────────── */
 .vero-card-shell { display: flex; flex-direction: column; min-height: 680px; color: var(--ink); background: var(--blue); }
 .vero-card-shell .product-meta { position: relative; z-index: 2; padding: 34px 30px 0; }
 .vero-copy { position: relative; z-index: 2; padding: 0 30px; }
-.vero-copy h3 { margin-top: 58px; }
+.vero-copy .product-card-title { margin-top: 58px; }
 .vero-copy p { max-width: 250px; color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
 .vero-image { position: absolute; right: 0; bottom: 0; width: 100%; height: 57%; object-fit: cover; object-position: center 35%; mix-blend-mode: multiply; }
 
@@ -105,7 +112,7 @@
 }
 .vero-preview-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .vero-preview-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-soft); }
-.vero-preview-status { display: inline-flex; align-items: center; gap: 6px; color: #5c824a; font-size: 11px; font-weight: 700; }
+.vero-preview-status { display: inline-flex; align-items: center; gap: 6px; color: var(--preview-green); font-size: 11px; font-weight: 700; }
 .vero-preview-status svg { font-size: 14px; }
 .vero-preview-card h4 { font-family: var(--serif); font-size: 22px; font-weight: 400; letter-spacing: -0.02em; margin: 0 0 6px; }
 .vero-preview-sub { color: var(--ink-soft); font-size: 12px; margin: 0 0 22px; }
@@ -115,7 +122,7 @@
 .vero-preview-party-label { display: grid; gap: 2px; font-size: 12px; }
 .vero-preview-party-label strong { font-size: 13px; }
 .vero-preview-party-label span { color: var(--ink-soft); }
-.vero-preview-check { color: #5c824a; font-size: 18px; }
+.vero-preview-check { color: var(--preview-green); font-size: 18px; }
 .vero-preview-footer { display: flex; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 12px; font-weight: 600; }
 .vero-preview-footer svg { color: var(--coral); font-size: 16px; }
 

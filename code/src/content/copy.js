@@ -1,7 +1,7 @@
 /**
  * Page copy that is not a product record, a note, or a legal document.
  *
- * VOICE (docs/01-brand/brand-guide.md): say what the product makes easier;
+ * VOICE (docs/04_DESIGN/BRAND-GUIDE.md): say what the product makes easier;
  * prefer specific, human language over feature lists; leave room for curiosity;
  * never imply a product is live when it is not; no hype, no invented metrics.
  */

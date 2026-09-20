@@ -5,7 +5,7 @@
  * vroelabs.com, not the date the prototype file was written. `updated` changes
  * only when the article's text actually changes. Article JSON-LD reads both
  * fields directly, so backdating either one would put a false date in front of
- * Google. See docs/05-seo.md.
+ * Google. See docs/05_ENGINEERING/ARCHITECTURE/SEO.md.
  */
 
 export const NOTES = [

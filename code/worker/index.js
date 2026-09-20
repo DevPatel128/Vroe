@@ -19,7 +19,7 @@
  *   3. Cloudflare Turnstile verification
  *   4. Store in SUBSCRIBERS KV, keyed by a SHA-256 of the address
  *
- * The email address is never written to a log line. See docs/04-security.md.
+ * The email address is never written to a log line. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
  */
 
 import { CSP_REPORT_PATH, withSecurity } from "./headers.js";
@@ -203,7 +203,7 @@ function canonicalRedirect(request, url, env) {
   // A client cannot suppress it in production, because Cloudflare sets it and
   // overwrites anything the client sends. The canonical-host redirect below is
   // deliberately NOT gated on it, so www -> apex keeps working regardless.
-  // See docs/07-decisions.md, ADR-014.
+  // See docs/08_DECISIONS/DECISIONS.md, ADR-014.
   const atEdge = request.headers.has("cf-ray");
   const insecure = url.protocol === "http:" && atEdge;
 

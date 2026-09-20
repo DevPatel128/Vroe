@@ -63,7 +63,7 @@
      .trove-* sizes below stay small: that subtree is aria-hidden and is meant to
      read as a scaled-down app screenshot. */
   .status-pill { padding: 6px 9px; font-size: 11px; }
-  .product-card h3 { margin: 45px 0 14px; font-size: 54px; }
+  .product-card .product-card-title { margin: 45px 0 14px; font-size: 54px; }
   .product-card-copy p { font-size: 13px; }
 
   .trove-preview {
@@ -87,7 +87,7 @@
   .vero-card-shell { min-height: 590px; }
   .vero-card-shell .product-meta { padding: 25px 23px 0; }
   .vero-copy { padding: 0 23px; }
-  .vero-copy h3 { margin-top: 42px; }
+  .vero-copy .product-card-title { margin-top: 42px; }
   .vero-image { height: 56%; }
   .vero-preview {
     right: -14px; bottom: 18px; width: 88%; max-width: 300px;

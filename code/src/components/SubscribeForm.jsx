@@ -21,7 +21,7 @@ import { SITE } from "../content/site.js";
  * No JS is required for the markup to be correct; enhance.js takes over submit
  * and only then loads Turnstile. If Turnstile cannot load at all, enhance.js
  * says so and points at `data-contact-email` rather than asking the visitor to
- * complete a check that is not on screen. See docs/04-security.md.
+ * complete a check that is not on screen. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
  */
 export function SubscribeForm() {
   return (

@@ -34,7 +34,7 @@ import { evidenceProblems } from "../src/content/evidence/index.js";
 
 // A figure without a source, a calculation that does not reproduce, or a story
 // item pointing at data that does not exist fails the build rather than shipping.
-// See src/content/evidence/derive.js and docs/10-evidence.md.
+// See src/content/evidence/derive.js and docs/03_RESEARCH/RESEARCH.md.
 const evidenceIssues = evidenceProblems();
 if (evidenceIssues.length > 0) {
   throw new Error(`Evidence data failed validation:\n  ${evidenceIssues.join("\n  ")}`);

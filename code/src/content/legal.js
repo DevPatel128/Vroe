@@ -5,13 +5,17 @@
  * does, not what a template says. It is written against worker/index.js and
  * must be re-read whenever that file's data handling changes. Today the site
  * stores exactly four things per signup — hashed key, address, timestamp,
- * country — and sets no cookies of its own. See docs/04-security.md.
+ * country — and sets no cookies of its own, and keeps a daily backup of that list
+ * for BACKUP_RETENTION_DAYS. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
  */
 
-export const LEGAL_EFFECTIVE = "1 September 2026";
+export const LEGAL_EFFECTIVE = "20 September 2026";
 
 /** Retention window, in days, for a stored subscriber record. Mirrors worker/index.js. */
 export const RETENTION_DAYS = 730;
+
+/** How long a daily backup of the list is kept. Mirrors worker/backup.js. */
+export const BACKUP_RETENTION_DAYS = 30;
 
 export const PRIVACY = {
   title: "Privacy Policy",
@@ -49,6 +53,7 @@ export const PRIVACY = {
       paragraphs: [
         "Records are held in Cloudflare Workers KV. Each entry is filed under a one-way cryptographic hash of your address rather than the address itself, so the stored list cannot be browsed by guessing email addresses.",
         `We keep a subscription record for up to ${RETENTION_DAYS} days from the date you subscribe, or until you ask us to remove it, whichever comes first.`,
+        `We also keep a backup copy of the list, so we can restore it if something goes wrong. Backups are kept on a computer that belongs to Vroe Labs, and each one is deleted after ${BACKUP_RETENTION_DAYS} days. If you ask us to remove your details, they leave the live list straight away and are gone from every backup within ${BACKUP_RETENTION_DAYS} days.`,
       ],
     },
     {

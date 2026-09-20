@@ -4,3 +4,10 @@
 # Editors
 .idea/
 .vscode/
+
+# Company framework reference copy — internal strategy/decision templates,
+# kept locally for AI-assisted work, never published with this public repo.
+The Framework./
+
+# Subscriber backups (npm run backup). Personal data: never commit. A test proves this rule holds.
+/backups/

@@ -33,6 +33,16 @@ updates:
       - dependency-name: wrangler
         update-types: ["version-update:semver-patch"]
 
+  # Lighthouse lives in its own dependency tree (code/perf), so it needs its own
+  # entry. Same policy: reviewed, never auto-merged.
+  - package-ecosystem: npm
+    directory: "/code/perf"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    versioning-strategy: increase
+    labels: ["dependencies", "ci"]
+
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

@@ -6,22 +6,26 @@
 cd code           # the buildable app lives here, not the repo root
 npm ci
 npm run build
-npm test          # 44 tests — all must pass before you start
+npm test          # all must pass before you start
 ```
 
 Node 22 or newer. `npm run preview` serves the built site through the real
-worker on `http://localhost:8788`.
+worker on `http://localhost:8787` (wrangler uses the next free port if that one is taken).
 
 ## Before you change anything
 
-Read [docs/README.md](docs/README.md). It has a load order and a "where do I
-change X?" table. For agents, [CLAUDE.md](CLAUDE.md) is the short version.
+Read [docs/00_START_HERE/README.md](docs/00_START_HERE/README.md). It says where every kind of
+information lives, and has a load order and a "where do I change X?" table. For
+agents, [CLAUDE.md](CLAUDE.md) is the short version.
 
 ## The rules
 
+The canonical statement is [docs/01_PRINCIPLES/PRINCIPLES.md](docs/01_PRINCIPLES/PRINCIPLES.md);
+in short:
+
 1. **Never claim a product is available.** Neither Trove nor Vero has shipped.
    No external product links, no `offers` in structured data, no present-tense
-   "Trove is a…". See [docs/03-content.md](docs/03-content.md).
+   "Trove is a…". See [docs/04_DESIGN/CONTENT.md](docs/04_DESIGN/CONTENT.md).
 2. **Never weaken the CSP.** No `unsafe-inline`, no `unsafe-eval`, no wildcards.
    **No inline `style` attributes** — they are blocked and the browser drops the
    styling silently. Use a class.
@@ -72,8 +76,16 @@ rendering at zero height with no error visible to the user.
 ## Recording decisions
 
 If you make a choice the next person would reasonably make differently, add an
-ADR to [docs/07-decisions.md](docs/07-decisions.md). Context, decision,
-consequences. Include what it cost, not just what it gained.
+ADR under [docs/08_DECISIONS](docs/08_DECISIONS/DECISIONS.md), using the template
+there. Context, decision, consequences. Include what it cost, not just what it
+gained.
+
+## Documentation
+
+Every concept has one canonical home, and `docs/` has ten numbered areas and
+nothing else. Every document opens with a status header. Before adding a file, read
+the conventions in [docs/00_START_HERE/README.md](docs/00_START_HERE/README.md); `npm run test:docs`
+checks the structure, the headers and the links.
 
 ## Security
 

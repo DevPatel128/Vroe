@@ -13,7 +13,7 @@ JavaScript.
 cd code             # the buildable app lives here, not the repo root
 npm ci
 npm run build
-npm run preview     # wrangler dev on http://localhost:8788
+npm run preview     # wrangler dev on http://localhost:8787 (the next free port if taken)
 ```
 
 ## Scripts
@@ -22,9 +22,11 @@ npm run preview     # wrangler dev on http://localhost:8788
 | --- | --- |
 | `npm run build` | Fonts → images → Vite → prerender → sitemap |
 | `npm run preview` | Serve the built site through the real worker |
-| `npm test` | All 44 tests: worker behaviour, security, SEO |
+| `npm test` | Every suite: worker behaviour, security, SEO, evidence, performance budgets |
 | `npm run test:security` | Headers, CSP, subscribe pipeline, build hygiene |
 | `npm run test:seo` | Metadata, structured data, sitemap, links, images |
+| `npm run test:performance` | Byte budgets: JavaScript, CSS, HTML, fonts, images |
+| `npm run perf` | Lighthouse budgets against `npm run preview` (needs Chrome and `cd perf && npm ci`) |
 | `npm run audit:deps` | `npm audit --audit-level=high` |
 | `npm run audit:sbom` | CycloneDX SBOM → `sbom.json` |
 | `npm run build:og` | Regenerate the three social cards (not part of `build`) |
@@ -41,21 +43,23 @@ code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
   src/client/    enhance.js — the only JavaScript that reaches the browser
   worker/        Cloudflare Worker: security headers, canonical redirect, /api
   scripts/       build pipeline (images, prerender, sitemap, OG cards, fonts)
-docs/             full documentation — start with docs/README.md
+docs/             documentation, in ten numbered areas — start with docs/00_START_HERE
 ```
 
 ## Documentation
 
-**[docs/README.md](docs/README.md)** is the entry point. It has a load order and
-a "where do I change X?" table.
+**[docs/00_START_HERE/README.md](docs/00_START_HERE/README.md)** is the entry point. It says where
+every kind of information lives, and has a load order and a "where do I change X?"
+table.
 
-- [Architecture](docs/02-architecture.md) — how it builds, and why no React ships
-- [Brand guide](docs/01-brand/brand-guide.md) and [design system](docs/01-brand/design-system.md)
-- [Content](docs/03-content.md) — copy locations and the honesty rules
-- [Security](docs/04-security.md) — threat model, CSP, the form pipeline
-- [SEO](docs/05-seo.md) — metadata, structured data, linking
-- [Deployment](docs/06-deployment.md) — Cloudflare and CI runbook
-- [Decisions](docs/07-decisions.md) — every non-obvious choice, and why
+- [Principles](docs/01_PRINCIPLES/PRINCIPLES.md) — the rules everything follows
+- [Architecture](docs/05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md) — how it builds, and why no React ships
+- [Brand guide](docs/04_DESIGN/BRAND-GUIDE.md) and [design system](docs/04_DESIGN/DESIGN-SYSTEM.md)
+- [Content](docs/04_DESIGN/CONTENT.md) — copy locations and the honesty rules
+- [Research](docs/03_RESEARCH/RESEARCH.md) — the evidence behind `/trove`, and its sources
+- [Security](docs/05_ENGINEERING/SECURITY/SECURITY.md) — threat model, CSP, the form pipeline
+- [CI/CD](docs/05_ENGINEERING/CI-CD/CI-CD.md) and [operations](docs/06_OPERATIONS/README.md) — the pipeline, and what to do when something breaks
+- [Decisions](docs/08_DECISIONS/DECISIONS.md) — every non-obvious choice, and why
 
 ## Products
 
@@ -65,7 +69,7 @@ Both are in progress and the site says so on every page that mentions them.
 - **Vero** — verified work history. Status: *Upcoming*. An exploration, not a product.
 
 Nothing on this site claims either is usable today. See
-[the honesty rules](docs/03-content.md#honesty-rules).
+[the honesty rules](docs/04_DESIGN/CONTENT.md#honesty-rules).
 
 ## Security
 

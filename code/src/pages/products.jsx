@@ -24,8 +24,8 @@ export function ProductsHubPage() {
 
       <section className="section products-section" aria-label="Products">
         <div className="product-grid">
-          <TroveCard />
-          <VeroCard />
+          <TroveCard headingLevel={2} />
+          <VeroCard headingLevel={2} />
         </div>
       </section>
 

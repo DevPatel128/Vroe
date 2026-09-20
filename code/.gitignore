@@ -6,8 +6,9 @@ dist/
 .wrangler/
 *.tsbuildinfo
 
-# Generated reports (regenerate with `npm run audit:*`)
+# Generated reports (regenerate with `npm run audit:*` and `npm run perf`)
 lighthouse-report/
+perf/reports/
 sbom.json
 
 # Secrets — never commit. See .env.example for the shape.
