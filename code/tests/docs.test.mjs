@@ -51,6 +51,28 @@ async function walk(dir) {
   return out;
 }
 
+/**
+ * Whether a path exists with exactly this capitalisation. macOS and Windows
+ * resolve `deletion-log.md` to `DELETION-LOG.md`; Linux, where CI and GitHub
+ * run, does not, so a link that only works on a laptop is a broken link.
+ */
+const listing = new Map();
+async function entriesOf(dir) {
+  if (!listing.has(dir)) listing.set(dir, new Set(await readdir(dir).catch(() => [])));
+  return listing.get(dir);
+}
+async function existsExact(absolute) {
+  const parts = path.relative(repo, absolute).split(path.sep);
+  if (parts[0] === "..") return false;
+  let dir = repo;
+  for (const part of parts) {
+    if (part === "") continue;
+    if (!(await entriesOf(dir)).has(part)) return false;
+    dir = path.join(dir, part);
+  }
+  return true;
+}
+
 const allFiles = await walk(docsDir);
 const markdown = allFiles.filter((f) => f.endsWith(".md"));
 const rel = (f) => path.relative(repo, f);
@@ -91,9 +113,8 @@ test("docs/ holds exactly the ten areas and nothing else", async () => {
 test("every area has its front door", async () => {
   for (const area of AREAS) {
     const file = INDEX_FILE[area] ?? "README.md";
-    await stat(path.join(docsDir, area, file)).catch(() => {
-      assert.fail(`docs/${area}/${file} is missing`);
-    });
+    assert.ok(await existsExact(path.join(docsDir, area, file)),
+      `docs/${area}/${file} is missing (checked case-sensitively)`);
   }
 });
 
@@ -141,9 +162,9 @@ test("every relative link and anchor resolves", async () => {
       if (/^(https?:|mailto:|tel:)/.test(target)) continue;
       const [pathPart, anchor] = target.split("#");
       const resolved = pathPart === "" ? file : path.resolve(path.dirname(file), decodeURI(pathPart));
-      const info = await stat(resolved).catch(() => null);
+      const info = (await existsExact(resolved)) ? await stat(resolved).catch(() => null) : null;
       if (!info) {
-        broken.push(`${rel(file)} → ${target} (no such file)`);
+        broken.push(`${rel(file)} → ${target} (no such file, checked case-sensitively)`);
         continue;
       }
       if (anchor && info.isFile() && resolved.endsWith(".md")) {

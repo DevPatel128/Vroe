@@ -20,6 +20,6 @@ node -e 'console.log(require("crypto").createHash("sha256").update(process.argv[
 npx wrangler kv key delete "sub:<that hash>" --binding SUBSCRIBERS --remote
 ```
 
-Then append a row to [deletion-log.md](deletion-log.md) — date and the hashed
+Then append a row to [DELETION-LOG.md](DELETION-LOG.md) — date and the hashed
 key only, never the address. This is a manual command with no admin endpoint
 behind it, so the log is the only record that it happened.
