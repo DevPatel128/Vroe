@@ -1,10 +1,10 @@
 # Product
 
-**Status:** Draft · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
-What this repository builds, stated from what is already true. It was drafted from
-the existing documents and the code, not from a founder interview, so anything
-marked as an assumption needs confirming before this is approved.
+What this repository builds, stated from what is already true. Approved by Dev on
+2026-09-20. It was written from the existing documents and the code, not from a
+founder interview, so the items marked as assumptions are still assumptions.
 
 The *products* the site describes, Trove and Vero, are not defined here. Their
 records are `code/src/content/products.js`, and their own repositories hold their
@@ -84,8 +84,26 @@ The site will not:
 
 ## Success
 
-**Not yet defined.** No target has been set, so none is stated. What is measured
-today, and what is not, is in [METRICS.md](../07_BUSINESS/METRICS.md).
+Two kinds of success, kept apart.
+
+**The site does what it says, and stays that way.** These are set, enforced on every
+change, and measured ([METRICS.md](../07_BUSINESS/METRICS.md) has today's values):
+
+- Lighthouse on all ten routes: performance at least 0.95, First Contentful Paint,
+  Largest Contentful Paint, Total Blocking Time and Cumulative Layout Shift inside
+  Google's "good" thresholds, and no failing accessibility, best-practice or SEO audit
+  ([PERFORMANCE.md](../05_ENGINEERING/PERFORMANCE/PERFORMANCE.md)).
+- Page weight inside the byte budgets, and no client-side framework.
+- Nothing false on the page: the build fails on an invented rating, offer, count or an
+  unsourced figure ([CONTENT.md](../04_DESIGN/CONTENT.md)).
+- The site is up, and the early-access list is backed up and restorable
+  ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md),
+  [BACKUPS.md](../06_OPERATIONS/BACKUPS.md)).
+
+**The site achieves something for Vroe Labs.** No target has been set (for sign-ups,
+visitors or anything else), and visitor analytics is off, so there is nothing to
+measure one against. Setting a target, and turning on the measurement it needs, is the
+maintainer's decision. Nothing is invented here in its place.
 
 ## Constraints
 
@@ -115,9 +133,10 @@ Kept apart from facts, as the framework asks:
 | 2026-09-01 | v1.0.0, live at `vroelabs.com` | Rebuilt from a client-rendered prototype so crawlers see real HTML and a strict CSP is possible ([ADR-001](../08_DECISIONS/ENGINEERING/ADR-001-prerender-with-react-rather-than-ship-a-spa.md)) |
 | 2026-09-14 | Evidence layer on `/trove` | Show the problem with sourced, recent figures ([ADR-015](../08_DECISIONS/PRODUCT/ADR-015-an-evidence-layer-where-research-and-product-impact-never.md)) |
 | 2026-09-19 | Production safeguards and budgets | Main had gone red unnoticed ([ADR-020](../08_DECISIONS/ENGINEERING/ADR-020-production-safeguards-a-required-check-a-health-check.md)) |
+| Unreleased (pull request #11) | Accessible colours and heading order; a daily subscriber backup; documentation kept in step with the code | No accessibility audit fails ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)); the list can be restored ([ADR-022](../08_DECISIONS/ENGINEERING/ADR-022-daily-subscriber-backup-to-a-private-r2-bucket.md)); docs stop drifting ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)). On merge, date this row |
 
 ## Approval
 
-Status: Draft
-Approved by: not yet approved
-Date: —
+Status: Approved
+Approved by: Dev
+Date: 2026-09-20

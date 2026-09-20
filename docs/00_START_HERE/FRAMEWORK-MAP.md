@@ -29,10 +29,10 @@ honest, lowest justified cost, one source of truth — not its file list.
 | `AI_OPERATING_RULES.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) | Covered |
 | `PRODUCT_CREATION_SYSTEM.md`, `INTERVIEW.md` | Not in this repo | Not applicable; see below |
 | `RESEARCH.md` | [RESEARCH.md](../03_RESEARCH/RESEARCH.md) | Stricter than the template |
-| `PRODUCT.md` | [PRODUCT.md](../02_PRODUCT/PRODUCT.md) | Drafted for review |
-| `THESIS.md` | [THESIS.md](../02_PRODUCT/THESIS.md) | Drafted for review, deliberately partial |
-| `EXPERIENCE.md` | [EXPERIENCE.md](../02_PRODUCT/EXPERIENCE.md) | Drafted for review |
-| `INVESTOR.md` | [INVESTOR.md](../07_BUSINESS/INVESTOR.md) | Deliberately not written |
+| `PRODUCT.md` | [PRODUCT.md](../02_PRODUCT/PRODUCT.md) | Approved 2026-09-20 |
+| `THESIS.md` | [THESIS.md](../02_PRODUCT/THESIS.md) | Approved 2026-09-20, deliberately partial |
+| `EXPERIENCE.md` | [EXPERIENCE.md](../02_PRODUCT/EXPERIENCE.md) | Approved 2026-09-20 |
+| `INVESTOR.md` | [INVESTOR.md](../07_BUSINESS/INVESTOR.md) | Approved 2026-09-20: a factual snapshot, not a pitch |
 | `DECISIONS.md` | [DECISIONS.md](../08_DECISIONS/DECISIONS.md) | Covered, one file per decision |
 | `ENGINEERING.md` | [05_ENGINEERING](../05_ENGINEERING/README.md), status in [FOUNDATION.md](../05_ENGINEERING/FOUNDATION/FOUNDATION.md) | Covered |
 | `DOCUMENT_AGENT.md`, `UPDATE_AGENT.md`, `REVIEW_AGENT.md`, `RESEARCH_AGENT.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) and the test suite | Partly; see below |
@@ -46,24 +46,28 @@ discovery and the whole product lifecycle. Trove and Vero exist and are describe
 here, and the discovery that produced them belongs with the company rather than
 the website repository.
 
-**`INVESTOR.md`** is deliberately not written. An investor narrative for products
-that have not shipped would contradict rule 1 ([never claim a
+**`INVESTOR.md`** is a factual snapshot of what is real, not a pitch. An investor
+narrative for products that have not shipped would contradict rule 1 ([never claim a
 product is available](../01_PRINCIPLES/PRINCIPLES.md)) and the ban on user counts,
 revenue, funding and testimonials in [CONTENT.md](../04_DESIGN/CONTENT.md). The
 framework's own investor quality gate — reject fabricated metrics, unsupported
 market claims, guaranteed outcomes — is already enforced here, more strictly, by
 `tests/seo.test.mjs` and `tests/evidence.test.mjs`, which fail the build on
-exactly those things. See [INVESTOR.md](../07_BUSINESS/INVESTOR.md).
+exactly those things. See [INVESTOR.md](../07_BUSINESS/INVESTOR.md); the other
+business documents ([BUSINESS-MODEL.md](../07_BUSINESS/BUSINESS-MODEL.md),
+[MARKET.md](../07_BUSINESS/MARKET.md), [GTM.md](../07_BUSINESS/GTM.md),
+[METRICS.md](../07_BUSINESS/METRICS.md)) hold what is real and list what is open.
 
-**`THESIS.md`** is partly written. The substance (problem, insight, evidence)
+**`THESIS.md`** is partly written, and approved that way. The substance (problem, insight, evidence)
 lives in [RESEARCH.md](../03_RESEARCH/RESEARCH.md), grounded harder than the
 template asks. *Why now*, *differentiation*, *defensibility* and *falsifiers* are
 deliberately unwritten: claiming any of them would edge toward the availability
 and effectiveness claims this site forbids for a product that has not shipped.
 
-**`PRODUCT.md`** has no Success metrics or Approval footer filled beyond what is
-true today. Filling them would mean inventing numbers or decisions that do not
-exist yet. Add them when there is a real answer, not before.
+**`PRODUCT.md`** is approved, and its Success section holds what is real: the
+site-quality budgets that are enforced today. It sets no target for sign-ups or
+visitors, because that would mean inventing numbers or decisions that do not exist.
+Add one when there is a real answer, not before.
 
 ## The agents
 
@@ -83,9 +87,10 @@ change; that is low value at this repository's size.
 canonical home per concept, a README per folder and a status header on every
 document. `docs/` follows it literally: exactly ten areas, every folder and file
 the system lists, and `tests/docs.test.mjs` enforces the parts a machine can check.
-Where the system lists something this site has nothing to put in — the business
-documents, backups, disaster recovery — the file exists and says so plainly, with
-a status, rather than being left out or padded.
+Where the system lists something this site has little to put in — the business
+documents — the file exists, holds what is true, and says plainly what is open,
+rather than being left out or padded. All ten of the documents that were Drafts were
+approved by Dev on 2026-09-20.
 
 ## What closed the gaps
 

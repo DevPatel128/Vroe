@@ -1,6 +1,6 @@
 # Thesis
 
-**Status:** Draft · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 Why the products this site describes should exist, written only as far as the
 evidence and the site's own honesty rules allow. Where a section would need a
@@ -65,4 +65,9 @@ rather than guessed.
 ## Decision
 
 `ACTIVE`, in the narrow sense that the site presents these beliefs today.
-Reason: the maintainer's stated direction. This is a draft, pending approval.
+Reason: the maintainer's stated direction.
+
+Approved by Dev, 2026-09-20, as it stands: partly written on purpose. The four
+sections marked *Not written* stay open until there is something true to put in them
+(a verified account of why now; a shipped product to differentiate; the maintainer's
+judgement of what would count as proof the thesis is wrong).

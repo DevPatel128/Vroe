@@ -1,11 +1,12 @@
 # Experience
 
-**Status:** Draft · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How the site should feel and behave for a visitor. This is the canonical
 description of the *experience*. The visual rules that realise it are in
 [04_DESIGN](../04_DESIGN/README.md), which points back here rather than repeating
-it. Drafted from the brand guide, the design system and the content rules.
+it. Written from the brand guide, the design system and the content rules; approved
+by Dev on 2026-09-20.
 
 ## Experience promise
 
@@ -46,7 +47,7 @@ daily.
 | Route | Purpose |
 | --- | --- |
 | `/` | Who Vroe Labs is; the two products; the early-access form |
-| `/products` | The index of what is being made |
+| `/products` | The index of what is being made: the page title, then a card for each product (`h1`, then `h2`, `h2`) |
 | `/trove`, `/vero` | One page per product, status first |
 | `/notes/trove`, `/notes/vero` | The thinking behind each product |
 | `/about`, `/contact` | The studio, and how to reach it |
@@ -83,20 +84,25 @@ consent given explicitly.
 ## Accessibility
 
 Keyboard, screen-reader, contrast, motion, touch and language requirements are in
-[ACCESSIBILITY.md](../04_DESIGN/ACCESSIBILITY.md).
+[ACCESSIBILITY.md](../04_DESIGN/ACCESSIBILITY.md). The state today: Lighthouse
+reports no failing accessibility audit on any of the ten routes, headings never skip
+a level on any page, and text colours in the product illustrations meet WCAG AA
+(2026-09-20, [ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)).
+Tests keep it that way.
 
 ## Trust
 
 - **Status is stated in plain words**, first, on every product page.
 - **Consent is explicit.** The checkbox must be ticked; it is never inferred from
   pressing submit. The privacy notice is at the point of collection.
-- **Data use is stated exactly.** The policy lists the four fields stored and the
-  retention period, and is written against what the worker does
-  ([DATA.md](../05_ENGINEERING/DATA/DATA.md)).
+- **Data use is stated exactly.** The policy lists the four fields stored, the
+  retention period and the 30-day daily backup, and is written against what the
+  worker does ([DATA.md](../05_ENGINEERING/DATA/DATA.md)).
 - **Uncertainty is shown.** Figures the site cannot stand behind are not shown; the
   India time figure is labelled a floor, not the whole.
 - **Nothing irreversible happens without notice.** A signup can be removed on
-  request ([RUNBOOKS](../06_OPERATIONS/RUNBOOKS/README.md)).
+  request ([RUNBOOKS](../06_OPERATIONS/RUNBOOKS/README.md)); it leaves the live list
+  at once and the backups within 30 days, and the policy says so.
 
 ## Change decision
 
