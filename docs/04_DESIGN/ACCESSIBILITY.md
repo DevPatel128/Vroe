@@ -1,6 +1,6 @@
 # Accessibility
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 The canonical home for accessibility: the requirements, how they are enforced,
 what was verified, and what is known to fall short. Accessibility is part of
@@ -11,7 +11,9 @@ The target is WCAG 2.2 AA.
 
 **Structure**
 
-- One `<h1>` per page, and headings in order, with landmarks.
+- One `<h1>` per page, and headings in order, with landmarks. A heading never skips
+  a level: a component that renders one takes its level from the page (the product
+  cards take a `headingLevel`; on `/products` they are `h2`, on the home page `h3`).
 - A skip link is the first focusable element on every page, revealed on focus.
 - Every image has `alt`, `width` and `height`. The dimensions are also what keeps
   Cumulative Layout Shift at zero.
@@ -32,8 +34,12 @@ The target is WCAG 2.2 AA.
 
 **Perception**
 
-- Text meets WCAG AA contrast. Body copy is Ink Soft `#29406c` on Paper
-  `#f7f6f2`, which is 8.6:1.
+- Text meets WCAG AA contrast, 4.5:1. Body copy is Ink Soft `#29406c` on Paper
+  `#f7f6f2`, which is 9.5:1.
+- **Coral is an accent, never a text colour**: on Paper it is 2.66:1. Status text is
+  Ink Soft with a small coral dot, so the brand accent survives without being read.
+- The illustration's own greens and greys are `--preview-green` (`#4e6e3f`) and
+  `--preview-muted` (`#6a7381`), each at least 4.7:1 on every surface it is drawn on.
 - All real content is at least 11px. The consent checkbox is 24×24 and other small
   targets pass the WCAG 2.5.8 spacing exception.
 - Decorative imagery is hidden from assistive technology. The Trove preview is
@@ -50,25 +56,28 @@ The target is WCAG 2.2 AA.
 
 - `tests/functionality.test.mjs` and `tests/seo.test.mjs`: one `h1`, alt text and
   dimensions on every image, the skip link, labels, descriptive link text.
-- `perf/run.mjs`, the CI `performance` job: Lighthouse's accessibility audits on six
-  pages. It fails on any failing audit that is not listed in `KNOWN_ISSUES`
-  ([PERFORMANCE.md](../05_ENGINEERING/PERFORMANCE/PERFORMANCE.md)).
+- `tests/accessibility.test.mjs`: no page skips a heading level; the illustration
+  palette meets 4.5:1 on every surface it is drawn on; the brand's text tokens meet AA;
+  and coral is not used as a text colour. Fast and browser-free, so a regression fails
+  `npm test` immediately.
+- `perf/run.mjs`, the CI `performance` job: Lighthouse's accessibility audits on all ten
+  indexable routes. It fails on any failing audit that is not listed in `KNOWN_ISSUES`,
+  which is empty ([PERFORMANCE.md](../05_ENGINEERING/PERFORMANCE/PERFORMANCE.md)).
 
 ## Known issues
 
-Found by the Lighthouse budget on 2026-09-19. Both pre-date it, neither is fixed,
-and both are listed in `KNOWN_ISSUES` so they cannot spread.
+**None.** `KNOWN_ISSUES` in `perf/run.mjs` is empty and every audit passes on all ten
+routes.
 
-| Issue | Where | Detail |
-| --- | --- | --- |
-| **Colour contrast** below 4.5:1 | `/`, `/products`, `/trove`, `/vero` | Text in the product preview illustrations (`.positive`, `.muted`, `.trove-status`), measured at 3.57 to 4.1:1. [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) exempts the illustration's colours as decorative and `aria-hidden`, but the automated audit still flags them. |
-| **Heading order** | `/products` | The heading levels skip a level. |
+**History.** The Lighthouse budget found two failures on 2026-09-19 and they were fixed
+the next day ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)).
+They were larger than first recorded: eight failing colour pairs across 35 nodes, one of
+them in visible content (the "waiting for product data" label on `/trove`, coral text on
+Paper at 2.65:1), plus the `/products` heading order.
 
-**A decision is needed on the contrast.** Either darken those text colours to reach
-4.5:1, which changes the illustration, or record the exemption as an accepted,
-documented deviation and teach the audit about it. The other accepted deviation is
-the coral full stop after each display headline: decorative punctuation carrying no
-information, following a high-contrast heading.
+**One accepted deviation.** The coral full stop after each display headline is
+decorative punctuation that carries no information and follows a high-contrast heading.
+It is not flagged by the audit and is left as designed.
 
 ## Verified at v1.0.0 (1 September 2026)
 

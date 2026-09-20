@@ -1,6 +1,6 @@
 # Working in this repository, for agents
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How an AI agent navigates the documentation, decides what it may claim, proposes
 changes, and reports what it did. It follows the company framework's AI operating
@@ -55,7 +55,7 @@ reader need to know how uncertain this is?
 ## Before a consequential change
 
 Mirrors the company framework's AI operating rules (see
-[00-framework-map.md](../../00_START_HERE/FRAMEWORK-MAP.md)). Before proposing anything beyond
+[FRAMEWORK-MAP.md](../../00_START_HERE/FRAMEWORK-MAP.md)). Before proposing anything beyond
 a wording fix or a routine bug fix, answer:
 
 - **Why** should this change be made?
@@ -66,7 +66,7 @@ a wording fix or a routine bug fix, answer:
   the same result?
 - **Is the cost justified?**
 
-Record the answer in a new [07-decisions.md](../../08_DECISIONS/DECISIONS.md) ADR for
+Record the answer in a new [DECISIONS.md](../../08_DECISIONS/DECISIONS.md) ADR for
 anything non-obvious — that file has a template with the same fields.
 
 Before recommending something, also say what it would cost, what cheaper
@@ -95,6 +95,24 @@ Some changes need a human or legal look regardless: anything involving personal
 data, payments, AI, analytics, sharing, external APIs, children, biometrics,
 location, authentication, authorization, infrastructure, secrets or production
 access. Flag it; do not settle it.
+
+## Document every change in the same change
+
+Dev's rule: whenever something new is added or something is updated, it is
+documented, in the same pull request and not as a follow-up. Before finishing a
+change, find the canonical document for what changed (the "where do I change X?"
+table in [the documentation entry point](../../00_START_HERE/README.md)), update
+it, and bump its `Last updated` date. A new non-obvious decision gets an ADR.
+
+This is enforced, not left to memory
+([ADR-023](../../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)):
+`npm run test:docs-sync` fails when a script, workflow, route, Cloudflare binding,
+endpoint, secret or cited decision exists that its document does not mention, and
+the required `docs-impact` check fails a pull request that changes what the docs
+describe without changing them. `Docs: none, <reason>` in the description is the
+escape hatch for a change that truly needs no documentation; use it rarely, and
+give a real reason. Never loosen a test or add a rule exception to get past a
+failure. Write the missing sentence.
 
 ## Creating or splitting a document
 

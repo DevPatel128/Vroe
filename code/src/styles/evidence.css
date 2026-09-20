@@ -99,7 +99,7 @@
 }
 .ranking-link:hover, .ranking-link[aria-current="true"] { background: var(--white); }
 .ranking-rank { display: grid; gap: 4px; color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.ranking-pin { color: var(--coral); }
+.ranking-pin { color: var(--ink-soft); }
 .ranking-country { font-family: var(--serif); font-size: 34px; line-height: 1; letter-spacing: -0.04em; }
 .ranking-measure-item { display: grid; gap: 8px; }
 .ranking-bar { display: block; width: 100%; height: 8px; }
@@ -149,7 +149,15 @@
 .method-stages li { display: grid; align-content: start; gap: 6px; border-top: 3px solid var(--ink); padding-top: 12px; color: var(--ink-soft); font-size: 13px; line-height: 1.45; }
 .method-stages li.is-pending { border-top-color: var(--line); }
 .method-stage-name { color: var(--ink); font-weight: 700; }
-.method-stage-status { color: var(--coral); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.method-stage-status { color: var(--ink-soft); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* Coral is an accent, not a text colour: on Paper it is only 2.66:1, below the 4.5:1
+   that small text needs. Status text stays Ink Soft (9.5:1) and carries a coral dot,
+   so the brand accent is kept without asking coral to be read. */
+.method-stage-status::before, .ranking-pin::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px;
+  border-radius: 50%; background: var(--coral); vertical-align: 0.08em;
+}
 
 .method-details { border-top: 1px solid var(--line); }
 .method-details details { border-bottom: 1px solid var(--line); }

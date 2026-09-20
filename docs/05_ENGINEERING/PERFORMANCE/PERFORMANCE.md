@@ -14,13 +14,16 @@ gzipped JavaScript (one ~2 KB script; this is what keeps ADR-001 true), CSS, eac
 HTML page, fonts and each image. Going over is sometimes right: raise the number
 in the test and record why as an ADR, so the increase is a decision.
 
-**Timing and audits — `perf/run.mjs`, the CI `performance` job.** Lighthouse,
-mobile emulation, median of three runs, on six pages. It fails on a performance
-score below 0.95, on FCP, LCP, TBT or CLS past Google's "good" thresholds, and on
-any failing accessibility, best-practice or SEO audit that is not listed in
-`KNOWN_ISSUES` at the top of the file. Two are listed today (colour contrast in
-the product illustrations, and heading order on `/products`). Remove an entry
-when it is fixed; the runner tells you when one no longer applies.
+**Timing and audits — `perf/run.mjs`, the CI `performance` job.** Lighthouse, mobile
+emulation, on all ten indexable routes (`/404` answers with a 404 status, so the test
+suite covers it instead). Six pages get the full treatment, a median of three runs and
+every threshold below; the other four (`/about`, `/notes/vero`, `/privacy`, `/terms`) get
+one run and only the audits, since their timing follows from the templates already
+measured. It fails on a performance score below 0.95, on FCP, LCP, TBT or CLS past
+Google's "good" thresholds, and on any failing accessibility, best-practice or SEO audit
+that is not listed in `KNOWN_ISSUES` at the top of the file. **That list is empty.** Add
+an entry only to record a problem that is understood and consciously deferred, with the
+reason; the runner tells you when an entry no longer applies.
 
 Run it yourself:
 
@@ -38,7 +41,7 @@ include a browser-automation tree of a hundred packages. ADR-021.
 ## Baseline
 
 Measured on a GitHub-hosted runner on 2026-09-19, against the real Worker, mobile
-emulation, median of three runs, all six pages: performance score 1.0; First
+emulation, median of three runs, the six timed pages: performance score 1.0; First
 Contentful Paint 1.26 to 1.29 s; Largest Contentful Paint 1.26 to 1.58 s; Total
 Blocking Time 0 ms; Cumulative Layout Shift at most 0.003. The budgets are 1.8 s,
 2.5 s, 200 ms and 0.1. The earlier manual measurements (page weight, script size)

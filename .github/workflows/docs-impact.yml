@@ -1,0 +1,46 @@
+name: Docs impact
+
+# A pull request that changes what the documentation describes must change the
+# documentation too. The rule, and the escape hatch, are in
+# code/scripts/docs-impact.mjs; the reasoning is ADR-023.
+#
+# `edited` is in the list on purpose: the escape hatch is a line in the pull
+# request description, so editing the description must re-run the check.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+# Nothing here reads a secret, and the script uses only Node's standard library,
+# so there is no install step and nothing a fork's pull request could abuse.
+jobs:
+  docs-impact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      # Full history: the script diffs against the merge base and reads each
+      # changed document's commit dates.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      # The description and author reach the script as environment variables,
+      # never spliced into the shell command, so a hostile description cannot run
+      # anything.
+      - name: Check that the documentation matches the change
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          ACTOR: ${{ github.event.pull_request.user.login }}
+        run: node code/scripts/docs-impact.mjs

@@ -4,7 +4,12 @@ import { Picture } from "./Picture.jsx";
 import { TrovePreview } from "./TrovePreview.jsx";
 
 /**
- * Homepage product cards.
+ * Product cards, used on the homepage and on /products.
+ *
+ * `headingLevel` is where the card's title sits in the page outline: 3 under a
+ * section heading (the homepage, the default), 2 directly under the page's h1
+ * (/products). A heading that skips a level breaks the outline that screen-reader
+ * users navigate by, so the level is chosen by the page, never fixed here.
  *
  * Both link INTERNALLY. Neither product is released, so there is nothing
  * legitimate to link out to, and `product.url` is null for both. If a card ever
@@ -12,8 +17,9 @@ import { TrovePreview } from "./TrovePreview.jsx";
  * URL typed into this file. See docs/08_DECISIONS/DECISIONS.md, ADR-006.
  */
 
-export function TroveCard() {
+export function TroveCard({ headingLevel = 3 }) {
   const p = PRODUCTS.trove;
+  const Heading = `h${headingLevel}`;
   return (
     <article className="product-card trove-card-shell" id="trove">
       <div className="product-card-copy">
@@ -22,9 +28,9 @@ export function TroveCard() {
           <span className="product-name">{p.name}</span>
           <span className={`status-pill ${p.status.tone}`}>{p.status.label}</span>
         </div>
-        <h3>
+        <Heading className="product-card-title">
           {p.headline[0]}<br />{p.headline[1]}<span className="accent-dot">.</span>
-        </h3>
+        </Heading>
         <p>{p.summary}</p>
         <a className="button button-coral" href={p.href}>
           Explore the Trove personal finance app <ArrowRight aria-hidden="true" />
@@ -35,8 +41,9 @@ export function TroveCard() {
   );
 }
 
-export function VeroCard() {
+export function VeroCard({ headingLevel = 3 }) {
   const p = PRODUCTS.vero;
+  const Heading = `h${headingLevel}`;
   return (
     <article className="product-card vero-card-shell" id="vero">
       <div className="product-meta">
@@ -45,9 +52,9 @@ export function VeroCard() {
         <span className={`status-pill ${p.status.tone}`}>{p.status.label}</span>
       </div>
       <div className="vero-copy">
-        <h3>
+        <Heading className="product-card-title">
           {p.headline[0]}<br />{p.headline[1]}<span className="accent-dot">.</span>
-        </h3>
+        </Heading>
         <p>{p.summary}</p>
         <a className="text-link dark-link" href={p.href}>
           Learn about Vero&rsquo;s verified work history <ArrowUpRight aria-hidden="true" />

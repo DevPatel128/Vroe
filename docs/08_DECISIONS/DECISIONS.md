@@ -1,6 +1,6 @@
 # Decisions
 
-**Status:** Approved · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 The index of every non-obvious choice made for this website, and what it cost.
 Read the relevant entry before reversing any of them. **This file is the
@@ -24,7 +24,7 @@ category:
 - Prefer the lowest-cost option that meets the security, reliability,
   performance, compliance and user-value requirements, and say what the cost was.
 - Numbers are permanent and run across all categories. Code comments cite them
-  (`ADR-014`), so never renumber. The next one is ADR-022.
+  (`ADR-014`), so never renumber. The next free number is ADR-025 (ADR-022 is reserved for the subscriber-list backup, which is written in the same pull request as ADR-023 and ADR-024).
 
 ## Template for new entries
 
@@ -86,6 +86,8 @@ would mean inventing history.
 | [ADR-019](ENGINEERING/ADR-019-declare-esbuild-as-a-direct-devdependency.md) | Declare `esbuild` as a direct devDependency | Engineering | Review | 2026-09-19 |
 | [ADR-020](ENGINEERING/ADR-020-production-safeguards-a-required-check-a-health-check.md) | Production safeguards: a required check, a health check, automatic rollback | Engineering | Approved | 2026-09-19 |
 | [ADR-021](ENGINEERING/ADR-021-performance-and-accessibility-budgets-bytes-in-the-tests.md) | Performance and accessibility budgets: bytes in the tests, Lighthouse in CI | Engineering | Approved | 2026-09-19 |
+| [ADR-023](ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md) | Documentation follows every change, enforced in CI | Engineering | Approved | 2026-09-20 |
+| [ADR-024](DESIGN/ADR-024-accessible-colours-and-heading-order.md) | Accessible colours and heading order | Design | Approved | 2026-09-20 |
 
 Status uses the vocabulary in [the documentation system](../00_START_HERE/README.md):
 Draft, Review, Approved, Superseded, Archived. A superseded decision moves to

@@ -85,8 +85,12 @@ owned by [ACCESSIBILITY.md](ACCESSIBILITY.md).
 
 1. **No inline `style` attributes.** The CSP blocks them; a test enforces it.
    Add a class. See ADR-009.
-2. **No new colour outside the token set.** The greens and greys inside the
-   Trove preview are the sole exception — that block is a decorative illustration
-   of a different product's UI, marked `aria-hidden`.
+2. **No new colour outside the token set.** The one exception is the greens and
+   greys inside the two product previews, which are decorative illustrations of a
+   different product's UI, marked `aria-hidden`. They are defined once, as
+   `--preview-green` and `--preview-muted` on `.trove-preview, .vero-preview`, and meet
+   WCAG AA on every surface they sit on ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)).
+   **Coral is an accent, never a text colour** (2.66:1 on Paper): status text is Ink
+   Soft with a coral dot. `tests/accessibility.test.mjs` enforces both.
 3. **Every image needs `width`, `height` and `alt`.** Enforced by a test; the rule
    and its reason are in [ACCESSIBILITY.md](ACCESSIBILITY.md).

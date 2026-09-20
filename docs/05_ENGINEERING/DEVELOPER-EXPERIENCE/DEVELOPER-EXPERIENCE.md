@@ -1,6 +1,6 @@
 # Developer experience
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 The tooling around making a change: the local environment, the commands, the test
 suites and the dependency policy. What to *do* when making a change is in
@@ -26,7 +26,9 @@ in Cloudflare's always-passes test secret
 
 | Command | Does |
 | --- | --- |
-| `npm run build` | Fonts, images, Vite, prerender, sitemap |
+| `npm run dev` | Vite's dev server, for working on styles and components. It has no Worker, so use `preview` to see the real thing |
+| `npm run build` | The whole pipeline: `build:fonts`, `build:images`, Vite, `build:prerender` (components to HTML) and `build:seo` (sitemap, robots, security.txt) |
+| `npm run deploy` | Build, then `wrangler deploy` from your machine. Normally CI deploys when a pull request merges; this is for emergencies |
 | `npm run preview` | Serve the built site through the real Worker. `wrangler dev` uses port 8787, or the next free one |
 | `npm test` | Every suite below |
 | `npm run perf` | Lighthouse budgets against a running preview; needs Chrome and `cd perf && npm ci` once |
@@ -45,6 +47,9 @@ in Cloudflare's always-passes test secret
 | `test:evidence` | Every displayed figure recomputed from its source data |
 | `test:performance` | Byte budgets ([PERFORMANCE.md](../PERFORMANCE/PERFORMANCE.md)) |
 | `test:docs` | The documentation system's structure, headers and links |
+| `test:docs-sync` | Documentation follows the code: every script, workflow, route, binding, endpoint, secret and cited decision is documented, and the retention periods agree |
+| `test:accessibility` | No skipped heading levels, the illustration palette and brand text meet WCAG AA, coral is never text |
+| `test:docs-impact` | The rule that a change to what the docs describe must come with a docs change (`scripts/docs-impact.mjs`), tested without git |
 
 ## Dependencies
 

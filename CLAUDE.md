@@ -50,6 +50,15 @@ home, and every document opens with a status header. Update the canonical docume
 rather than adding a second one. `npm run test:docs` enforces the structure,
 headers and links.
 
+**Document every change in the same change.** Add or alter a script, workflow,
+route, binding, endpoint, secret, behaviour or policy, and the canonical document
+changes in the same pull request, with its `Last updated` date bumped.
+`npm run test:docs-sync` fails when a fact in the code is missing from its document,
+and the required `docs-impact` check fails a pull request that changes what the
+docs describe without changing them (escape hatch: a line `Docs: none, <reason>` in
+the description). Fix the document; do not loosen the check.
+[ADR-023](docs/08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md).
+
 ## Commands
 
 ```bash

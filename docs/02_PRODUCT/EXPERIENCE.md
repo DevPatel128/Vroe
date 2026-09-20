@@ -1,6 +1,6 @@
 # Experience
 
-**Status:** Draft · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Draft · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How the site should feel and behave for a visitor. This is the canonical
 description of the *experience*. The visual rules that realise it are in
@@ -51,6 +51,7 @@ daily.
 | `/notes/trove`, `/notes/vero` | The thinking behind each product |
 | `/about`, `/contact` | The studio, and how to reach it |
 | `/privacy`, `/terms` | What is stored and the terms of use |
+| `/404` | The not-found page, served with a real 404 status |
 
 ## Progressive disclosure
 

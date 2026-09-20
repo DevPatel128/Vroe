@@ -1,6 +1,6 @@
 # Relationship to the product framework
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 The Vroe Labs product framework (`The Framework./` at the repo root, kept out of
 git — see `.gitignore`) is a process and governance system: a lifecycle, a
@@ -101,22 +101,18 @@ failed build never reached `wrangler deploy` ([ADR-019](../08_DECISIONS/ENGINEER
 | No alerting | A scheduled health check that fails a run, which GitHub emails (ADR-020) |
 | No automatic rollback | Deploy rolls back on a failed smoke test and still ends red (ADR-020) |
 | No performance budget in CI (this file wrongly claimed one) | Byte budgets in the tests, Lighthouse in CI ([ADR-021](../08_DECISIONS/ENGINEERING/ADR-021-performance-and-accessibility-budgets-bytes-in-the-tests.md)) |
+| Two accessibility failures found by that budget | Fixed, and larger than first recorded (eight colour pairs, one in visible content). Guarded by tests and by Lighthouse on all ten routes ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)) |
 
 ## Known gaps (open)
 
-1. **Two accessibility failures found by the new budget, not yet fixed.** Text in
-   the product illustrations is below the WCAG AA contrast ratio (four pages), and
-   `/products` skips heading levels. Both are listed in `KNOWN_ISSUES` in
-   `perf/run.mjs` so they cannot spread. Fixing contrast changes the visual
-   design, so it needs a decision. See [ACCESSIBILITY.md](../04_DESIGN/ACCESSIBILITY.md).
-2. **The `performance` job is not a required check yet.** Timing metrics can vary
+1. **The `performance` job is not a required check yet.** Timing metrics can vary
    on shared runners, so it reports on every pull request without blocking one.
    Promote it once it has shown it does not flake.
-3. **No second reviewer.** A solo repository cannot require a review from anyone
+2. **No second reviewer.** A solo repository cannot require a review from anyone
    else, so the approval is the maintainer's own merge. Revisit when a second
    maintainer joins.
-4. **Alerting is one email channel.** It depends on GitHub Actions notifications
+3. **Alerting is one email channel.** It depends on GitHub Actions notifications
    being switched on and on the `WORKER_URL` variable being right. Nothing checks
    either. See [OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md).
-5. **No backup of the subscriber list.** See [BACKUPS.md](../06_OPERATIONS/BACKUPS.md).
+4. **No backup of the subscriber list.** See [BACKUPS.md](../06_OPERATIONS/BACKUPS.md).
    The documentation system asked for a place to say so, and saying so surfaced it.

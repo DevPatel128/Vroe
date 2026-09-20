@@ -1,6 +1,6 @@
 # Engineering foundation
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 The engineering principles this repository holds itself to, and how it meets the
 company engineering framework. The framework file is `ENGINEERING.md`; this is its
@@ -33,7 +33,7 @@ unauthorised production access. This one is heading public, so it is assumed pub
 | Data minimisation | Satisfied. The subscriber record is four fields | [DATA.md](../DATA/DATA.md) |
 | Performance | Satisfied. Byte budgets and Lighthouse budgets in CI | [PERFORMANCE.md](../PERFORMANCE/PERFORMANCE.md) |
 | Cost optimisation | Satisfied | [COST.md](../COST/COST.md) |
-| Testing | Satisfied. Seven suites, run in CI and before every deploy | [DEVELOPER-EXPERIENCE.md](../DEVELOPER-EXPERIENCE/DEVELOPER-EXPERIENCE.md) |
+| Testing | Satisfied. Every suite runs in CI and again before every deploy | [DEVELOPER-EXPERIENCE.md](../DEVELOPER-EXPERIENCE/DEVELOPER-EXPERIENCE.md) |
 | Deployment and production approval | Satisfied. `main` requires `verify`; the merge is the approval | [CI-CD.md](../CI-CD/CI-CD.md) |
 | Observability | Satisfied. Logs, a health endpoint, a scheduled check that emails on failure | [OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md) |
 | Failure and recovery | **Partial.** A bad deploy rolls back automatically; there is no backup of the subscriber list and no restore drill | [RELIABILITY.md](../RELIABILITY/RELIABILITY.md), [BACKUPS.md](../../06_OPERATIONS/BACKUPS.md) |

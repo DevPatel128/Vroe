@@ -41,10 +41,16 @@ const reports = path.join(here, "reports");
 const BASE = (process.env.PERF_BASE_URL ?? "http://localhost:8788").replace(/\/$/, "");
 const RUNS = Number(process.env.PERF_RUNS ?? 3);
 
-// Pages that between them cover every template: the home page, the index, the
-// heaviest page (the evidence layer), a plain product page, an article and the
-// page with the form.
-const URLS = ["/", "/products", "/trove", "/vero", "/notes/trove", "/contact"];
+// Pages that get the full treatment: the home page, the index, the heaviest page
+// (the evidence layer), a plain product page, an article and the page with the
+// form. Median of RUNS, and timing thresholds enforced.
+const TIMED_URLS = ["/", "/products", "/trove", "/vero", "/notes/trove", "/contact"];
+
+// The remaining indexable pages. Their timing follows from the templates already
+// measured above, so they get one run and only the audits are enforced. Together
+// the two lists are every route in src/content/routes.js except /404, which
+// answers with a 404 status and is covered by the test suite instead.
+const AUDIT_ONLY_URLS = ["/about", "/notes/vero", "/privacy", "/terms"];
 
 const MIN_PERFORMANCE_SCORE = 0.95;
 
@@ -58,17 +64,16 @@ const MAX_METRICS = {
 const AUDITED_CATEGORIES = ["accessibility", "best-practices", "seo"];
 
 /**
- * Failures that already exist and are accepted for now, page by page. Remove an
- * entry when the underlying problem is fixed; the runner says so when an entry
- * no longer applies. Do not add one to get a build through.
+ * Failures that already exist and are accepted for now, page by page. Empty is the
+ * goal and, since 2026-09-20, the fact: the illustration colours, the pending-stage
+ * label and the /products heading order were all fixed (ADR-024). Add an entry only
+ * to record a problem that is understood and consciously deferred, with the reason
+ * and the page, never to get a build through. The runner says when an entry no
+ * longer applies so it can be removed.
+ *
+ * Shape: { "accessibility:audit-id": ["/page", ...] }
  */
-const KNOWN_ISSUES = {
-  // Text in the product preview illustrations (.positive, .muted,
-  // .trove-status) is below the 4.5:1 WCAG AA ratio.
-  "accessibility:color-contrast": ["/", "/products", "/trove", "/vero"],
-  // The heading levels on the products index skip a level.
-  "accessibility:heading-order": ["/products"],
-};
+const KNOWN_ISSUES = {};
 
 const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 const isKnown = (key, url) => KNOWN_ISSUES[key]?.includes(url) ?? false;
@@ -89,21 +94,35 @@ async function waitForSite() {
   }
 }
 
-async function lighthouseOnce(url, scratch) {
+// One page takes about ten seconds. A run that has not finished in two minutes is a
+// wedged browser session, not a slow page, and it would otherwise hold the whole job
+// until CI's own timeout. SIGTERM lets Lighthouse close the Chrome it opened.
+const RUN_TIMEOUT_MS = 120_000;
+
+async function lighthouseOnce(url, scratch, attempt = 1) {
   const out = path.join(scratch, "run.json");
-  await run(
-    process.execPath,
-    [
-      lighthouse,
-      `${BASE}${url}`,
-      "--quiet",
-      "--output=json",
-      `--output-path=${out}`,
-      "--only-categories=performance,accessibility,best-practices,seo",
-      "--chrome-flags=--headless=new --no-sandbox",
-    ],
-    { maxBuffer: 64 * 1024 * 1024 },
-  );
+  try {
+    await run(
+      process.execPath,
+      [
+        lighthouse,
+        `${BASE}${url}`,
+        "--quiet",
+        "--output=json",
+        `--output-path=${out}`,
+        "--only-categories=performance,accessibility,best-practices,seo",
+        "--chrome-flags=--headless=new --no-sandbox",
+      ],
+      { maxBuffer: 64 * 1024 * 1024, timeout: RUN_TIMEOUT_MS, killSignal: "SIGTERM" },
+    );
+  } catch (err) {
+    const wedged = err.killed || err.signal === "SIGTERM";
+    if (wedged && attempt < 2) {
+      console.log(`\n  ${url}: no result after ${RUN_TIMEOUT_MS / 1000} s, retrying once`);
+      return lighthouseOnce(url, scratch, attempt + 1);
+    }
+    throw wedged ? new Error(`${url}: Lighthouse produced no result after ${RUN_TIMEOUT_MS / 1000} s, twice`) : err;
+  }
   const raw = await readFile(out, "utf8");
   const lhr = JSON.parse(raw);
   if (lhr.runtimeError) throw new Error(`${url}: ${lhr.runtimeError.code} ${lhr.runtimeError.message}`);
@@ -122,9 +141,10 @@ function failingAudits(lhr) {
   return failing;
 }
 
-async function measure(url, scratch) {
+async function measure(url, scratch, timed) {
+  const runs = timed ? RUNS : 1;
   const samples = [];
-  for (let i = 0; i < RUNS; i++) samples.push(await lighthouseOnce(url, scratch));
+  for (let i = 0; i < runs; i++) samples.push(await lighthouseOnce(url, scratch));
 
   const performance = median(samples.map((s) => s.lhr.categories.performance.score));
   const scores = { performance };
@@ -145,26 +165,28 @@ async function measure(url, scratch) {
       titles.set(key, title);
     }
   }
-  const failing = [...votes].filter(([, n]) => n > RUNS / 2).map(([key]) => ({ key, title: titles.get(key) }));
+  const failing = [...votes].filter(([, n]) => n > runs / 2).map(([key]) => ({ key, title: titles.get(key) }));
 
   // Keep the raw report of the median-LCP run, for whoever has to look.
   const byLcp = [...samples].sort(
     (a, b) => a.lhr.audits["largest-contentful-paint"].numericValue - b.lhr.audits["largest-contentful-paint"].numericValue,
   );
-  return { url, scores, metrics, failing, raw: byLcp[Math.floor(byLcp.length / 2)].raw };
+  return { url, timed, scores, metrics, failing, raw: byLcp[Math.floor(byLcp.length / 2)].raw };
 }
 
 const format = (id, value) => (id === "cumulative-layout-shift" ? value.toFixed(3) : `${Math.round(value)}ms`);
 
 function judge(result) {
   const problems = [];
-  if (result.scores.performance < MIN_PERFORMANCE_SCORE) {
-    problems.push(`performance score ${result.scores.performance} is below ${MIN_PERFORMANCE_SCORE}`);
-  }
-  for (const [id, max] of Object.entries(MAX_METRICS)) {
-    if (result.metrics[id] > max) {
-      const unit = id === "cumulative-layout-shift" ? "" : "ms";
-      problems.push(`${id} is ${format(id, result.metrics[id])}; the budget is ${max}${unit}`);
+  if (result.timed) {
+    if (result.scores.performance < MIN_PERFORMANCE_SCORE) {
+      problems.push(`performance score ${result.scores.performance} is below ${MIN_PERFORMANCE_SCORE}`);
+    }
+    for (const [id, max] of Object.entries(MAX_METRICS)) {
+      if (result.metrics[id] > max) {
+        const unit = id === "cumulative-layout-shift" ? "" : "ms";
+        problems.push(`${id} is ${format(id, result.metrics[id])}; the budget is ${max}${unit}`);
+      }
     }
   }
   for (const { key, title } of result.failing) {
@@ -189,14 +211,14 @@ function table(results) {
   const head = ["page", "perf", "a11y", "best", "seo", "FCP", "LCP", "TBT", "CLS", "known", ""];
   const rows = results.map((r) => [
     r.url,
-    r.scores.performance,
+    r.timed ? r.scores.performance : "-",
     r.scores.accessibility,
     r.scores["best-practices"],
     r.scores.seo,
-    format("first-contentful-paint", r.metrics["first-contentful-paint"]),
-    format("largest-contentful-paint", r.metrics["largest-contentful-paint"]),
-    format("total-blocking-time", r.metrics["total-blocking-time"]),
-    format("cumulative-layout-shift", r.metrics["cumulative-layout-shift"]),
+    r.timed ? format("first-contentful-paint", r.metrics["first-contentful-paint"]) : "-",
+    r.timed ? format("largest-contentful-paint", r.metrics["largest-contentful-paint"]) : "-",
+    r.timed ? format("total-blocking-time", r.metrics["total-blocking-time"]) : "-",
+    r.timed ? format("cumulative-layout-shift", r.metrics["cumulative-layout-shift"]) : "-",
     r.failing.filter((f) => isKnown(f.key, r.url)).length,
     r.problems.length ? "FAIL" : "ok",
   ]);
@@ -219,9 +241,10 @@ async function main() {
 
   const results = [];
   try {
-    for (const url of URLS) {
-      process.stdout.write(`Lighthouse ${url} x${RUNS} … `);
-      const result = await measure(url, scratch);
+    const pages = [...TIMED_URLS.map((url) => [url, true]), ...AUDIT_ONLY_URLS.map((url) => [url, false])];
+    for (const [url, timed] of pages) {
+      process.stdout.write(`Lighthouse ${url} x${timed ? RUNS : 1} … `);
+      const result = await measure(url, scratch, timed);
       result.problems = judge(result);
       results.push(result);
       const name = url === "/" ? "home" : url.slice(1).replace(/\//g, "-");
@@ -247,7 +270,7 @@ async function main() {
     const lines = [
       "### Lighthouse budget",
       "",
-      `Median of ${RUNS} runs per page, mobile emulation. Budgets: performance score ${MIN_PERFORMANCE_SCORE} or above; FCP 1800 ms, LCP 2500 ms, TBT 200 ms, CLS 0.1; no failing accessibility, best-practice or SEO audit outside the known issues (the "known" column counts those).`,
+      `Mobile emulation. Six pages: median of ${RUNS} runs, all budgets below. Four more: one run, audits only. Budgets: performance score ${MIN_PERFORMANCE_SCORE} or above; FCP 1800 ms, LCP 2500 ms, TBT 200 ms, CLS 0.1; no failing accessibility, best-practice or SEO audit outside the known issues (the "known" column counts those).`,
       "",
       markdown(t),
       "",
