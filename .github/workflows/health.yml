@@ -46,19 +46,6 @@ jobs:
             body=$(curl -sS --max-time 20 "$WORKER_URL/api/health" 2>&1) || { echo "$WORKER_URL/api/health unreachable: $body"; return 1; }
             echo "$body" | grep -q '"ready":true' || { echo "$WORKER_URL/api/health is not ready: $body"; return 1; }
 
-            # The subscriber backup (ADR-022). "ready" deliberately ignores it, so a
-            # stale backup can never roll back a good deploy; this is where it is
-            # watched. Each test needs its flag to be present, so a deploy that
-            # predates the backup still passes. Before the first run there is
-            # nothing to be stale, which is why the first backup is run by hand
-            # before merging (docs/06_OPERATIONS/BACKUPS.md).
-            if echo "$body" | grep -q '"backups_r2":false'; then
-              echo "the BACKUPS R2 bucket is not bound, so the subscriber list is not being backed up: $body"; return 1
-            fi
-            if echo "$body" | grep -q '"backup_ever":true' && ! echo "$body" | grep -q '"backup_recent":true'; then
-              echo "the subscriber backup is more than 36 hours old, or R2 cannot be read: $body"; return 1
-            fi
-
             for path in / /trove /vero; do
               code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$WORKER_URL$path") || code=000
               [ "$code" = "200" ] || { echo "$WORKER_URL$path returned $code"; return 1; }

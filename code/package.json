@@ -26,6 +26,8 @@
     "test:docs-sync": "node --test tests/docs-sync.test.mjs",
     "test:docs-impact": "node --test tests/docs-impact.test.mjs",
     "test:backup": "node --test tests/backup.test.mjs",
+    "backup": "node scripts/backup-subscribers.mjs",
+    "backup:check": "node scripts/backup-subscribers.mjs --check",
     "perf": "node perf/run.mjs",
     "audit:deps": "npm audit --audit-level=high",
     "audit:sbom": "npm sbom --sbom-format cyclonedx --omit dev > sbom.json",

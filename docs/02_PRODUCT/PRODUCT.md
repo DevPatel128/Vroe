@@ -96,9 +96,9 @@ change, and measured ([METRICS.md](../07_BUSINESS/METRICS.md) has today's values
 - Page weight inside the byte budgets, and no client-side framework.
 - Nothing false on the page: the build fails on an invented rating, offer, count or an
   unsourced figure ([CONTENT.md](../04_DESIGN/CONTENT.md)).
-- The site is up, and the early-access list is backed up and restorable
-  ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md),
-  [BACKUPS.md](../06_OPERATIONS/BACKUPS.md)).
+- The site is up ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md)), and the
+  early-access list is backed up and restorable ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)).
+  The second half is not true yet: no backup of production exists.
 
 **The site achieves something for Vroe Labs.** No target has been set (for sign-ups,
 visitors or anything else), and visitor analytics is off, so there is nothing to
@@ -133,7 +133,7 @@ Kept apart from facts, as the framework asks:
 | 2026-09-01 | v1.0.0, live at `vroelabs.com` | Rebuilt from a client-rendered prototype so crawlers see real HTML and a strict CSP is possible ([ADR-001](../08_DECISIONS/ENGINEERING/ADR-001-prerender-with-react-rather-than-ship-a-spa.md)) |
 | 2026-09-14 | Evidence layer on `/trove` | Show the problem with sourced, recent figures ([ADR-015](../08_DECISIONS/PRODUCT/ADR-015-an-evidence-layer-where-research-and-product-impact-never.md)) |
 | 2026-09-19 | Production safeguards and budgets | Main had gone red unnoticed ([ADR-020](../08_DECISIONS/ENGINEERING/ADR-020-production-safeguards-a-required-check-a-health-check.md)) |
-| Unreleased (pull request #11) | Accessible colours and heading order; a daily subscriber backup; documentation kept in step with the code | No accessibility audit fails ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)); the list can be restored ([ADR-022](../08_DECISIONS/ENGINEERING/ADR-022-daily-subscriber-backup-to-a-private-r2-bucket.md)); docs stop drifting ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)). On merge, date this row |
+| Unreleased (pull request #11) | Accessible colours and heading order; a subscriber backup command; documentation kept in step with the code | No accessibility audit fails ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)); the list can be restored from a backup ([ADR-022](../08_DECISIONS/ENGINEERING/ADR-022-subscriber-backup-to-the-maintainers-computer.md)); docs stop drifting ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)). On merge, date this row |
 
 ## Approval
 

@@ -20,8 +20,8 @@ node -e 'console.log(require("crypto").createHash("sha256").update(process.argv[
 npx wrangler kv key delete "sub:<that hash>" --binding SUBSCRIBERS --remote
 ```
 
-The daily backup ([BACKUPS.md](../BACKUPS.md)) still holds that record until the
-snapshots that contain it age out, at most 30 days later; the privacy policy says so.
+The backup ([BACKUPS.md](../BACKUPS.md)) still holds that record until the
+files that contain it age out, at most 30 days later; the privacy policy says so.
 Do not go and edit backups by hand. It matters for one thing: if the list is ever
 restored, the deletion log is how the person is removed again
 ([RESTORE-SUBSCRIBERS.md](RESTORE-SUBSCRIBERS.md), step 4).

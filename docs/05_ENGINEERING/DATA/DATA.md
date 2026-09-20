@@ -12,7 +12,7 @@ some throwaway rate-limit counters.
 | --- | --- | --- |
 | `SUBSCRIBERS` (Workers KV) | One record per address that subscribed | 730 days from signup, then it expires |
 | `RATE_LIMIT` (Workers KV) | A per-IP throttle counter, keyed on `cf-connecting-ip` | Expires on its own |
-| `BACKUPS` (R2 bucket `vroe-labs-backups`) | A daily copy of the whole `SUBSCRIBERS` list, one JSON file per day | 30 days, then deleted by the job that wrote it. Private: no public URL |
+| `backups/subscribers/` (a folder on the maintainer's computer, gitignored) | A daily copy of the whole `SUBSCRIBERS` list, one JSON file per day, made by `npm run backup` | 30 days, then deleted by the next run. Not in Cloudflare and not in Git |
 
 Why KV and not a database: one list of addresses does not need Postgres
 ([ADR-010](../../08_DECISIONS/ENGINEERING/ADR-010-cloudflare-kv-not-supabase.md)).
@@ -32,8 +32,8 @@ Value: exactly four fields, matching the privacy policy word for word.
 
 No IP address, no user agent, no referrer. TTL 730 days, mirroring
 `RETENTION_DAYS` in `src/content/legal.js` — **change both together**. The same
-record is also in every daily backup for 30 days, mirroring `BACKUP_RETENTION_DAYS`
-in `worker/backup.js` and `legal.js`, which must also change together.
+record is also in every backup for 30 days, mirroring `BACKUP_RETENTION_DAYS` in
+`scripts/backup-subscribers.mjs` and `legal.js`, which must also change together.
 
 ## Administration
 
@@ -62,18 +62,19 @@ fields are listed word for word in the privacy policy.
 `src/content/legal.js` describes exactly what the Worker stores. A mismatch is a
 false statement to visitors. Change what the form stores and update `legal.js` in
 the same change; `RETENTION_DAYS` exists in both `worker/index.js` and `legal.js`,
-and `BACKUP_RETENTION_DAYS` in both `worker/backup.js` and `legal.js`, and each pair
+and `BACKUP_RETENTION_DAYS` in both `scripts/backup-subscribers.mjs` and `legal.js`, and each pair
 must stay in step. A test fails if they drift.
 
 ## Backups
 
-A Cron Trigger (`23 3 * * *`, 03:23 UTC) copies the whole list to the private R2 bucket
-`vroe-labs-backups`, keeps 30 days and deletes the rest. The file is the input
-`wrangler kv bulk put` reads, so a restore needs no custom code. What it protects
-against, what it does not, and its limits are in
-[BACKUPS.md](../../06_OPERATIONS/BACKUPS.md); why it is built this way is [ADR-022](../../08_DECISIONS/ENGINEERING/ADR-022-daily-subscriber-backup-to-a-private-r2-bucket.md).
-A removal request deletes from the live list at once and from every backup within
-30 days, which is why a restore is followed by re-applying the
+`npm run backup` copies the whole list to `backups/subscribers/YYYY-MM-DD.json` on the
+maintainer's computer, keeps 30 days and deletes the rest. The folder is gitignored, and
+a test fails if git would track anything in it. The file is the input `wrangler kv bulk
+put` reads, so a restore needs no custom code. Nothing runs it on a schedule yet. What it
+protects against, what it does not, and its limits are in
+[BACKUPS.md](../../06_OPERATIONS/BACKUPS.md); why it is built this way is [ADR-022](../../08_DECISIONS/ENGINEERING/ADR-022-subscriber-backup-to-the-maintainers-computer.md). A removal
+request deletes from the live list at once and from every backup within 30 days, which is
+why a restore is followed by re-applying the
 [deletion log](../../06_OPERATIONS/RUNBOOKS/DELETION-LOG.md).
 
 ## Before adding a database

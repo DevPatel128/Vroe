@@ -21,7 +21,7 @@ was taken. No target has been set for any outcome ([PRODUCT.md](../02_PRODUCT/PR
 | JavaScript shipped | 2.2 KB gzipped, one file | Gzip of the built file | 4 KB, two files |
 | CSS shipped | 7.8 KB gzipped | Gzip of the built file | 10 KB |
 | Largest page | `/trove`, 10.9 KB gzipped | Gzip of the built HTML | 16 KB per page |
-| Tests | 167 across 11 suites, all passing | `npm test` | All pass |
+| Tests | 161 across 11 suites, all passing | `npm test` | All pass |
 
 ## Measured over time
 
@@ -30,7 +30,7 @@ was taken. No target has been set for any outcome ([PRODUCT.md](../02_PRODUCT/PR
 | Performance, accessibility, best-practice and SEO scores; Core Web Vitals | Lighthouse in CI on every pull request | Measured on every pull request |
 | Page weight | Byte budgets in `npm test` | Measured on every test run |
 | Availability | The scheduled health check ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md)) | Part of pull request #11, so it has no history yet; every three hours once merged |
-| Subscriber-backup freshness | `backup_recent` on `/api/health`, watched by the same check ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)) | Not live yet; see BACKUPS.md, "Where it stands today" |
+| Subscriber-backup freshness | `npm run backup:check` on the maintainer's computer ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)) | Measured only when someone runs it. No backup of production exists yet |
 | Documentation kept in step with the code | `test:docs-sync` and the `docs-impact` check ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)) | Enforced on every pull request |
 
 ## Not measured

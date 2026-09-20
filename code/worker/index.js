@@ -19,13 +19,9 @@
  *   3. Cloudflare Turnstile verification
  *   4. Store in SUBSCRIBERS KV, keyed by a SHA-256 of the address
  *
- * A daily Cron Trigger (`scheduled`, below) copies the subscriber list to a private
- * R2 bucket. See worker/backup.js and docs/06_OPERATIONS/BACKUPS.md.
- *
  * The email address is never written to a log line. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
  */
 
-import { backupStatus, runBackup } from "./backup.js";
 import { CSP_REPORT_PATH, withSecurity } from "./headers.js";
 
 /**
@@ -33,7 +29,6 @@ import { CSP_REPORT_PATH, withSecurity } from "./headers.js";
  * @property {Fetcher} ASSETS Prerendered site from dist/client
  * @property {KVNamespace} RATE_LIMIT Per-IP throttle for /api/subscribe
  * @property {KVNamespace} SUBSCRIBERS Stored signups
- * @property {R2Bucket} BACKUPS Private bucket holding the daily subscriber backups
  * @property {string} [TURNSTILE_SECRET_KEY] Enables server-side Turnstile verification
  * @property {string} [TURNSTILE_SITE_KEY] Client-safe key, served from /api/config
  * @property {string} [CANONICAL_HOST] Production hostname; other hosts are redirected to it
@@ -78,7 +73,7 @@ export default {
       case SUBSCRIBE_PATH:
         return withSecurity(await handleSubscribe(request, env, url));
       case HEALTH_PATH:
-        return withSecurity(await handleHealth(env));
+        return withSecurity(handleHealth(env));
       case CONFIG_PATH:
         return withSecurity(handleConfig(request, env));
       case CSP_REPORT_PATH:
@@ -86,19 +81,6 @@ export default {
       default:
         return withSecurity(await serveAsset(request, env, url));
     }
-  },
-
-  /**
-   * Cron Trigger: back up the subscriber list. A failure is thrown, so Cloudflare
-   * records the run as failed and the health check notices the backup going stale.
-   *
-   * @param {{ scheduledTime?: number }} controller
-   * @param {Env} env
-   * @returns {Promise<void>}
-   */
-  async scheduled(controller, env) {
-    const now = controller?.scheduledTime ? new Date(controller.scheduledTime) : new Date();
-    await runBackup(env, { now });
   },
 };
 
@@ -273,23 +255,18 @@ async function sha256(value) {
 /* ─── Endpoints ────────────────────────────────────────────────────────── */
 
 /**
- * Reports whether each binding is configured, and whether the backup is fresh.
- * Returns booleans only — never a secret value, a subscriber count or a date.
- *
- * `ready` decides whether a deploy is healthy and is deliberately unaffected by
- * the backup flags: a stale backup must not roll back a good deploy. The scheduled
- * health check watches the backup flags instead.
+ * Reports whether each binding is configured. Returns booleans only — never a
+ * secret value and never a secret's contents.
  *
  * @param {Env} env
- * @returns {Promise<Response>}
+ * @returns {Response}
  */
-export async function handleHealth(env) {
+export function handleHealth(env) {
   const configured = {
     assets: typeof env.ASSETS?.fetch === "function",
     rate_limit_kv: typeof env.RATE_LIMIT?.get === "function",
     subscribers_kv: typeof env.SUBSCRIBERS?.put === "function",
     turnstile: Boolean(env.TURNSTILE_SECRET_KEY) && Boolean(env.TURNSTILE_SITE_KEY),
-    ...(await backupStatus(env)),
   };
 
   // Turnstile is hardening, not a dependency: the form works without it because

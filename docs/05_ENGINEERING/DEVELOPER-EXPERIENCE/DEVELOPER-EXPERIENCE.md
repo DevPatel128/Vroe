@@ -32,6 +32,8 @@ in Cloudflare's always-passes test secret
 | `npm run preview` | Serve the built site through the real Worker. `wrangler dev` uses port 8787, or the next free one |
 | `npm test` | Every suite below |
 | `npm run perf` | Lighthouse budgets against a running preview; needs Chrome and `cd perf && npm ci` once |
+| `npm run backup` | Copy the live subscriber list to `../backups/subscribers/YYYY-MM-DD.json`, keeping 30 days. Uses your `wrangler login`. See [BACKUPS.md](../../06_OPERATIONS/BACKUPS.md) |
+| `npm run backup:check` | Fail if the newest backup is not from today or yesterday, or an old one was kept |
 | `npm run audit:deps` | `npm audit --audit-level=high` |
 | `npm run audit:sbom` | A CycloneDX SBOM to `sbom.json` |
 | `npm run build:fonts`, `build:images`, `build:og`, `build:icons` | Asset pipelines. `build:og` and `build:icons` are not part of `build`; the outputs are committed |
@@ -49,7 +51,7 @@ in Cloudflare's always-passes test secret
 | `test:docs` | The documentation system's structure, headers and links |
 | `test:docs-sync` | Documentation follows the code: every script, workflow, route, binding, endpoint, secret and cited decision is documented, and the retention periods agree |
 | `test:accessibility` | No skipped heading levels, the illustration palette and brand text meet WCAG AA, coral is never text |
-| `test:backup` | The daily subscriber backup: snapshot shape, restore round trip, retention and pruning, request budget, no addresses in logs, health flags |
+| `test:backup` | The subscriber backup: file shape, restore round trip, retention and pruning, atomic writes, the check, that `backups/` can never be tracked by git, that nothing personal is printed, and a full backup and restore against Wrangler's local simulation |
 | `test:docs-impact` | The rule that a change to what the docs describe must come with a docs change (`scripts/docs-impact.mjs`), tested without git |
 
 ## Dependencies

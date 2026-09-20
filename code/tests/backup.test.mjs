@@ -1,76 +1,108 @@
 /**
- * The daily subscriber backup (worker/backup.js).
+ * The subscriber backup (scripts/backup-subscribers.mjs).
  *
- * The properties that matter, in order: a snapshot can be restored exactly; a
- * failure never leaves something that looks like a good backup; old snapshots do
- * go, and only snapshots; nothing personal reaches a log; the health flags say
- * whether the backup is fresh without becoming a dependency of the deploy.
+ * In order of importance: a snapshot can be restored exactly; a failure never
+ * leaves something that looks like a good backup; old files do go, and only
+ * backup files; the folder can never be committed; nothing personal is printed.
+ * The last test runs the whole thing, restore included, against Wrangler's real
+ * local simulation.
  */
 
 import assert from "node:assert/strict";
-import test, { beforeEach } from "node:test";
-import worker from "../worker/index.js";
+import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   BACKUP_RETENTION_DAYS,
-  LATEST_KEY,
-  RECENT_AFTER_HOURS,
-  backupStatus,
-  resetBackupStatus,
+  NEWEST_MAX_AGE_DAYS,
+  buildSnapshot,
+  checkBackups,
+  daysBefore,
+  expiredSnapshots,
   runBackup,
-} from "../worker/backup.js";
-import { baseEnv, edge, fakeKV, fakeR2 } from "./helpers.mjs";
+} from "../scripts/backup-subscribers.mjs";
 
-const NOW = new Date("2026-09-20T03:23:00Z");
-const HOUR = 3_600_000;
-const epoch = (date) => Math.floor(date.getTime() / 1000);
+const code = fileURLToPath(new URL("../", import.meta.url));
+const repo = path.resolve(code, "..");
+const NOW = new Date("2026-09-20T10:23:00Z");
+const epoch = Math.floor(NOW.getTime() / 1000);
 
-beforeEach(() => resetBackupStatus());
+const scratch = () => mkdtempSync(path.join(tmpdir(), "vroe-backup-test-"));
 
-/** Subscribers shaped exactly as storeSubscriber writes them. */
-function seed(kv, count, { from = 0 } = {}) {
-  const emails = [];
-  for (let i = from; i < from + count; i++) {
-    const email = `person${i}@example.test`;
-    emails.push(email);
-    const record = { email, subscribed_at: "2026-09-01T10:00:00.000Z", country: "GB", consent: true };
-    kv.store.set(`sub:${String(i).padStart(6, "0")}`, JSON.stringify(record));
-    kv.meta.set(`sub:${String(i).padStart(6, "0")}`, {
-      expiration: epoch(NOW) + 700 * 86400,
-      metadata: { subscribed_at: record.subscribed_at },
-    });
+/** Subscribers shaped exactly as the Worker's storeSubscriber writes them. */
+function subscribers(count) {
+  const store = new Map();
+  for (let i = 0; i < count; i++) {
+    const key = `sub:${String(i).padStart(6, "0")}`;
+    const record = { email: `person${i}@example.test`, subscribed_at: "2026-09-01T10:00:00.000Z", country: "GB", consent: true };
+    store.set(key, { value: JSON.stringify(record), expiration: epoch + 700 * 86400 + i, metadata: { subscribed_at: record.subscribed_at } });
   }
-  return emails;
+  return store;
 }
 
-function envWith(count = 3) {
-  const SUBSCRIBERS = fakeKV();
-  const BACKUPS = fakeR2({ clock: () => NOW });
-  const emails = seed(SUBSCRIBERS, count);
-  return { SUBSCRIBERS, BACKUPS, emails };
+/** A stand-in for Wrangler: answers `kv key list` and `kv bulk get` from a Map, and records the calls. */
+function fakeWrangler(store, { failOnBulkCall } = {}) {
+  const calls = [];
+  const run = (args) => {
+    calls.push(args);
+    const [, sub] = args;
+    if (sub === "key") {
+      return JSON.stringify([...store].map(([name, v]) => ({ name, ...(v.expiration !== undefined ? { expiration: v.expiration } : {}), ...(v.metadata !== undefined ? { metadata: v.metadata } : {}) })));
+    }
+    if (sub === "bulk") {
+      if (failOnBulkCall === calls.filter((c) => c[1] === "bulk").length) throw new Error("Wrangler exploded");
+      const names = JSON.parse(readFileSync(args[3], "utf8"));
+      assert.ok(names.length <= 100, "a bulk read takes at most 100 keys");
+      return JSON.stringify(Object.fromEntries(names.map((n) => [n, { value: store.get(n)?.value ?? null }])));
+    }
+    throw new Error(`unexpected Wrangler call: ${args.join(" ")}`);
+  };
+  run.calls = calls;
+  return run;
 }
 
-const snapshotOf = async (env, date = "2026-09-20") => (await env.BACKUPS.get(`subscribers/${date}.json`)).json();
+const snapshotFile = (dir, date) => path.join(dir, "subscribers", `${date}.json`);
+const readSnapshot = (dir, date) => JSON.parse(readFileSync(snapshotFile(dir, date), "utf8"));
 
 /** What `wrangler kv bulk put` does with a snapshot, minus the network. */
 function bulkPut(snapshot, target, at = NOW) {
   for (const { key, value, expiration, metadata } of snapshot) {
-    if (expiration !== undefined && expiration <= epoch(at) + 60) continue; // KV refuses expiry inside 60 s
-    target.store.set(key, value);
-    target.meta.set(key, {
-      ...(expiration !== undefined ? { expiration } : {}),
-      ...(metadata !== undefined ? { metadata } : {}),
-    });
+    if (expiration !== undefined && expiration <= Math.floor(at.getTime() / 1000) + 60) continue; // KV refuses an expiry inside 60 s
+    target.set(key, { value, ...(expiration !== undefined ? { expiration } : {}), ...(metadata !== undefined ? { metadata } : {}) });
   }
+}
+
+/* Wrangler's real local simulation, for the two tests that use it. */
+const wranglerBin = path.join(code, "node_modules", ".bin", "wrangler");
+const wranglerEnv = () => ({ ...process.env, CI: "true", WRANGLER_SEND_METRICS: "false", NO_COLOR: "1" });
+const wrangler = (args) => execFileSync(wranglerBin, args, { cwd: code, encoding: "utf8", env: wranglerEnv(), stdio: ["ignore", "pipe", "pipe"] });
+
+function seedLocal(state, count) {
+  const now = Math.floor(Date.now() / 1000);
+  const emails = [];
+  const entries = [];
+  for (let i = 0; i < count; i++) {
+    const email = `local${i}@example.test`;
+    emails.push(email);
+    const record = { email, subscribed_at: "2026-09-01T10:00:00.000Z", country: i % 2 ? "GB" : "IN", consent: true };
+    entries.push({ key: `sub:local${String(i).padStart(3, "0")}`, value: JSON.stringify(record), expiration: now + 700 * 86400 + i, metadata: { subscribed_at: record.subscribed_at } });
+  }
+  const file = path.join(state, "seed.json");
+  writeFileSync(file, JSON.stringify(entries), { mode: 0o600 });
+  wrangler(["kv", "bulk", "put", file, "--binding", "SUBSCRIBERS", "--local", "--persist-to", state]);
+  rmSync(file);
+  return emails;
 }
 
 /* ─── The snapshot ─────────────────────────────────────────────────────── */
 
-test("the snapshot is exactly what `wrangler kv bulk put` accepts", async () => {
-  const env = envWith(5);
-  await runBackup(env, { now: NOW });
-  const snapshot = await snapshotOf(env);
-
-  assert.ok(Array.isArray(snapshot));
+test("the snapshot is exactly what `wrangler kv bulk put` accepts", () => {
+  const dir = scratch();
+  runBackup({ wrangler: fakeWrangler(subscribers(5)), dir, now: NOW });
+  const snapshot = readSnapshot(dir, "2026-09-20");
   assert.equal(snapshot.length, 5);
   assert.equal(new Set(snapshot.map((e) => e.key)).size, 5, "keys are unique");
   for (const entry of snapshot) {
@@ -81,285 +113,228 @@ test("the snapshot is exactly what `wrangler kv bulk put` accepts", async () => 
   }
 });
 
-test("restoring a snapshot reproduces the list, with each record's original expiry and metadata", async () => {
-  const env = envWith(250);
-  await runBackup(env, { now: NOW });
+test("restoring a snapshot reproduces the list, with each record's original expiry and metadata", () => {
+  const dir = scratch();
+  const live = subscribers(250);
+  runBackup({ wrangler: fakeWrangler(live), dir, now: NOW });
 
-  const restored = fakeKV();
-  bulkPut(await snapshotOf(env), restored);
-
-  assert.deepEqual(restored.store, env.SUBSCRIBERS.store);
-  assert.deepEqual(restored.meta, env.SUBSCRIBERS.meta);
+  const restored = new Map();
+  bulkPut(readSnapshot(dir, "2026-09-20"), restored);
+  assert.deepEqual(restored, live);
 });
 
-test("a record with no expiry or metadata is backed up without those fields", async () => {
-  const env = envWith(0);
-  env.SUBSCRIBERS.store.set("sub:plain", '{"email":"a@example.test"}');
-  await runBackup(env, { now: NOW });
-  assert.deepEqual(await snapshotOf(env), [{ key: "sub:plain", value: '{"email":"a@example.test"}' }]);
+test("records with no expiry or metadata are backed up without those fields", () => {
+  const dir = scratch();
+  runBackup({ wrangler: fakeWrangler(new Map([["sub:plain", { value: '{"email":"a@example.test"}' }]])), dir, now: NOW });
+  assert.deepEqual(readSnapshot(dir, "2026-09-20"), [{ key: "sub:plain", value: '{"email":"a@example.test"}' }]);
 });
 
-test("an empty list still produces a valid, empty snapshot", async () => {
-  const env = envWith(0);
-  const result = await runBackup(env, { now: NOW });
+test("an empty list still produces a valid, empty snapshot", () => {
+  const dir = scratch();
+  const result = runBackup({ wrangler: fakeWrangler(new Map()), dir, now: NOW });
   assert.equal(result.count, 0);
-  assert.deepEqual(await snapshotOf(env), []);
+  assert.deepEqual(readSnapshot(dir, "2026-09-20"), []);
 });
 
-test("expired records and records deleted mid-run are left out", async () => {
-  const env = envWith(4);
-  env.SUBSCRIBERS.meta.set("sub:000000", { expiration: epoch(NOW) - 86400 }); // already expired
-  const list = env.SUBSCRIBERS.list;
-  env.SUBSCRIBERS.list = async (options) => {
-    const page = await list(options);
-    env.SUBSCRIBERS.store.delete("sub:000003"); // an unsubscribe lands between the listing and the read
-    return page;
+test("a record that vanished between the listing and the read is left out and counted", () => {
+  const listed = [{ name: "sub:a" }, { name: "sub:b" }];
+  assert.deepEqual(buildSnapshot(listed, new Map([["sub:a", "1"], ["sub:b", null]])), [{ key: "sub:a", value: "1" }]);
+
+  const dir = scratch();
+  const store = subscribers(3);
+  const wrangler = fakeWrangler(store);
+  const original = wrangler.calls; // keep the recorder, wrap the behaviour
+  const run = (args) => {
+    const out = wrangler(args);
+    if (args[1] === "key") store.delete("sub:000001"); // an unsubscribe lands after the listing
+    return out;
   };
-  await runBackup(env, { now: NOW });
-  assert.deepEqual((await snapshotOf(env)).map((e) => e.key), ["sub:000001", "sub:000002"]);
+  run.calls = original;
+  const result = runBackup({ wrangler: run, dir, now: NOW });
+  assert.equal(result.skipped, 1);
+  assert.deepEqual(readSnapshot(dir, "2026-09-20").map((e) => e.key), ["sub:000000", "sub:000002"]);
 });
 
-test("the pointer names today's snapshot and its size", async () => {
-  const env = envWith(3);
-  await runBackup(env, { now: NOW });
-  assert.deepEqual(await (await env.BACKUPS.get(LATEST_KEY)).json(), { date: "2026-09-20", count: 3 });
+test("more than 100 records are read in batches of at most 100", () => {
+  const dir = scratch();
+  const wrangler = fakeWrangler(subscribers(250));
+  const result = runBackup({ wrangler, dir, now: NOW });
+  assert.equal(result.count, 250);
+  assert.equal(wrangler.calls.filter((c) => c[1] === "bulk").length, 3, "100 + 100 + 50");
 });
 
-test("running twice on one day overwrites; a new day adds a snapshot", async () => {
-  const env = envWith(3);
-  await runBackup(env, { now: NOW });
-  await runBackup(env, { now: new Date("2026-09-20T15:00:00Z") });
-  assert.deepEqual([...env.BACKUPS.objects.keys()].sort(), ["subscribers/2026-09-20.json", LATEST_KEY]);
+test("running twice on one day overwrites; a new day adds a file", () => {
+  const dir = scratch();
+  runBackup({ wrangler: fakeWrangler(subscribers(3)), dir, now: NOW });
+  runBackup({ wrangler: fakeWrangler(subscribers(4)), dir, now: new Date("2026-09-20T20:00:00Z") });
+  assert.deepEqual(readdirSync(path.join(dir, "subscribers")), ["2026-09-20.json"]);
+  assert.equal(readSnapshot(dir, "2026-09-20").length, 4);
 
-  await runBackup(env, { now: new Date("2026-09-21T03:23:00Z") });
-  assert.deepEqual([...env.BACKUPS.objects.keys()].sort(), ["subscribers/2026-09-20.json", "subscribers/2026-09-21.json", LATEST_KEY]);
+  runBackup({ wrangler: fakeWrangler(subscribers(4)), dir, now: new Date("2026-09-21T10:00:00Z") });
+  assert.deepEqual(readdirSync(path.join(dir, "subscribers")).sort(), ["2026-09-20.json", "2026-09-21.json"]);
 });
 
-/* ─── Scale, and the limit on requests ─────────────────────────────────── */
-
-test("more than 1,000 records and more than 100 reads paginate, within the request budget", async () => {
-  const env = envWith(2500);
-  const result = await runBackup(env, { now: NOW });
-  assert.equal(result.count, 2500);
-  // 3 list pages, 25 bulk reads, 2 writes, 1 listing of old snapshots. Counted
-  // before the test reads anything back.
-  assert.equal(result.requests, env.SUBSCRIBERS.ops + env.BACKUPS.ops, "the job counts every request it makes");
-  assert.equal(env.SUBSCRIBERS.ops, 3 + 25);
-  assert.ok(result.requests < 100, `used ${result.requests} requests`);
-  assert.equal((await snapshotOf(env)).length, 2500);
-});
-
-test("a list too big for one run is refused before anything is read or written", async () => {
-  const env = envWith(2500);
-  await assert.rejects(runBackup(env, { now: NOW, maxRequests: 20 }), /Backup refused.*2500 subscribers.*Nothing was written/s);
-  assert.equal(env.BACKUPS.objects.size, 0, "no partial backup");
-  assert.equal(env.SUBSCRIBERS.ops, 3, "it stopped after listing");
-});
-
-test("a runaway listing is stopped", async () => {
-  const env = envWith(2500);
-  await assert.rejects(runBackup(env, { now: NOW, maxRequests: 2 }), /Backup refused/);
-  assert.equal(env.BACKUPS.objects.size, 0);
+test("the files and the folder are readable only by their owner", { skip: process.platform === "win32" }, () => {
+  const dir = scratch();
+  runBackup({ wrangler: fakeWrangler(subscribers(2)), dir, now: NOW });
+  assert.equal(statSync(snapshotFile(dir, "2026-09-20")).mode & 0o777, 0o600);
+  assert.equal(statSync(path.join(dir, "subscribers")).mode & 0o077, 0, "no access for group or others");
 });
 
 /* ─── Retention ────────────────────────────────────────────────────────── */
 
-const snapshotKey = (date) => `subscribers/${date}.json`;
-const putSnapshot = (env, date) => env.BACKUPS.objects.set(snapshotKey(date), { body: "[]", customMetadata: {}, uploaded: NOW });
-
-test("snapshots inside the window are kept and older ones are deleted", async () => {
+test("snapshots inside the window are kept and older ones are deleted", () => {
   assert.equal(BACKUP_RETENTION_DAYS, 30);
-  const env = envWith(1);
-  for (const d of ["2026-08-20", "2026-08-21", "2026-08-22", "2026-09-01", "2026-09-19"]) putSnapshot(env, d);
+  const dir = scratch();
+  mkdirSync(path.join(dir, "subscribers"), { recursive: true });
+  for (const d of ["2026-08-20", "2026-08-21", "2026-08-22", "2026-09-01", "2026-09-19"]) writeFileSync(snapshotFile(dir, d), "[]");
 
-  const result = await runBackup(env, { now: NOW }); // 2026-09-20: the window is 08-22 to 09-20, thirty snapshots
+  const result = runBackup({ wrangler: fakeWrangler(subscribers(1)), dir, now: NOW }); // window: 08-22 to 09-20, thirty days
   assert.equal(result.pruned, 2);
-  assert.deepEqual(
-    [...env.BACKUPS.objects.keys()].sort(),
-    [snapshotKey("2026-08-22"), snapshotKey("2026-09-01"), snapshotKey("2026-09-19"), snapshotKey("2026-09-20"), LATEST_KEY],
-  );
+  assert.deepEqual(readdirSync(path.join(dir, "subscribers")).sort(), ["2026-08-22.json", "2026-09-01.json", "2026-09-19.json", "2026-09-20.json"]);
 });
 
-test("the window is exactly thirty snapshots across a month and a year boundary", async () => {
+test("the window is exactly thirty days across month, year and leap-day boundaries", () => {
   for (const [today, oldestKept, newestDeleted] of [
     ["2026-10-01", "2026-09-02", "2026-09-01"],
     ["2027-01-05", "2026-12-07", "2026-12-06"],
     ["2028-03-01", "2028-02-01", "2028-01-31"], // through a leap February: 1 March plus 29 days
   ]) {
-    const env = envWith(1);
-    putSnapshot(env, oldestKept);
-    putSnapshot(env, newestDeleted);
-    await runBackup(env, { now: new Date(`${today}T03:23:00Z`) });
-    assert.ok(env.BACKUPS.objects.has(snapshotKey(oldestKept)), `${oldestKept} is kept on ${today}`);
-    assert.ok(!env.BACKUPS.objects.has(snapshotKey(newestDeleted)), `${newestDeleted} is deleted on ${today}`);
+    const gone = expiredSnapshots([`${oldestKept}.json`, `${newestDeleted}.json`], today);
+    assert.deepEqual(gone, [`${newestDeleted}.json`], `on ${today}`);
   }
+  assert.equal(daysBefore("2028-03-01", 1), "2028-02-29");
 });
 
-test("only dated snapshots are ever deleted", async () => {
-  const env = envWith(1);
-  putSnapshot(env, "2020-01-01");
-  for (const key of ["subscribers/notes.txt", "subscribers/2020-01-01.json.bak", "other/2020-01-01.json", "subscribers/keep-me.json"]) {
-    env.BACKUPS.objects.set(key, { body: "x", customMetadata: {}, uploaded: NOW });
-  }
-  await runBackup(env, { now: NOW });
-  assert.ok(!env.BACKUPS.objects.has(snapshotKey("2020-01-01")));
-  for (const key of ["subscribers/notes.txt", "subscribers/2020-01-01.json.bak", "other/2020-01-01.json", "subscribers/keep-me.json", LATEST_KEY]) {
-    assert.ok(env.BACKUPS.objects.has(key), `${key} must survive`);
-  }
+test("only files named like a dated snapshot are ever deleted", () => {
+  const files = ["2020-01-01.json", "notes.txt", "2020-01-01.json.bak", "2020-01-01.txt", "latest.json", ".DS_Store"];
+  assert.deepEqual(expiredSnapshots(files, "2026-09-20"), ["2020-01-01.json"]);
 });
 
-test("a large backlog is deleted in batches of at most 1,000", async () => {
-  const env = envWith(1);
-  for (let year = 1000; year < 2000; year++) {
-    putSnapshot(env, `${year}-01-01`);
-    putSnapshot(env, `${year}-02-01`);
-  }
-  const result = await runBackup(env, { now: NOW });
-  assert.equal(result.pruned, 2000, "two batches were needed, and the fake refuses a batch over 1,000");
-  assert.deepEqual([...env.BACKUPS.objects.keys()].sort(), [snapshotKey("2026-09-20"), LATEST_KEY]);
+test("a half-written file left by a crashed run is removed by the next run", () => {
+  const dir = scratch();
+  mkdirSync(path.join(dir, "subscribers"), { recursive: true });
+  writeFileSync(path.join(dir, "subscribers", "2026-09-19.json.partial"), "[");
+  runBackup({ wrangler: fakeWrangler(subscribers(1)), dir, now: NOW });
+  assert.deepEqual(readdirSync(path.join(dir, "subscribers")), ["2026-09-20.json"]);
 });
 
-/* ─── Failure is loud and leaves no false comfort ──────────────────────── */
+/* ─── Failure leaves no false comfort ──────────────────────────────────── */
 
-test("if reading the list fails, nothing is written", async () => {
-  const env = envWith(3);
-  env.SUBSCRIBERS.list = async () => { throw new Error("KV is down"); };
-  await assert.rejects(runBackup(env, { now: NOW }), /KV is down/);
-  assert.equal(env.BACKUPS.objects.size, 0);
+test("if a read fails part-way, nothing is written and yesterday's backup is untouched", () => {
+  const dir = scratch();
+  runBackup({ wrangler: fakeWrangler(subscribers(3)), dir, now: new Date("2026-09-19T10:00:00Z") });
+  const yesterday = readFileSync(snapshotFile(dir, "2026-09-19"), "utf8");
+
+  assert.throws(() => runBackup({ wrangler: fakeWrangler(subscribers(250), { failOnBulkCall: 2 }), dir, now: NOW }), /Wrangler exploded/);
+  assert.deepEqual(readdirSync(path.join(dir, "subscribers")), ["2026-09-19.json"]);
+  assert.equal(readFileSync(snapshotFile(dir, "2026-09-19"), "utf8"), yesterday);
 });
 
-test("if writing the snapshot fails, the pointer is not moved", async () => {
-  const env = envWith(3);
-  putSnapshot(env, "2026-09-19");
-  env.BACKUPS.objects.set(LATEST_KEY, { body: '{"date":"2026-09-19","count":3}', customMetadata: {}, uploaded: NOW });
-  const put = env.BACKUPS.put;
-  env.BACKUPS.put = async (key, ...rest) => {
-    if (key === snapshotKey("2026-09-20")) throw new Error("R2 is down");
-    return put(key, ...rest);
+test("if Wrangler's answer is not JSON, it says how to check the login and writes nothing", () => {
+  const dir = scratch();
+  assert.throws(() => runBackup({ wrangler: () => "You are not logged in", dir, now: NOW }), /Are you logged in.*Nothing was written/s);
+  assert.equal(existsSync(path.join(dir, "subscribers")), false);
+});
+
+test("Wrangler's banner before the JSON does not break parsing", () => {
+  const dir = scratch();
+  const store = subscribers(2);
+  const inner = fakeWrangler(store);
+  runBackup({ wrangler: (args) => `⛅️ wrangler 4\n─────\nResource location: remote\n${inner(args)}`, dir, now: NOW });
+  assert.equal(readSnapshot(dir, "2026-09-20").length, 2);
+});
+
+test("the temporary file of key names is deleted, even when a read fails", () => {
+  const seen = [];
+  const store = subscribers(3);
+  const inner = fakeWrangler(store);
+  const run = (args) => {
+    if (args[1] === "bulk") seen.push(args[3]);
+    if (args[1] === "bulk") throw new Error("boom");
+    return inner(args);
   };
-  await assert.rejects(runBackup(env, { now: NOW }), /R2 is down/);
-  assert.equal(env.BACKUPS.objects.get(LATEST_KEY).body, '{"date":"2026-09-19","count":3}');
-  assert.ok(!env.BACKUPS.objects.has(snapshotKey("2026-09-20")));
+  assert.throws(() => runBackup({ wrangler: run, dir: scratch(), now: NOW }), /boom/);
+  assert.equal(seen.length, 1);
+  assert.equal(existsSync(seen[0]), false, "the key file is gone");
+  assert.equal(existsSync(path.dirname(seen[0])), false, "and so is its folder");
 });
 
-test("if pruning fails, today's backup is kept and the run still fails", async () => {
-  const env = envWith(3);
-  putSnapshot(env, "2020-01-01");
-  env.BACKUPS.delete = async () => { throw new Error("cannot delete"); };
-  await assert.rejects(runBackup(env, { now: NOW }), /removing old backups failed/);
-  assert.ok(env.BACKUPS.objects.has(snapshotKey("2026-09-20")));
-  assert.ok(env.BACKUPS.objects.has(LATEST_KEY));
+/* ─── The check ────────────────────────────────────────────────────────── */
+
+test("the check passes for a backup dated today or yesterday, and fails after that", () => {
+  assert.equal(NEWEST_MAX_AGE_DAYS, 1);
+  assert.equal(checkBackups(["2026-09-20.json"], NOW).ok, true);
+  assert.equal(checkBackups(["2026-09-19.json"], NOW).ok, true, "one late run is not an alarm");
+  const stale = checkBackups(["2026-09-18.json"], NOW);
+  assert.equal(stale.ok, false);
+  assert.match(stale.problems[0], /2026-09-18.*today or yesterday/);
 });
 
-test("without both bindings it fails and says which is missing", async () => {
-  await assert.rejects(runBackup({ SUBSCRIBERS: fakeKV() }, { now: NOW }), /BACKUPS R2 bucket is not bound/);
-  await assert.rejects(runBackup({ BACKUPS: fakeR2() }, { now: NOW }), /SUBSCRIBERS namespace is not bound/);
+test("the check fails when there is no backup at all", () => {
+  const none = checkBackups([], NOW);
+  assert.equal(none.ok, false);
+  assert.match(none.problems[0], /no backup yet/);
 });
 
-/* ─── Privacy ──────────────────────────────────────────────────────────── */
+test("the check fails when an old backup was kept past its retention, or a partial file remains", () => {
+  const overdue = checkBackups(["2026-09-20.json", "2026-07-01.json"], NOW);
+  assert.equal(overdue.ok, false);
+  assert.match(overdue.problems.join(" "), /older than 30 days/);
+  const partial = checkBackups(["2026-09-20.json", "2026-09-19.json.partial"], NOW);
+  assert.equal(partial.ok, false);
+  assert.match(partial.problems.join(" "), /half-written/);
+});
 
-test("nothing personal is written to any log, on success or failure", async () => {
-  const lines = [];
-  const original = { log: console.log, error: console.error, warn: console.warn, info: console.info };
-  for (const level of Object.keys(original)) console[level] = (...args) => lines.push(args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" "));
-  try {
-    const env = envWith(5);
-    putSnapshot(env, "2020-01-01");
-    await runBackup(env, { now: NOW });
-    env.BACKUPS.delete = async () => { throw new Error("cannot delete"); };
-    putSnapshot(env, "2020-01-02");
-    await runBackup(env, { now: NOW }).catch(() => {});
-    env.SUBSCRIBERS.list = async () => { throw new Error("KV is down"); };
-    await runBackup(env, { now: NOW }).catch(() => {});
-  } finally {
-    Object.assign(console, original);
+/* ─── It can never be committed ────────────────────────────────────────── */
+
+test("the backups folder is gitignored, and nothing under it is tracked", () => {
+  for (const file of ["backups/subscribers/2026-09-20.json", "backups/anything", "backups/subscribers/2026-09-20.json.partial"]) {
+    const ignored = spawnSync("git", ["check-ignore", "-q", file], { cwd: repo });
+    assert.equal(ignored.status, 0, `git must ignore ${file}`);
   }
-  assert.ok(lines.length >= 2, "the job does log its counts");
-  const all = lines.join("\n");
-  assert.doesNotMatch(all, /@|example\.test|person\d/, "no address in the logs");
-  assert.doesNotMatch(all, /sub:0/, "no key in the logs");
+  const tracked = execFileSync("git", ["ls-files", "backups"], { cwd: repo, encoding: "utf8" });
+  assert.equal(tracked.trim(), "", "no file under backups/ may be tracked");
 });
 
-/* ─── The cron entry point ─────────────────────────────────────────────── */
+/* ─── Nothing personal is printed ──────────────────────────────────────── */
 
-test("the Worker's scheduled handler runs the backup for the scheduled day", async () => {
-  const env = baseEnv({ SUBSCRIBERS: fakeKV(), BACKUPS: fakeR2() });
-  seed(env.SUBSCRIBERS, 4);
-  await worker.scheduled({ scheduledTime: Date.parse("2026-11-02T03:23:00Z") }, env);
-  assert.ok(env.BACKUPS.objects.has(snapshotKey("2026-11-02")));
+test("the command prints counts and dates only", () => {
+  const dir = scratch();
+  const state = scratch();
+  // Seed Wrangler's local simulation, then run the real command against it.
+  const emails = seedLocal(state, 4);
+  const out = spawnSync(process.execPath, [path.join(code, "scripts", "backup-subscribers.mjs"), "--dir", dir, "--local-state", state], { cwd: code, encoding: "utf8", env: wranglerEnv() });
+  assert.equal(out.status, 0, out.stderr);
+  const printed = out.stdout + out.stderr;
+  assert.match(printed, /Subscriber backup written: \d{4}-\d{2}-\d{2}, 4 records/);
+  for (const email of emails) assert.ok(!printed.includes(email), "no address is printed");
+  assert.doesNotMatch(printed, /sub:/, "no key is printed");
 });
 
-test("a failed scheduled run rejects, so Cloudflare records it as failed", async () => {
-  const env = baseEnv({ SUBSCRIBERS: fakeKV(), BACKUPS: undefined });
-  await assert.rejects(worker.scheduled({ scheduledTime: Date.now() }, env), /not bound/);
-});
+/* ─── The whole thing, against Wrangler's real local simulation ────────── */
 
-/* ─── Health flags ─────────────────────────────────────────────────────── */
+test("end to end: back up a real (local) KV namespace, restore into a fresh one, and the lists are identical", { timeout: 180_000, skip: !existsSync(wranglerBin) }, () => {
+  const live = scratch();
+  const fresh = scratch();
+  const dir = scratch();
+  seedLocal(live, 25);
 
-test("without the bucket, all three flags are false", async () => {
-  assert.deepEqual(await backupStatus({}), { backups_r2: false, backup_ever: false, backup_recent: false });
-});
+  const backup = spawnSync(process.execPath, [path.join(code, "scripts", "backup-subscribers.mjs"), "--dir", dir, "--local-state", live], { cwd: code, encoding: "utf8", env: wranglerEnv() });
+  assert.equal(backup.status, 0, backup.stderr);
 
-test("before the first run: bound, never backed up", async () => {
-  assert.deepEqual(await backupStatus({ BACKUPS: fakeR2() }, NOW), { backups_r2: true, backup_ever: false, backup_recent: false });
-});
+  const [file] = readdirSync(path.join(dir, "subscribers"));
+  const restoreFile = path.join(fresh, "restore.json");
+  const now = Math.floor(Date.now() / 1000);
+  const snapshot = JSON.parse(readFileSync(path.join(dir, "subscribers", file), "utf8"));
+  writeFileSync(restoreFile, JSON.stringify(snapshot.filter((e) => e.expiration === undefined || e.expiration > now + 120)));
+  wrangler(["kv", "bulk", "put", restoreFile, "--binding", "SUBSCRIBERS", "--local", "--persist-to", fresh]);
 
-test("after a run it is recent, and it stops being recent after 36 hours", async () => {
-  assert.equal(RECENT_AFTER_HOURS, 36);
-  const env = envWith(2);
-  await runBackup(env, { now: NOW });
-  assert.deepEqual(await backupStatus(env, new Date(NOW.getTime() + 35 * HOUR)), { backups_r2: true, backup_ever: true, backup_recent: true });
-  resetBackupStatus();
-  assert.deepEqual(await backupStatus(env, new Date(NOW.getTime() + 37 * HOUR)), { backups_r2: true, backup_ever: true, backup_recent: false });
-});
-
-test("the status is remembered for a minute, so the public endpoint cannot hammer R2", async () => {
-  const BACKUPS = fakeR2();
-  await backupStatus({ BACKUPS }, NOW);
-  await backupStatus({ BACKUPS }, new Date(NOW.getTime() + 30_000));
-  assert.equal(BACKUPS.ops, 1);
-  await backupStatus({ BACKUPS }, new Date(NOW.getTime() + 61_000));
-  assert.equal(BACKUPS.ops, 2);
-});
-
-test("if R2 cannot be read, the status says the backup is not recent, and is not remembered", async () => {
-  let fail = true;
-  const BACKUPS = { async head() { if (fail) throw new Error("R2 unreachable"); return null; } };
-  const original = console.error;
-  console.error = () => {};
-  try {
-    assert.deepEqual(await backupStatus({ BACKUPS }, NOW), { backups_r2: true, backup_ever: true, backup_recent: false });
-  } finally {
-    console.error = original;
+  const list = (state) => JSON.parse(wrangler(["kv", "key", "list", "--binding", "SUBSCRIBERS", "--local", "--persist-to", state]));
+  assert.equal(list(live).length, 25);
+  assert.deepEqual(list(fresh), list(live), "the same keys, expiries and metadata");
+  for (const key of ["sub:local000", "sub:local024"]) {
+    const get = (state) => wrangler(["kv", "key", "get", key, "--binding", "SUBSCRIBERS", "--local", "--persist-to", state]);
+    assert.equal(get(fresh), get(live), `${key} has the same value`);
   }
-  fail = false;
-  assert.deepEqual(await backupStatus({ BACKUPS }, NOW), { backups_r2: true, backup_ever: false, backup_recent: false }, "asked again");
-});
-
-test("/api/health reports the flags as booleans only, and a stale backup does not make the site unready", async () => {
-  const env = baseEnv({ BACKUPS: fakeR2({ clock: () => new Date(Date.now() - 100 * HOUR) }) });
-  await runBackup({ ...env, SUBSCRIBERS: seedKV() }, { now: new Date(Date.now() - 100 * HOUR) });
-  const response = await worker.fetch(edge("https://vroelabs.com/api/health"), env);
-  const body = await response.json();
-
-  assert.equal(response.status, 200, "ready does not depend on the backup");
-  assert.equal(body.ready, true);
-  assert.deepEqual(body.configured.backups_r2, true);
-  assert.equal(body.configured.backup_ever, true);
-  assert.equal(body.configured.backup_recent, false);
-  for (const [name, value] of Object.entries(body.configured)) assert.equal(typeof value, "boolean", `${name} is a boolean`);
-  assert.doesNotMatch(JSON.stringify(body), /\d{4}-\d{2}-\d{2}|count|subscribers\//, "no date, count or key is disclosed");
-});
-
-function seedKV() {
-  const kv = fakeKV();
-  seed(kv, 2);
-  return kv;
-}
-
-test("/api/health still answers when the bucket is not bound", async () => {
-  const response = await worker.fetch(edge("https://vroelabs.com/api/health"), baseEnv());
-  const body = await response.json();
-  assert.equal(response.status, 200);
-  assert.equal(body.configured.backups_r2, false);
 });

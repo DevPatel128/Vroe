@@ -36,7 +36,7 @@ unauthorised production access. This one is heading public, so it is assumed pub
 | Testing | Satisfied. Every suite runs in CI and again before every deploy | [DEVELOPER-EXPERIENCE.md](../DEVELOPER-EXPERIENCE/DEVELOPER-EXPERIENCE.md) |
 | Deployment and production approval | Satisfied. `main` requires `verify` and `docs-impact`; the merge is the approval | [CI-CD.md](../CI-CD/CI-CD.md) |
 | Observability | Satisfied. Logs, a health endpoint, a scheduled check that emails on failure | [OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md) |
-| Failure and recovery | **Partial.** A bad deploy rolls back automatically and the subscriber list is backed up daily. The restore has been rehearsed only locally, and the backup is not yet live in production ([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)) | [RELIABILITY.md](../RELIABILITY/RELIABILITY.md), [BACKUPS.md](../../06_OPERATIONS/BACKUPS.md) |
+| Failure and recovery | **Partial.** A bad deploy rolls back automatically and the subscriber list has a backup command. Nothing schedules it, no production backup exists yet, and the restore has been rehearsed only locally ([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)) | [RELIABILITY.md](../RELIABILITY/RELIABILITY.md), [BACKUPS.md](../../06_OPERATIONS/BACKUPS.md) |
 | Security incident response | Satisfied | [INCIDENTS.md](../../06_OPERATIONS/INCIDENTS.md) |
 
 ## The quality gate
@@ -48,5 +48,5 @@ actions are auditable; performance is measured where material; cost is justified
 appropriate tests pass; failure and recovery are understood; production is
 observable; and human approval requirements are satisfied.
 
-Here, the open item is that recovery has been rehearsed only locally, not against
-production, and the backup is not yet live there. Both are recorded as gaps in [FRAMEWORK-MAP.md](../../00_START_HERE/FRAMEWORK-MAP.md).
+Here, the open items are that the backup is not scheduled or yet run against
+production, and that recovery has been rehearsed only locally. Both are recorded as gaps in [FRAMEWORK-MAP.md](../../00_START_HERE/FRAMEWORK-MAP.md).

@@ -68,16 +68,10 @@ Request
 worker/index.js                    (run_worker_first: true — see below)
   ├── canonicalRedirect()          www.vroelabs.com → vroelabs.com, 301
   ├── /api/subscribe               → handleSubscribe()
-  ├── /api/health, /api/config     → booleans (incl. backup freshness) / public site key
+  ├── /api/health, /api/config     → booleans / public site key
   ├── /api/csp-report              → logged, 204
   └── everything else              → env.ASSETS.fetch() → withSecurity() → withCache()
 ```
-
-The Worker has a second entry point that no request reaches: `scheduled()`, fired
-by a Cron Trigger at 03:23 UTC each day. It calls `worker/backup.js`, which copies
-the subscriber list to a private R2 bucket ([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)).
-As with `fetch()`, `worker/index.js` may export only functions (ADR-007), so the
-backup's constants live in `worker/backup.js`.
 
 **`run_worker_first: true` is load-bearing.** Without it Cloudflare serves a
 matching static asset directly and never invokes the worker, so every security

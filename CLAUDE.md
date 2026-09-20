@@ -89,7 +89,7 @@ were invisible to the tests and obvious in a browser.
 | An element toggled with `hidden` stays visible | A class sets `display`, which beats the browser's `[hidden]` rule. `evidence.css` restates it for the evidence layer. |
 | Build fails: "Cannot find package 'x'" after a Dependabot bump | A script imports `x` directly, but `x` only arrived as a dependency of something else that has since dropped it. Declare it in `package.json`. ADR-019 |
 | `npm test` fails "over budget" | Something got bigger than `tests/performance.test.mjs` allows. Find out why before raising the number; if the growth is right, record it as an ADR. ADR-021 |
-| Deploy fails: R2 bucket `vroe-labs-backups` not found | `wrangler.jsonc` binds the backup bucket, and the deploy fails if it does not exist. Create it first (`wrangler r2 bucket create vroe-labs-backups`). ADR-022 |
+| Subscriber data about to be committed | The backup command writes `backups/` in the repo folder. It is gitignored and a test proves it; never `git add -f` it, and never copy a snapshot into the repo elsewhere. ADR-022 |
 | Can't push to `main` | It requires a pull request that passes `verify` and `docs-impact`. That is intended. ADR-020, ADR-023 |
 
 ## Layout
@@ -103,13 +103,14 @@ code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
   src/components/evidence/  India story, ranking, country panels, method
   src/styles/    tokens → fonts → base → layout → hero → products → evidence → sections → responsive
   src/client/    enhance.js — the only browser JS
-  worker/        index.js (routing, /api, cron entry) + headers.js (CSP, security headers) + backup.js (daily subscriber backup)
-  scripts/       optimize-images, prerender, generate-sitemap, generate-og, generate-icons, sync-fonts
+  worker/        index.js (routing, /api) + headers.js (CSP, security headers)
+  scripts/       optimize-images, prerender, generate-sitemap, generate-og, generate-icons, sync-fonts,
+                 backup-subscribers (npm run backup), docs-impact (the docs check CI runs)
 docs/             documentation, in ten numbered areas (start at 00_START_HERE)
   03_RESEARCH/impact-research/  evidence source files (raw/ gitignored), scripts, derived outputs
 ```
 
 If you change what the subscribe endpoint stores or keeps (including how long the
-daily backups are kept), **update
+backups are kept), **update
 `code/src/content/legal.js` in the same change** — the privacy policy is
 written against the worker's actual behaviour.

@@ -53,7 +53,7 @@ export const PRIVACY = {
       paragraphs: [
         "Records are held in Cloudflare Workers KV. Each entry is filed under a one-way cryptographic hash of your address rather than the address itself, so the stored list cannot be browsed by guessing email addresses.",
         `We keep a subscription record for up to ${RETENTION_DAYS} days from the date you subscribe, or until you ask us to remove it, whichever comes first.`,
-        `We also keep a daily backup copy of the list, so we can restore it if something goes wrong. Backups are held in a private Cloudflare R2 bucket in the same account, and each one is deleted automatically after ${BACKUP_RETENTION_DAYS} days. If you ask us to remove your details, they leave the live list straight away and are gone from every backup within ${BACKUP_RETENTION_DAYS} days.`,
+        `We also keep a backup copy of the list, so we can restore it if something goes wrong. Backups are kept on a computer that belongs to Vroe Labs, and each one is deleted after ${BACKUP_RETENTION_DAYS} days. If you ask us to remove your details, they leave the live list straight away and are gone from every backup within ${BACKUP_RETENTION_DAYS} days.`,
       ],
     },
     {

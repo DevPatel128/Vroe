@@ -96,7 +96,7 @@ Tests keep it that way.
 - **Consent is explicit.** The checkbox must be ticked; it is never inferred from
   pressing submit. The privacy notice is at the point of collection.
 - **Data use is stated exactly.** The policy lists the four fields stored, the
-  retention period and the 30-day daily backup, and is written against what the
+  retention period and the 30-day backup, and is written against what the
   worker does ([DATA.md](../05_ENGINEERING/DATA/DATA.md)).
 - **Uncertainty is shown.** Figures the site cannot stand behind are not shown; the
   India time figure is labelled a floor, not the whole.

@@ -175,21 +175,18 @@ These cannot be done from the CLI or need a real browser session.
    on every page. The DNS TXT method needs a Cloudflare DNS record, which the
    current session cannot create (zone *read* only).
 
-9. **The subscriber backup goes live** (ADR-022) — **not done.** Two steps, in this
-   order, both before merging the pull request that binds the bucket, because a
-   deploy that binds a missing bucket fails:
-   1. Create the private bucket from `code/`:
-      `npx wrangler r2 bucket create vroe-labs-backups`. R2 may need enabling on
-      the account first, and Cloudflare will say if it wants a payment method.
-   2. Run the first backup by hand, so a backup exists at merge and not a day
-      later: `npx wrangler dev --remote --test-scheduled`, then request
-      `/__scheduled` on the port it prints. This reads production KV and writes
-      only to the private bucket. **Not yet exercised against the real account**;
-      if it misbehaves, the fallback is to merge and let the 03:23 UTC run make the
-      first backup, accepting a day with none.
-   After the deploy, `/api/health` should report `backup_recent: true`.
-   Then restore that first backup into a scratch namespace once, and record the
-   drill in [DISASTER-RECOVERY.md](../DISASTER-RECOVERY.md).
+9. **The subscriber backup is started** (ADR-022) — **not done.** The backup is a file on
+   this computer, made by a command, so nothing here needs merging first:
+   1. Run it once against production: `cd code && npm run backup`, then
+      `npm run backup:check`. This is the first time it touches the live namespace
+      (it only reads it); until then only Wrangler's local simulation has run it.
+   2. Set the computer up so the backups stay where the privacy policy says: exclude
+      `backups/` from Time Machine and any cloud-synced folder, and turn on FileVault
+      ([BACKUPS.md](../BACKUPS.md), "Set up once").
+   3. Schedule it, and decide where `npm run backup:check` failing will be seen.
+      Nothing runs it on its own.
+   4. Restore that first backup into a scratch namespace once, and record the drill in
+      [DISASTER-RECOVERY.md](../DISASTER-RECOVERY.md).
 
 ---
 
