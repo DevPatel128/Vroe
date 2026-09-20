@@ -179,10 +179,19 @@ test("every decision cited in the code exists in the index", async () => {
 /* ─── Values that must agree in two places ─────────────────────────────── */
 
 test("the subscriber retention period agrees between the Worker and the privacy policy", async () => {
-  const days = (text, name) => Number(text.match(new RegExp(`${name}\\s*=\\s*(\\d+)`))?.[1]);
+  const days = (text, name) => Number(text.match(new RegExp(`(?<![A-Z_])${name}\\s*=\\s*(\\d+)`))?.[1]);
   const worker = days(await readCode("worker/index.js"), "RETENTION_DAYS");
   const policy = days(await readCode("src/content/legal.js"), "RETENTION_DAYS");
   assert.ok(worker > 0 && policy > 0, "RETENTION_DAYS not found in both files");
   assert.equal(policy, worker,
     "src/content/legal.js and worker/index.js disagree about how long subscribers are kept; the privacy policy would be a false statement");
+});
+
+test("the backup retention period agrees between the backup job and the privacy policy", async () => {
+  const days = (text, name) => Number(text.match(new RegExp(`(?<![A-Z_])${name}\\s*=\\s*(\\d+)`))?.[1]);
+  const worker = days(await readCode("worker/backup.js"), "BACKUP_RETENTION_DAYS");
+  const policy = days(await readCode("src/content/legal.js"), "BACKUP_RETENTION_DAYS");
+  assert.ok(worker > 0 && policy > 0, "BACKUP_RETENTION_DAYS not found in both files");
+  assert.equal(policy, worker,
+    "src/content/legal.js and worker/backup.js disagree about how long backups are kept; the privacy policy would be a false statement");
 });

@@ -28,7 +28,8 @@ is not.
 | Malicious/compromised npm package | `npm ci --ignore-scripts` in CI, exact pinned versions, committed lockfile, `npm audit --audit-level=high`, Dependabot reviewed not auto-merged |
 | Leaked secrets | Nothing secret is committed. Secrets go through `wrangler secret put`; `.dev.vars` is gitignored; a test asserts no secret appears in any published byte |
 | Source map / dotfile exposure | `sourcemap: false`; a test walks `dist/` and fails on `.map`, `.env`, `.git`, `.dev.vars` |
-| Privacy leakage via logs | The subscribe handler never writes an email address to a log line. Tested. |
+| Privacy leakage via logs | The subscribe handler and the backup job never write an email address or a key to a log line. Tested. |
+| Subscriber data at rest in a backup | The daily copy sits in a private R2 bucket in the same Cloudflare account: no public URL, no custom domain, and nothing in the Worker serves it. It is deleted after 30 days, and the privacy policy says so. A manual off-account copy must be encrypted ([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)) |
 | Unsafe external links | Every external anchor carries `rel="noopener noreferrer"`. Tested. |
 | Cache misconfiguration | Hashed assets immutable; HTML `must-revalidate`; `/api/*` `no-store` |
 | Compromised GitHub/Cloudflare credentials | Scoped API token (not a global key), least-privilege Actions permissions, protected `main`, secret scanning |

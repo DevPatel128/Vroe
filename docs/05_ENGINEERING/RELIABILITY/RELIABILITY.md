@@ -1,6 +1,6 @@
 # Reliability
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How the site fails, what a visitor sees, and how it recovers. What a person does
 about it is in [06_OPERATIONS](../../06_OPERATIONS/README.md).
@@ -15,6 +15,8 @@ about it is in [06_OPERATIONS](../../06_OPERATIONS/README.md).
 | A bad version is deployed | The post-deploy smoke test fails and the deploy rolls itself back | The previous version is known to have passed its own smoke test ([ROLLBACKS.md](../../06_OPERATIONS/ROLLBACKS.md)) |
 | A dependency update breaks the build | CI goes red and `main` will not accept the change | The failed build never reaches `wrangler deploy` ([ADR-019](../../08_DECISIONS/ENGINEERING/ADR-019-declare-esbuild-as-a-direct-devdependency.md)) |
 | Production degrades unnoticed | The scheduled health check fails a run and GitHub emails it | [OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md) |
+| The daily backup fails | The run is reported failed in Cloudflare, nothing partial is written, and the health check fails once the newest backup is over 36 hours old | The site is unaffected: the backup is deliberately outside `ready`, so it can never roll back a good deploy. Details in [BACKUPS.md](../../06_OPERATIONS/BACKUPS.md) |
+| The subscriber list is lost or corrupted | Restored from the newest daily backup, then the deletion log is re-applied | Up to 24 hours of signups can be lost ([RESTORE-SUBSCRIBERS.md](../../06_OPERATIONS/RUNBOOKS/RESTORE-SUBSCRIBERS.md)) |
 
 ## Recovery
 
@@ -22,8 +24,9 @@ Detect, contain, recover, verify, document, improve. The concrete steps are
 [ROLLBACKS.md](../../06_OPERATIONS/ROLLBACKS.md) for a bad deploy,
 [INCIDENTS.md](../../06_OPERATIONS/INCIDENTS.md) for exposure, and
 [DISASTER-RECOVERY.md](../../06_OPERATIONS/DISASTER-RECOVERY.md) for losing something
-larger. Not yet covered: there is no backup of the subscriber list
-([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)).
+larger. The subscriber list is backed up daily
+([BACKUPS.md](../../06_OPERATIONS/BACKUPS.md)); what a restore has and has not been
+rehearsed against is recorded in DISASTER-RECOVERY.md.
 
 ## Confidentiality, integrity, availability
 

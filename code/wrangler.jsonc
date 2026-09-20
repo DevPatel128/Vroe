@@ -56,6 +56,15 @@
     { "binding": "SUBSCRIBERS", "id": "609b58326df24884aef3fe253af7aad9" }
   ],
 
+  // Private bucket for the daily subscriber backup (worker/backup.js). It must
+  // exist before a deploy that binds it. No public URL: nothing here is served.
+  "r2_buckets": [
+    { "binding": "BACKUPS", "bucket_name": "vroe-labs-backups" }
+  ],
+
+  // The backup runs once a day at 03:23 UTC, an off-peak minute.
+  "triggers": { "crons": ["23 3 * * *"] },
+
   "vars": {
     // Every other hostname 301s here, which folds www -> apex. The value is
     // configuration, never taken from the request, so it cannot be turned into

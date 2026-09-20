@@ -70,7 +70,9 @@ secrets.
 `.github/workflows/deploy.yml` also runs the automatic rollback described in
 [ROLLBACKS.md](../../06_OPERATIONS/ROLLBACKS.md), and
 `.github/workflows/health.yml` runs the scheduled check described in
-[OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md).
+[OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md), including the freshness of
+the subscriber backup. That freshness is deliberately not part of the deploy's smoke
+test, so a stale backup can never roll back a good deploy.
 
 ## The `docs-impact` workflow
 

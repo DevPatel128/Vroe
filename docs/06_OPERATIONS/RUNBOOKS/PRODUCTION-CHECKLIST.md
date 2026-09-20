@@ -147,7 +147,8 @@ These cannot be done from the CLI or need a real browser session.
      blocked, and the rule applies to admins too (otherwise it is theatre on a
      solo repo). The `verify` CI check is **required**, so nothing reaches
      `main` — and therefore production — except through a pull request that
-     passes it. Direct pushes no longer work; merging the pull request is the
+     passes it. So is `docs-impact` (2026-09-20, ADR-023), which fails a pull
+     request that changes what the documentation describes without changing it. Direct pushes no longer work; merging the pull request is the
      human approval before production. For a genuine emergency, turn "Do not
      allow bypassing the above settings" off in Settings → Branches, push, then
      turn it back on. The `performance` job is deliberately **not** required
@@ -162,7 +163,7 @@ These cannot be done from the CLI or need a real browser session.
    - **`WORKER_URL` variable** — set, for the scheduled health check. It is a
      repository *variable*, not a secret: it is only the public `workers.dev`
      address. Update it if the account's workers.dev subdomain is ever renamed.
-     See [06-deployment.md](../OBSERVABILITY.md#the-scheduled-health-check).
+     See [OBSERVABILITY.md](../OBSERVABILITY.md#the-scheduled-health-check).
 
 7. **The `CLOUDFLARE_API_TOKEN` GitHub secret** — **done.** Exact steps, should
    it ever need recreating, are in
@@ -173,6 +174,22 @@ These cannot be done from the CLI or need a real browser session.
    code into `GOOGLE_SITE_VERIFICATION` in `src/content/site.js` and it renders
    on every page. The DNS TXT method needs a Cloudflare DNS record, which the
    current session cannot create (zone *read* only).
+
+9. **The subscriber backup goes live** (ADR-022) — **not done.** Two steps, in this
+   order, both before merging the pull request that binds the bucket, because a
+   deploy that binds a missing bucket fails:
+   1. Create the private bucket from `code/`:
+      `npx wrangler r2 bucket create vroe-labs-backups`. R2 may need enabling on
+      the account first, and Cloudflare will say if it wants a payment method.
+   2. Run the first backup by hand, so a backup exists at merge and not a day
+      later: `npx wrangler dev --remote --test-scheduled`, then request
+      `/__scheduled` on the port it prints. This reads production KV and writes
+      only to the private bucket. **Not yet exercised against the real account**;
+      if it misbehaves, the fallback is to merge and let the 03:23 UTC run make the
+      first backup, accepting a day with none.
+   After the deploy, `/api/health` should report `backup_recent: true`.
+   Then restore that first backup into a scratch namespace once, and record the
+   drill in [DISASTER-RECOVERY.md](../DISASTER-RECOVERY.md).
 
 ---
 

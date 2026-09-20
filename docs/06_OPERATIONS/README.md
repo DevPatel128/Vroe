@@ -1,6 +1,6 @@
 # 06 Operations
 
-**Status:** Review · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
 
 - **Purpose:** when something breaks, or needs doing, a person knows exactly where
   to go.
@@ -21,4 +21,4 @@
 | A secret or subscriber data may be exposed | [INCIDENTS.md](INCIDENTS.md) |
 | I am not sure it is up | [OBSERVABILITY.md](OBSERVABILITY.md) |
 | Someone asked to be removed from the list | [RUNBOOKS/SUBSCRIBER-LIST.md](RUNBOOKS/SUBSCRIBER-LIST.md) |
-| The list, or the account, is lost | [BACKUPS.md](BACKUPS.md), [DISASTER-RECOVERY.md](DISASTER-RECOVERY.md) |
+| The list, or the account, is lost | [BACKUPS.md](BACKUPS.md), [DISASTER-RECOVERY.md](DISASTER-RECOVERY.md), then [RUNBOOKS/RESTORE-SUBSCRIBERS.md](RUNBOOKS/RESTORE-SUBSCRIBERS.md) |

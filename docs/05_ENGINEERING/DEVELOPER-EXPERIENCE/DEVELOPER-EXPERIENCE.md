@@ -49,6 +49,7 @@ in Cloudflare's always-passes test secret
 | `test:docs` | The documentation system's structure, headers and links |
 | `test:docs-sync` | Documentation follows the code: every script, workflow, route, binding, endpoint, secret and cited decision is documented, and the retention periods agree |
 | `test:accessibility` | No skipped heading levels, the illustration palette and brand text meet WCAG AA, coral is never text |
+| `test:backup` | The daily subscriber backup: snapshot shape, restore round trip, retention and pruning, request budget, no addresses in logs, health flags |
 | `test:docs-impact` | The rule that a change to what the docs describe must come with a docs change (`scripts/docs-impact.mjs`), tested without git |
 
 ## Dependencies

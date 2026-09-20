@@ -12,6 +12,7 @@ links to says why it is designed that way.
 | [CLOUDFLARE-API-TOKEN.md](CLOUDFLARE-API-TOKEN.md) | The CI token must be created, replaced or revoked |
 | [SUBSCRIBER-LIST.md](SUBSCRIBER-LIST.md) | Reading the list, or removing someone from it |
 | [DELETION-LOG.md](DELETION-LOG.md) | Recording each removal |
+| [RESTORE-SUBSCRIBERS.md](RESTORE-SUBSCRIBERS.md) | The list was lost or damaged and must come back from a backup |
 | [SEARCH-CONSOLE.md](SEARCH-CONSOLE.md) | Setting up Google Search Console |
 
 Something broke and you are not sure which of these applies: start at
