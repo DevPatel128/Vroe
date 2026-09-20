@@ -2,8 +2,10 @@
 
 Marketing site for Vroe Labs. Prerendered static HTML on Cloudflare Workers.
 
-**Read [docs/README.md](docs/README.md) before making changes.** It has the load
-order and a "where do I change X?" table. This file is the summary.
+**Read [docs/00_START_HERE/README.md](docs/00_START_HERE/README.md) before making changes.** It says
+where every kind of information lives, and has the load order and a "where do I
+change X?" table. This file is the summary. Report which canonical documents you
+consulted.
 
 ## The one thing to understand first
 
@@ -17,26 +19,36 @@ vanilla JS. So:
 
 ## The five rules
 
+Summarised here because agents arrive here first; the canonical statement is
+[docs/01_PRINCIPLES/PRINCIPLES.md](docs/01_PRINCIPLES/PRINCIPLES.md).
+
 1. **Never claim a product is available.** Neither Trove nor Vero has shipped.
    No external product links, no `offers` in structured data, no present-tense
    "Trove is a…". The evidence on `/trove` describes the problem only — never
-   that Trove saves time or money. → [docs/03-content.md](docs/03-content.md),
-   [docs/10-evidence.md](docs/10-evidence.md)
+   that Trove saves time or money. → [docs/04_DESIGN/CONTENT.md](docs/04_DESIGN/CONTENT.md),
+   [docs/03_RESEARCH/RESEARCH.md](docs/03_RESEARCH/RESEARCH.md)
 2. **Never weaken the CSP.** No `unsafe-inline`, no `unsafe-eval`, no wildcards.
    In particular: **no inline `style` attributes** — they are blocked and the
    browser drops the styling silently. Use a class.
-   → [docs/04-security.md](docs/04-security.md)
+   → [docs/05_ENGINEERING/SECURITY/SECURITY.md](docs/05_ENGINEERING/SECURITY/SECURITY.md)
 3. **All copy lives in `code/src/content/`,** never hard-coded in a component.
-4. **No React in the browser.** → [docs/02-architecture.md](docs/02-architecture.md)
+4. **No React in the browser.** → [docs/05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md](docs/05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md)
 5. **No invented structured data.** No ratings, reviews, offers or counts.
 
 ## Before a consequential change
 
 Answer why, impact, how, cost, and whether the cost is justified — and label
 claims as fact, assumption or unknown. Record non-obvious decisions as an ADR
-using the template in [docs/07-decisions.md](docs/07-decisions.md).
-→ [docs/08-ai-workflow.md](docs/08-ai-workflow.md). How this repo maps to the
-company framework, and its open gaps: [docs/00-framework-map.md](docs/00-framework-map.md).
+using the template in [docs/08_DECISIONS/DECISIONS.md](docs/08_DECISIONS/DECISIONS.md).
+→ [docs/05_ENGINEERING/AI/AI-WORKFLOW.md](docs/05_ENGINEERING/AI/AI-WORKFLOW.md). How this repo maps to the
+company framework, and its open gaps: [docs/00_START_HERE/FRAMEWORK-MAP.md](docs/00_START_HERE/FRAMEWORK-MAP.md).
+
+## Documentation
+
+`docs/` has ten numbered areas and nothing else; every concept has one canonical
+home, and every document opens with a status header. Update the canonical document
+rather than adding a second one. `npm run test:docs` enforces the structure,
+headers and links.
 
 ## Commands
 
@@ -45,7 +57,7 @@ cd code                # the buildable app lives here, not the repo root
 npm ci
 npm run build           # fonts → images → vite → prerender → sitemap
 npm test                # every suite — all must pass
-npm run preview         # wrangler dev on :8788
+npm run preview         # wrangler dev on :8787 (next free port if taken)
 npm run deploy          # build + wrangler deploy
 ```
 
@@ -83,8 +95,8 @@ code/            buildable app — package.json, vite.config.mjs, wrangler.jsonc
   src/client/    enhance.js — the only browser JS
   worker/        index.js (routing, /api) + headers.js (CSP, security headers)
   scripts/       optimize-images, prerender, generate-sitemap, generate-og, generate-icons, sync-fonts
-docs/             full documentation
-  impact-research/  evidence source files (raw/ gitignored), scripts, derived outputs
+docs/             documentation, in ten numbered areas (start at 00_START_HERE)
+  03_RESEARCH/impact-research/  evidence source files (raw/ gitignored), scripts, derived outputs
 ```
 
 If you change what the subscribe endpoint stores, **update

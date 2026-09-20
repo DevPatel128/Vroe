@@ -5,7 +5,7 @@
  * does, not what a template says. It is written against worker/index.js and
  * must be re-read whenever that file's data handling changes. Today the site
  * stores exactly four things per signup — hashed key, address, timestamp,
- * country — and sets no cookies of its own. See docs/04-security.md.
+ * country — and sets no cookies of its own. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
  */
 
 export const LEGAL_EFFECTIVE = "1 September 2026";

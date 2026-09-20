@@ -16,7 +16,7 @@ import { PRODUCTS } from "../content/products.js";
  *    builder below takes its values from the same content modules the page
  *    renders from, so the two cannot drift apart.
  *
- * See docs/05-seo.md and docs/07-decisions.md (ADR-006).
+ * See docs/05_ENGINEERING/ARCHITECTURE/SEO.md and docs/08_DECISIONS/DECISIONS.md (ADR-006).
  */
 
 const abs = (p) => (p.startsWith("http") ? p : `${SITE_URL}${p}`);

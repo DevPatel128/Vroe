@@ -1,9 +1,9 @@
 /**
- * Brand tokens — the CSS expression of docs/01-brand/brand-guide.md.
+ * Brand tokens — the CSS expression of docs/04_DESIGN/BRAND-GUIDE.md.
  *
  * Every value here maps to a named token in the brand guide. Do not introduce a
  * colour, radius or width that the brand guide does not define; add it there
- * first. docs/01-brand/design-system.md records the token -> property mapping.
+ * first. docs/04_DESIGN/DESIGN-SYSTEM.md records the token -> property mapping.
  */
 
 :root {

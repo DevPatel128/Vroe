@@ -2,7 +2,7 @@
  * Security tests.
  *
  * These encode the security decisions so a later refactor cannot quietly undo
- * one. Each assertion maps to a requirement in docs/04-security.md — if a test
+ * one. Each assertion maps to a requirement in docs/05_ENGINEERING/SECURITY/SECURITY.md — if a test
  * here starts failing, the fix is almost never to relax the test.
  */
 

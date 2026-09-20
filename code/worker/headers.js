@@ -58,7 +58,7 @@ export const CSP = CSP_DIRECTIVES.join("; ");
  *  - HSTS `preload` — withheld on purpose. `includeSubDomains` already covers
  *    subdomains, but preload is effectively irreversible and
  *    trove.vroelabs.com is not live yet. Add it only once every subdomain is
- *    confirmed HTTPS-only. See docs/07-decisions.md, ADR-004.
+ *    confirmed HTTPS-only. See docs/08_DECISIONS/DECISIONS.md, ADR-004.
  */
 export const SECURITY_HEADERS = {
   "Content-Security-Policy": CSP,

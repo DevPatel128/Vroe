@@ -22,7 +22,7 @@ export const SITE = {
    * That still shipped a footer icon labelled "Vroe Labs on LinkedIn" that
    * landed on LinkedIn's own homepage — a link that does not go where it says
    * it goes. The Footer omits the icon entirely while this is empty; set it to
-   * the real company URL and the icon comes back. See docs/03-content.md.
+   * the real company URL and the icon comes back. See docs/04_DESIGN/CONTENT.md.
    */
   linkedin: "",
   locale: "en",
@@ -34,7 +34,7 @@ export const SITE = {
  *
  * DNS TXT is the primary verification method for the domain property, so this
  * stays empty and the meta tag is simply not rendered. Set it only if you fall
- * back to the HTML-tag method. See docs/SEARCH_CONSOLE_SETUP.md.
+ * back to the HTML-tag method. See docs/06_OPERATIONS/RUNBOOKS/SEARCH-CONSOLE.md.
  */
 export const GOOGLE_SITE_VERIFICATION = "";
 

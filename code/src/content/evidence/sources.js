@@ -8,15 +8,15 @@
  *
  * RECENCY. `year` is the year of publication and must be 2024 or later
  * (MINIMUM_DATA_YEAR in index.js). Older studies — even widely cited ones — are
- * not kept here. docs/impact-research/README.md lists what was set aside and why.
+ * not kept here. docs/03_RESEARCH/impact-research/README.md lists what was set aside and why.
  *
- * PRIORITY OF SOURCES (docs/10-evidence.md): government and regulators, central
+ * PRIORITY OF SOURCES (docs/03_RESEARCH/RESEARCH.md): government and regulators, central
  * banks, statistical agencies, universities, research institutions, international
  * organisations, then industry bodies. News coverage was used only to find the
  * primary documents listed here, never as a source.
  *
- * `archived` is the local copy in docs/impact-research/raw/. Those files are
- * gitignored for size; docs/impact-research/README.md lists each one's URL and
+ * `archived` is the local copy in docs/03_RESEARCH/impact-research/raw/. Those files are
+ * gitignored for size; docs/03_RESEARCH/impact-research/README.md lists each one's URL and
  * SHA-256 so the exact bytes can be fetched again and checked.
  */
 
@@ -35,7 +35,7 @@ export const SOURCES = {
     methodology:
       "Face-to-face or telephone interviews. Country figures are weighted shares of adults, published in the database file GlobalFindexDatabase2025.csv.",
     tier: "international-organisation",
-    archived: "docs/impact-research/raw/global/WorldBank-Global-Findex-Database-2025.csv",
+    archived: "docs/03_RESEARCH/impact-research/raw/global/WorldBank-Global-Findex-Database-2025.csv",
     lastVerified: "2026-09-13",
   },
 
@@ -51,9 +51,9 @@ export const SOURCES = {
     population: "Household members aged 6 and over",
     sample: "139,487 households; 454,192 people aged 6 and over",
     methodology:
-      "A 24-hour diary from 4am to 4am in 30-minute slots, up to three activities per slot, coded to ICATUS 2016. Household financial management is codes 351 (paying household bills) and 352 (budgeting, planning and organising household duties). Computed from the person file by docs/impact-research/scripts/tus2024_household_finance_time.py, using MoSPI’s own definitions and survey weights.",
+      "A 24-hour diary from 4am to 4am in 30-minute slots, up to three activities per slot, coded to ICATUS 2016. Household financial management is codes 351 (paying household bills) and 352 (budgeting, planning and organising household duties). Computed from the person file by docs/03_RESEARCH/impact-research/scripts/tus2024_household_finance_time.py, using MoSPI’s own definitions and survey weights.",
     tier: "statistical-agency",
-    archived: "docs/impact-research/raw/india/MoSPI-TUS-2024-Person-Level-Data-CSV.zip",
+    archived: "docs/03_RESEARCH/impact-research/raw/india/MoSPI-TUS-2024-Person-Level-Data-CSV.zip",
     lastVerified: "2026-09-13",
   },
 
@@ -89,7 +89,7 @@ export const SOURCES = {
     methodology:
       "Face-to-face household listing and main survey, weighted to a household universe of 33.72 crore households.",
     tier: "regulator",
-    archived: "docs/impact-research/raw/india/SEBI-Investor-Survey-2025-Main-Report.pdf",
+    archived: "docs/03_RESEARCH/impact-research/raw/india/SEBI-Investor-Survey-2025-Main-Report.pdf",
     lastVerified: "2026-09-14",
   },
 
@@ -107,7 +107,7 @@ export const SOURCES = {
     methodology:
       "Grand total of folios across open-ended, close-ended and interval schemes. One investor can hold many folios, so this counts accounts, not investors.",
     tier: "industry-body",
-    archived: "docs/impact-research/raw/india/AMFI-Monthly-Note-August-2026.pdf",
+    archived: "docs/03_RESEARCH/impact-research/raw/india/AMFI-Monthly-Note-August-2026.pdf",
     lastVerified: "2026-09-13",
   },
 };

@@ -19,7 +19,7 @@ import { NOTES } from "./notes.js";
  * finance app for tracking…", whose present tense asserts that the app exists
  * and is free. Trove is not released, so the clause is rephrased to describe
  * what it is being built to do. Same keywords, no availability claim.
- * See docs/07-decisions.md, ADR-006.
+ * See docs/08_DECISIONS/DECISIONS.md, ADR-006.
  */
 export const ROUTES = [
   {

@@ -3,7 +3,7 @@
 
   // Vroe Labs marketing site. Static assets are prerendered into dist/client;
   // worker/index.js adds security headers, the canonical-host redirect and the
-  // three small /api endpoints. See docs/06-deployment.md.
+  // three small /api endpoints. See docs/05_ENGINEERING/CI-CD/CI-CD.md.
   "name": "vroe-labs",
   "main": "./worker/index.js",
   "compatibility_date": "2026-09-01",

@@ -9,7 +9,7 @@
  * bytes.
  *
  * Going over is sometimes right. When it is, raise the number here and record
- * why in docs/07-decisions.md, so the increase is a decision rather than drift.
+ * why in docs/08_DECISIONS/DECISIONS.md, so the increase is a decision rather than drift.
  * Lab timings (LCP, CLS, TBT) and the Lighthouse category scores are checked
  * separately by perf/run.mjs.
  */

@@ -13,7 +13,7 @@
  * `createEvidence()` takes its data as arguments so the tests can run the same
  * logic against small synthetic fixtures. `index.js` builds the real instance.
  *
- * See docs/10-evidence.md for the methodology this implements.
+ * See docs/03_RESEARCH/RESEARCH.md for the methodology this implements.
  */
 
 export const UNITS = ["percent", "minutes-per-day", "hours-per-day", "count"];
@@ -367,7 +367,7 @@ export function createEvidence({
  * in `minimumYear` or later; so must every population a figure is multiplied by.
  * Older studies are removed from the content, not hidden, so this checks every
  * definition rather than only the ones in use. The year itself is set once, in
- * index.js. See docs/10-evidence.md.
+ * index.js. See docs/03_RESEARCH/RESEARCH.md.
  */
 export function recencyProblems({ sources, metrics, countries }, minimumYear) {
   const out = [];

@@ -28,7 +28,7 @@ const adults = (year, value) => ({
   sourceLocator: `${FINDEX_FILE}, pop_adult, ${year}`,
 });
 
-const TUS_RESULTS = "docs/impact-research/derived/tus2024-household-finance-time.json";
+const TUS_RESULTS = "docs/03_RESEARCH/impact-research/derived/tus2024-household-finance-time.json";
 
 export const COUNTRIES = [
   {

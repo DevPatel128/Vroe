@@ -6,7 +6,7 @@
  * harder case) against a running copy of the site, takes the median of several
  * runs per page, and fails if any page misses a budget below.
  *
- *   npm run preview          # in one terminal: the real Worker on :8788
+ *   npm run preview -- --port 8788   # in one terminal: the real Worker (or set PERF_BASE_URL)
  *   npm run perf             # in another
  *
  * What is enforced:
@@ -20,7 +20,7 @@
  *
  * Byte budgets live in tests/performance.test.mjs, where they are deterministic
  * and run on every `npm test`. This file covers what bytes cannot: render
- * timing, layout shift and the audits. See docs/07-decisions.md, ADR-021.
+ * timing, layout shift and the audits. See docs/08_DECISIONS/DECISIONS.md, ADR-021.
  *
  * Lighthouse is installed from perf/package.json, not the app's, so the deploy
  * job (the one that holds the Cloudflare token) never installs it.

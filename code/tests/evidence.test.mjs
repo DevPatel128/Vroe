@@ -2,7 +2,7 @@
  * Evidence layer contracts.
  *
  * Three groups. The data tests hold the real evidence to the integrity rules in
- * docs/10-evidence.md. The fixture tests run the ranking and validation logic on
+ * docs/03_RESEARCH/RESEARCH.md. The fixture tests run the ranking and validation logic on
  * small synthetic data, so a rule is proven on a case built to break it rather
  * than on whatever today's figures happen to be. The built-page tests read the
  * prerendered /trove and /vero, so `npm run build` must have run first.
@@ -351,6 +351,6 @@ test("the story never claims an effect Trove has not had", async () => {
     "copy claims Trove's effect");
   assert.ok(!/\bTrove users\b/i.test(text), "copy mentions Trove users before any exist");
   // The approved route description reads "Trove is a personal finance app in
-  // development" (docs/03-content.md); only the unqualified claim is banned.
+  // development" (docs/04_DESIGN/CONTENT.md); only the unqualified claim is banned.
   assert.ok(!/\bTrove is a (free\b|personal finance app(?! in development))/i.test(text), "present-tense availability claim");
 });

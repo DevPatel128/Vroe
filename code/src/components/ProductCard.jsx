@@ -9,7 +9,7 @@ import { TrovePreview } from "./TrovePreview.jsx";
  * Both link INTERNALLY. Neither product is released, so there is nothing
  * legitimate to link out to, and `product.url` is null for both. If a card ever
  * needs an external link again, it comes from `product.url` — never a literal
- * URL typed into this file. See docs/07-decisions.md, ADR-006.
+ * URL typed into this file. See docs/08_DECISIONS/DECISIONS.md, ADR-006.
  */
 
 export function TroveCard() {

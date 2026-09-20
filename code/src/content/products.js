@@ -2,7 +2,7 @@
  * Product records — the single source of truth for how Trove and Vero are
  * described anywhere on the site.
  *
- * STATUS DISCIPLINE (see docs/07-decisions.md, ADR-006)
+ * STATUS DISCIPLINE (see docs/08_DECISIONS/DECISIONS.md, ADR-006)
  * -----------------------------------------------------
  * Neither product is live. `status.label` is the only string that says where a
  * product stands, and `url` is null while it is unreleased. Nothing in this file
@@ -112,7 +112,7 @@ export const PRODUCTS = {
     ],
     /**
      * Explicit non-claims. Vero is an exploration; these systems do not exist
-     * and must not be implied anywhere in copy. Referenced by docs/03-content.md.
+     * and must not be implied anywhere in copy. Referenced by docs/04_DESIGN/CONTENT.md.
      */
     notYetBuilt: ["escrow", "payments", "dispute resolution", "public work profiles"],
   },
