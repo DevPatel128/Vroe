@@ -22,6 +22,7 @@ import {
   checkBackups,
   daysBefore,
   expiredSnapshots,
+  readValue,
   runBackup,
 } from "../scripts/backup-subscribers.mjs";
 
@@ -43,8 +44,13 @@ function subscribers(count) {
   return store;
 }
 
-/** A stand-in for Wrangler: answers `kv key list` and `kv bulk get` from a Map, and records the calls. */
-function fakeWrangler(store, { failOnBulkCall } = {}) {
+/**
+ * A stand-in for Wrangler: answers `kv key list` and `kv bulk get` from a Map, and records the calls.
+ * `shape` is how `bulk get` answers: "remote" is Cloudflare's ({ key: value }), "local" is the
+ * simulation's ({ key: { value } }). Production and the simulation differ, and the first run
+ * against production found it.
+ */
+function fakeWrangler(store, { failOnBulkCall, shape = "remote" } = {}) {
   const calls = [];
   const run = (args) => {
     calls.push(args);
@@ -56,7 +62,10 @@ function fakeWrangler(store, { failOnBulkCall } = {}) {
       if (failOnBulkCall === calls.filter((c) => c[1] === "bulk").length) throw new Error("Wrangler exploded");
       const names = JSON.parse(readFileSync(args[3], "utf8"));
       assert.ok(names.length <= 100, "a bulk read takes at most 100 keys");
-      return JSON.stringify(Object.fromEntries(names.map((n) => [n, { value: store.get(n)?.value ?? null }])));
+      return JSON.stringify(Object.fromEntries(names.map((n) => {
+        const value = store.get(n)?.value ?? null;
+        return [n, shape === "local" && value !== null ? { value } : shape === "local" ? { value: null } : value];
+      })));
     }
     throw new Error(`unexpected Wrangler call: ${args.join(" ")}`);
   };
@@ -161,6 +170,38 @@ test("more than 100 records are read in batches of at most 100", () => {
   const result = runBackup({ wrangler, dir, now: NOW });
   assert.equal(result.count, 250);
   assert.equal(wrangler.calls.filter((c) => c[1] === "bulk").length, 3, "100 + 100 + 50");
+});
+
+test("both shapes of Wrangler's `bulk get` answer give the same backup", () => {
+  const store = subscribers(150);
+  const remote = scratch();
+  const local = scratch();
+  runBackup({ wrangler: fakeWrangler(store, { shape: "remote" }), dir: remote, now: NOW });
+  runBackup({ wrangler: fakeWrangler(store, { shape: "local" }), dir: local, now: NOW });
+  assert.equal(readSnapshot(remote, "2026-09-20").length, 150);
+  assert.deepEqual(readSnapshot(local, "2026-09-20"), readSnapshot(remote, "2026-09-20"));
+});
+
+test("readValue understands both shapes, treats null as vanished, and refuses anything else", () => {
+  assert.equal(readValue({ k: "v" }, "k"), "v");
+  assert.equal(readValue({ k: { value: "v" } }, "k"), "v");
+  assert.equal(readValue({ k: null }, "k"), null);
+  assert.equal(readValue({ k: { value: null } }, "k"), null);
+  assert.throws(() => readValue({}, "k"), /did not mention every key/);
+  assert.throws(() => readValue(null, "k"), /did not mention every key/);
+  assert.throws(() => readValue({ k: 42 }, "k"), /shape this script does not recognise/);
+  assert.throws(() => readValue({ k: { value: 42 } }, "k"), /shape this script does not recognise/);
+  assert.throws(() => readValue({ k: { other: "v" } }, "k"), /shape this script does not recognise/);
+});
+
+test("a list with keys whose values cannot be read fails, and writes nothing, instead of writing an empty backup", () => {
+  for (const answer of ["{}", '{"sub:000000":null,"sub:000001":null,"sub:000002":null}', '{"sub:000000":42}']) {
+    const dir = scratch();
+    const inner = fakeWrangler(subscribers(3));
+    const run = (args) => (args[1] === "bulk" ? answer : inner(args));
+    assert.throws(() => runBackup({ wrangler: run, dir, now: NOW }), /Backup failed/, `answer ${answer}`);
+    assert.equal(existsSync(path.join(dir, "subscribers")), false, "nothing written");
+  }
 });
 
 test("running twice on one day overwrites; a new day adds a file", () => {

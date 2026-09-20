@@ -48,7 +48,8 @@ A restored list can contain people who have since asked to be removed. Re-applyi
 | Drill | Date | Result |
 | --- | --- | --- |
 | Backup and restore of the subscriber list against Wrangler's **local** simulation: 25 seeded records with expiries and metadata; `npm run backup`; expired records filtered; `wrangler kv bulk put` into a fresh store; keys, expiries, metadata and values compared. It is the last test in `tests/backup.test.mjs`, so it also runs on every CI run | 2026-09-20 | Identical |
-| The same against production | Not yet run | To do: run `npm run backup` against the live namespace, then restore that file into a scratch namespace |
+| The same with **production** as the source: `npm run backup` against the live namespace, then that file restored into a scratch *local* store and compared with production (keys, expiries, metadata, and the value by hash). Production was only read | 2026-09-20 | Identical. It also found a real bug the local rehearsal could not: production and the simulation answer `wrangler kv bulk get` in different shapes, so the first run wrote an empty backup of a one-record list. Fixed, and a backup can no longer be empty when the list is not |
+| A restore *into production* | Not yet run | It only adds keys, so it can be tried against a scratch namespace in the account when one is worth creating |
 | A rebuild from nothing against a scratch account | Not yet run | Untested. The steps above are the ones the repository supports |
 
 Rehearsals go in this table with their date. A recovery path that has not been rehearsed

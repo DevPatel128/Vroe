@@ -107,7 +107,7 @@ failed build never reached `wrangler deploy` ([ADR-019](../08_DECISIONS/ENGINEER
 | No automatic rollback | Deploy rolls back on a failed smoke test and still ends red (ADR-020) |
 | No performance budget in CI (this file wrongly claimed one) | Byte budgets in the tests, Lighthouse in CI ([ADR-021](../08_DECISIONS/ENGINEERING/ADR-021-performance-and-accessibility-budgets-bytes-in-the-tests.md)) |
 | Documentation drifting from the code | `docs-sync` tests and the required `docs-impact` check ([ADR-023](../08_DECISIONS/ENGINEERING/ADR-023-documentation-follows-every-change-enforced-in-ci.md)) |
-| No backup of the subscriber list | `npm run backup` copies it to the maintainer's computer, kept 30 days ([ADR-022](../08_DECISIONS/ENGINEERING/ADR-022-subscriber-backup-to-the-maintainers-computer.md)). Not yet scheduled or run against production: see [BACKUPS.md](../06_OPERATIONS/BACKUPS.md) |
+| No backup of the subscriber list | `npm run backup` copies it to the maintainer's computer, kept 30 days ([ADR-022](../08_DECISIONS/ENGINEERING/ADR-022-subscriber-backup-to-the-maintainers-computer.md)). Run once against production; not yet scheduled: see [BACKUPS.md](../06_OPERATIONS/BACKUPS.md) |
 | Two accessibility failures found by that budget | Fixed, and larger than first recorded (eight colour pairs, one in visible content). Guarded by tests and by Lighthouse on all ten routes ([ADR-024](../08_DECISIONS/DESIGN/ADR-024-accessible-colours-and-heading-order.md)) |
 
 ## Known gaps (open)
@@ -121,9 +121,9 @@ failed build never reached `wrangler deploy` ([ADR-019](../08_DECISIONS/ENGINEER
 3. **Alerting is one email channel.** It depends on GitHub Actions notifications
    being switched on and on the `WORKER_URL` variable being right. Nothing checks
    either. See [OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md).
-4. **The backup is not scheduled, and has not been run against production.** Nothing
-   makes it happen and nothing alerts if it stops, and recovery has been rehearsed only
-   against Wrangler's local simulation. See [BACKUPS.md](../06_OPERATIONS/BACKUPS.md) and
+4. **The backup is not scheduled.** Nothing makes it happen and nothing alerts if it
+   stops. It has been run once against production and restored into a scratch store, but
+   a restore into production itself has not been tried. See [BACKUPS.md](../06_OPERATIONS/BACKUPS.md) and
    [DISASTER-RECOVERY.md](../06_OPERATIONS/DISASTER-RECOVERY.md).
 5. **The backups depend on one computer.** Losing it loses the backup history, and losing
    it together with the Cloudflare account loses the list. A second copy would need its

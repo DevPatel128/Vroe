@@ -98,7 +98,7 @@ change, and measured ([METRICS.md](../07_BUSINESS/METRICS.md) has today's values
   unsourced figure ([CONTENT.md](../04_DESIGN/CONTENT.md)).
 - The site is up ([OBSERVABILITY.md](../06_OPERATIONS/OBSERVABILITY.md)), and the
   early-access list is backed up and restorable ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)).
-  The second half is not true yet: no backup of production exists.
+  One backup of production exists (2026-09-20); nothing yet keeps it up to date.
 
 **The site achieves something for Vroe Labs.** No target has been set (for sign-ups,
 visitors or anything else), and visitor analytics is off, so there is nothing to

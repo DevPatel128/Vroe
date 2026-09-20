@@ -14,9 +14,9 @@ Dated facts, to be kept current.
 | | Status, 2026-09-20 |
 | --- | --- |
 | The backup command and its tests | Written and passing. The last test backs up a real (local) KV namespace, restores it into a fresh one, and compares them |
-| A backup of production exists | **Not yet.** The command has only been run against Wrangler's local simulation, not against the live namespace |
+| A backup of production exists | **Yes, one, made 2026-09-20** by running the command against the live namespace. The record count matched the live listing; the count is not recorded here |
 | Anything runs it on a schedule | **No.** It runs when someone runs it. See "What makes it happen" |
-| Restore rehearsed against production | Not yet ([DISASTER-RECOVERY.md](DISASTER-RECOVERY.md)) |
+| Restore rehearsed against production | **Yes, once, 2026-09-20**: that backup was restored into a scratch *local* store, and its keys, expiries, metadata and value (compared by hash) matched production. Production itself was not written to ([DISASTER-RECOVERY.md](DISASTER-RECOVERY.md)) |
 
 ## What is backed up
 
@@ -112,7 +112,7 @@ deletion log**, or people who asked to be removed come back.
 
 ## Limits
 
-`wrangler kv bulk get` is in open beta. The command reads 100 keys per call. Cloudflare's
+`wrangler kv bulk get` is in open beta, and its answer differs between production (`{ key: value }`) and Wrangler's local simulation (`{ key: { value } }`); the script reads both, refuses a shape it does not know, and refuses to write an empty backup of a non-empty list. The first run against production found that difference. The command reads 100 keys per call. Cloudflare's
 free KV tier allows 100,000 key reads and 1,000 list requests a day, which a daily
 backup of anything near that size would meet before anything else does. Nothing here has
 measured the list against those limits: the count is one command

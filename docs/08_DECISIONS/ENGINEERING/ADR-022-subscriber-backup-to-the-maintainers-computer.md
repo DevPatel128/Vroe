@@ -38,8 +38,14 @@ for this list.
   and that nothing personal is printed. Its last test backs up a real (local) KV namespace
   through Wrangler, restores it into a fresh one and compares them; it runs on every CI run.
 - The same path was run against Wrangler's local simulation on 2026-09-20 and the lists were
-  identical. **Not yet run against production**: the remote flags and Cloudflare's
-  open-beta `wrangler kv bulk get` are exercised only by that simulation.
+  identical.
+- **Then against production, the same day, which found a real bug.** `wrangler kv bulk get`
+  answers `{ key: value }` against Cloudflare and `{ key: { value } }` against the local
+  simulation, so the first production run wrote an empty backup of a one-record list and
+  reported success. Fixed: the script reads both shapes, refuses one it does not know, and
+  refuses to write an empty backup of a non-empty list; tests cover both shapes. The backup
+  that followed matched the live listing, and restoring it into a scratch local store
+  matched production's keys, expiry, metadata and value (by hash).
 - Finder's preference for iCloud Drive "Desktop & Documents" read as off on 2026-09-20.
 
 **Cost.** $0. The recurring cost is the maintainer's attention, because nothing runs the

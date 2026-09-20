@@ -45,6 +45,37 @@ export function daysBefore(date, days) {
 }
 
 /**
+ * One value out of a `wrangler kv bulk get` answer. The two places Wrangler can read
+ * from answer differently, and only running against production showed it:
+ *
+ *   Cloudflare (--remote)      { "sub:x": "<value>" }           and null for a missing key
+ *   local simulation (--local) { "sub:x": { "value": "<value>" } }
+ *
+ * A key the answer does not mention at all is an error, never silently skipped, and a
+ * shape this does not recognise stops the backup rather than guessing.
+ *
+ * @param {Record<string, unknown>} batch
+ * @param {string} name
+ * @returns {string | null}  null when the key has no value (expired or deleted since it was listed)
+ */
+export function readValue(batch, name) {
+  if (batch === null || typeof batch !== "object" || !(name in batch)) {
+    throw new Error("Backup failed: Wrangler's answer did not mention every key it was asked for. Nothing was written.");
+  }
+  const v = batch[name];
+  if (v === null || v === undefined) return null;
+  if (typeof v === "string") return v;
+  if (typeof v === "object") {
+    const keys = Object.keys(v);
+    if (keys.length === 1 && keys[0] === "value") {
+      if (v.value === null || v.value === undefined) return null;
+      if (typeof v.value === "string") return v.value;
+    }
+  }
+  throw new Error("Backup failed: Wrangler returned a value in a shape this script does not recognise. Nothing was written.");
+}
+
+/**
  * Join the key listing (names, expiries, metadata) to the values.
  * A key with no value was deleted or expired between the two reads and is left out.
  *
@@ -130,13 +161,19 @@ export function runBackup({ wrangler, dir, now = new Date(), target = ["--remote
       const keysFile = path.join(scratch, "keys.json");
       writeFileSync(keysFile, JSON.stringify(names), { mode: 0o600 });
       const batch = parseJson(wrangler(["kv", "bulk", "get", keysFile, "--binding", "SUBSCRIBERS", ...target]), "a value read");
-      for (const name of names) values.set(name, batch?.[name]?.value ?? null);
+      for (const name of names) values.set(name, readValue(batch, name));
     }
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }
 
   const entries = buildSnapshot(listed, values);
+  // A list with keys and a snapshot with none means the reads came back unusable,
+  // not that everyone unsubscribed in the last few seconds. An empty backup of a
+  // non-empty list is the worst failure: it looks like success.
+  if (listed.length > 0 && entries.length === 0) {
+    throw new Error(`Backup failed: the list has ${listed.length} key(s) but none of their values could be read. Nothing was written.`);
+  }
   const date = isoDate(now);
   const folder = path.join(dir, "subscribers");
   mkdirSync(folder, { recursive: true, mode: 0o700 });

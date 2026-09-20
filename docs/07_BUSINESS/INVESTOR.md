@@ -25,8 +25,8 @@ company, not in this repository.
 - **Engineering discipline.** Nothing reaches production except through a pull request
   that passes the build, every test and the documentation check; a bad deploy rolls
   itself back; Lighthouse and byte budgets hold the site to a measured standard; no
-  Lighthouse audit fails; the early-access list has a backup command, not yet run
-  against production or scheduled ([CI-CD.md](../05_ENGINEERING/CI-CD/CI-CD.md), [METRICS.md](METRICS.md)).
+  Lighthouse audit fails; the early-access list has a backup command, run once
+  against production and not yet scheduled ([CI-CD.md](../05_ENGINEERING/CI-CD/CI-CD.md), [METRICS.md](METRICS.md)).
 - **Cost.** Infrastructure runs on Cloudflare's free tier; the recurring cost is the
   domain registration ([ADR-018](../08_DECISIONS/ENGINEERING/ADR-018-infrastructure-cost-review-cloudflare-free-tier-only.md),
   [BUSINESS-MODEL.md](BUSINESS-MODEL.md)).
@@ -41,7 +41,9 @@ company, not in this repository.
 - The early-access list lives in one Cloudflare account and its backup on one computer.
   Losing both loses the list, and nothing runs the backup on a schedule yet
   ([BACKUPS.md](../06_OPERATIONS/BACKUPS.md)).
-- Recovery has been rehearsed only locally ([DISASTER-RECOVERY.md](../06_OPERATIONS/DISASTER-RECOVERY.md)).
+- Recovery of the list has been rehearsed by restoring a production backup into a scratch
+  local store, not into production, and a rebuild from nothing is untested
+  ([DISASTER-RECOVERY.md](../06_OPERATIONS/DISASTER-RECOVERY.md)).
 
 ## What is deliberately not stated
 

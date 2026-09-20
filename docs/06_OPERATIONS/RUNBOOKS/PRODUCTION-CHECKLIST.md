@@ -175,11 +175,11 @@ These cannot be done from the CLI or need a real browser session.
    on every page. The DNS TXT method needs a Cloudflare DNS record, which the
    current session cannot create (zone *read* only).
 
-9. **The subscriber backup is started** (ADR-022) — **not done.** The backup is a file on
+9. **The subscriber backup is started** (ADR-022) — **partly done.** The backup is a file on
    this computer, made by a command, so nothing here needs merging first:
-   1. Run it once against production: `cd code && npm run backup`, then
-      `npm run backup:check`. This is the first time it touches the live namespace
-      (it only reads it); until then only Wrangler's local simulation has run it.
+   1. ~~Run it once against production~~ **Done, 2026-09-20**: `cd code && npm run backup`,
+      then `npm run backup:check`. It only reads the live namespace. Run it again whenever
+      the list may have changed.
    2. Set the computer up so the backups stay where the privacy policy says: exclude
       `backups/` from Time Machine and any cloud-synced folder, and turn on FileVault
       ([BACKUPS.md](../BACKUPS.md), "Set up once").
