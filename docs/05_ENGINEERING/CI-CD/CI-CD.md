@@ -1,6 +1,6 @@
 # CI/CD
 
-**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-28 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How a change reaches production and what stands in its way. This is the design of
 the pipeline; the procedures for when it misbehaves are in
@@ -18,7 +18,7 @@ The engineering framework's deployment flow, and where each stage is here:
 | BUILD | `npm run build` |
 | PREVIEW | The pull request's checks, plus looking at the site with `npm run preview` |
 | HUMAN APPROVAL | Merging the pull request. `main` requires `verify` and `docs-impact`, and applies to admins |
-| PRODUCTION | `deploy.yml` on push to `main`: build, test, `wrangler deploy`, smoke test |
+| PRODUCTION | `deploy.yml` on push to `main`: build, test, `wrangler deploy`, smoke test. `ci.yml` runs on pull requests only (a newer push cancels the older run), because the deploy repeats the build and tests |
 | AFTER | The smoke test, an automatic rollback if it fails, and a scheduled health check |
 
 ## Deploy
@@ -69,7 +69,7 @@ secrets.
 
 `.github/workflows/deploy.yml` also runs the automatic rollback described in
 [ROLLBACKS.md](../../06_OPERATIONS/ROLLBACKS.md), and
-`.github/workflows/health.yml` runs the scheduled check described in
+`.github/workflows/health.yml` runs, twice a day, the scheduled check described in
 [OBSERVABILITY.md](../../06_OPERATIONS/OBSERVABILITY.md). CI does not see the subscriber
 backup, which lives on the maintainer's computer.
 

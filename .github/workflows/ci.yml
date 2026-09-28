@@ -1,9 +1,15 @@
 name: CI
 
+# Pull requests only. A merge to main runs deploy.yml, which builds and tests again before it ships, so
+# running CI on main too spent the same minutes twice. A newer push to the same pull request cancels the
+# older run. The account's Actions minutes are shared by every private repository; this one's monthly share
+# is in docs/05_ENGINEERING/COST/COST.md.
 on:
-  push:
-    branches: [main]
   pull_request:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Least privilege: CI only needs to read the repository.
 permissions:

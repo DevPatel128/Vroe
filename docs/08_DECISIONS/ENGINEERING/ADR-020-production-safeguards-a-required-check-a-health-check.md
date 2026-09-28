@@ -1,6 +1,6 @@
 # ADR-020 — Production safeguards: a required check, a health check, automatic rollback
 
-**Status:** Approved · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-28 · **Owner:** Vroe Labs · **Version:** 1.0
 
 **Category:** Engineering · **Recorded:** 2026-09-19
 
@@ -19,8 +19,8 @@ smoke test would have stayed live until a human noticed and rolled it back.
 1. Branch protection on `main` requires the `verify` check, and applies to
    admins. Every change goes through a pull request, and merging it is the
    human approval before production.
-2. `.github/workflows/health.yml` checks the deployed Worker every three hours
-   and fails loudly, so GitHub's own Actions notifications reach the maintainer.
+2. `.github/workflows/health.yml` checks the deployed Worker twice a day
+   (every three hours until 2026-09-28; see the amendment below) and fails loudly, so GitHub's own Actions notifications reach the maintainer.
 3. `deploy.yml` runs `wrangler rollback` when a deployed version fails its
    smoke test, waits for `/api/health` to report ready, and still ends red.
 
@@ -32,7 +32,13 @@ smoke test would have stayed live until a human noticed and rolled it back.
 eight health-check runs a day, each billed at the one-minute minimum, is
 roughly 240 of the 2,000 free minutes a month on a private repository — an
 estimate, so confirm in Settings → Billing; it costs nothing once the
-repository is public. The rollback step runs only when a deploy fails. The
+repository is public.
+
+**Amendment, 2026-09-28.** The account's Actions minutes ran out for the month, shared across every private
+repository. The health check now runs twice a day (about 60 minutes a month instead of 240), and CI runs on
+pull requests only because the deploy repeats the build and tests. A regression can therefore take up to twelve
+hours to be noticed by the check, instead of three; run the workflow by hand after any deploy you want checked
+at once. Vroe's monthly share of the minutes is in COST.md. The rollback step runs only when a deploy fails. The
 real cost is friction: no more pushing straight to `main`. Cheaper
 alternatives: do nothing and rely on discipline, which is what failed on
 2026-09-16; or rely on GitHub's default emails, which would have said the run

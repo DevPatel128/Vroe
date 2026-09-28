@@ -1,6 +1,6 @@
 # Observability
 
-**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-28 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How to know whether the site is up and behaving, and what is deliberately not
 watched. Design of the pieces is in
@@ -25,7 +25,7 @@ handler never writes an address to a log line, and a test enforces it.
 
 ## The scheduled health check
 
-`.github/workflows/health.yml` runs every three hours and checks the deployed
+`.github/workflows/health.yml` runs twice a day (08:47 and 20:47 in India) and checks the deployed
 Worker: `/api/health` reports ready, `/`, `/trove` and `/vero` return 200, the CSP
 header is present, and the custom domain answers. It tries three times, 30 seconds apart, so one dropped request is not an alert. A failure is
 a failed Actions run, and GitHub emails those. There is no other alerting.

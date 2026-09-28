@@ -8,8 +8,10 @@ updates:
   - package-ecosystem: npm
     directory: "/code"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      # Monthly: each Dependabot run and each pull request it opens uses Actions minutes. Security
+      # updates still arrive as soon as an advisory is published; this only paces version bumps.
+      interval: monthly
+    open-pull-requests-limit: 3
     versioning-strategy: increase
     labels: ["dependencies"]
 

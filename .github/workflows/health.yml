@@ -4,12 +4,13 @@ name: Health check
 # run emails the person who last edited the schedule below, through GitHub's own
 # Actions notifications, with no extra service. ADR-020.
 #
-# Every three hours: a run is billed to the minute, and the free allowance on a
-# private repo is 2,000 minutes a month. Tighten it once the repository is
-# public and minutes stop counting.
+# Twice a day (08:47 and 20:47 in India): each run is billed as a whole minute
+# from the Actions minutes every private repository on the account shares. Every
+# three hours cost about 240 minutes a month; twice a day costs about 60. Run it
+# by hand (workflow_dispatch) after a deploy you want checked at once.
 on:
   schedule:
-    - cron: "17 */3 * * *"
+    - cron: "17 3,15 * * *"
   workflow_dispatch:
 
 permissions:
