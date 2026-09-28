@@ -1,19 +1,25 @@
 # Relationship to the product framework
 
-**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-28 · **Owner:** Vroe Labs · **Version:** 2.0
 
-The Vroe Labs product framework (`The Framework./` at the repo root, kept out of
-git — see `.gitignore`) is a process and governance system: a lifecycle, a
-universal change-decision framework (why → impact → how → cost → is it
-justified), an engineering checklist, rules for how AI may act, and a system for
-organising documentation. It replaced an earlier 5-step meta-prompt template set,
-now archived outside this repository.
+The Vroe Labs product framework — **Wolf**, v3.0 (`Wolf/` at the repo root, kept
+out of git — see `.gitignore`) — is a process and governance system: a
+lifecycle, a universal change-decision framework (why → impact → how → cost →
+is it justified), an engineering checklist, rules for how AI may act, and a
+system for organising documentation, expanded with an orchestrator, dedicated
+agent roles (research, document, review, update) and an AI accountability
+layer. It superseded the prior local framework copy ("The Framework.", v2) on
+2026-09-28; neither was ever committed to this repository's git history, so
+nothing was lost in the switch — see `Wolf/10_ARCHIVE/README.md`.
 
 This repository is a **marketing website** for products that have not shipped.
 The framework is written for a full venture — recommendation systems, databases,
 auth, an investor narrative. Applying it literally here would produce exactly the
 overengineering it warns against. This file records what is followed, what is
-adapted, and what is deliberately absent, file by file.
+adapted, and what is deliberately absent, file by file. `Wolf/` itself carries
+the same mapping inline, file by file, in an "Applied to the Vroe Labs
+website" section at the foot of each of its own applicable documents — this
+file is the published summary of that same work.
 
 ## The rule
 
@@ -25,26 +31,38 @@ honest, lowest justified cost, one source of truth — not its file list.
 
 | Framework file | Here | Status |
 | --- | --- | --- |
-| `PRINCIPLES.md` | [PRINCIPLES.md](../01_PRINCIPLES/PRINCIPLES.md) | Covered, with a coverage table |
-| `AI_OPERATING_RULES.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) | Covered |
-| `PRODUCT_CREATION_SYSTEM.md`, `INTERVIEW.md` | Not in this repo | Not applicable; see below |
-| `RESEARCH.md` | [RESEARCH.md](../03_RESEARCH/RESEARCH.md) | Stricter than the template |
-| `PRODUCT.md` | [PRODUCT.md](../02_PRODUCT/PRODUCT.md) | Approved 2026-09-20 |
-| `THESIS.md` | [THESIS.md](../02_PRODUCT/THESIS.md) | Approved 2026-09-20, deliberately partial |
-| `EXPERIENCE.md` | [EXPERIENCE.md](../02_PRODUCT/EXPERIENCE.md) | Approved 2026-09-20 |
-| `INVESTOR.md` | [INVESTOR.md](../07_BUSINESS/INVESTOR.md) | Approved 2026-09-20: a factual snapshot, not a pitch |
-| `DECISIONS.md` | [DECISIONS.md](../08_DECISIONS/DECISIONS.md) | Covered, one file per decision |
-| `ENGINEERING.md` | [05_ENGINEERING](../05_ENGINEERING/README.md), status in [FOUNDATION.md](../05_ENGINEERING/FOUNDATION/FOUNDATION.md) | Covered |
-| `DOCUMENT_AGENT.md`, `UPDATE_AGENT.md`, `REVIEW_AGENT.md`, `RESEARCH_AGENT.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) and the test suite | Partly; see below |
-| `SUMMARY.md` | Not in this repo | The framework's own map |
-| `Documentation_Organization_System.md` | The layout of `docs/` itself | Followed literally; see below |
+| `01_PRINCIPLES/PRINCIPLES.md` | [PRINCIPLES.md](../01_PRINCIPLES/PRINCIPLES.md) | Covered, with a coverage table |
+| `00_START_HERE/AI_OPERATING_RULES.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) | Covered |
+| `00_START_HERE/PRODUCT_CREATION_SYSTEM.md`, `02_PRODUCT/INTERVIEW.md` | Not in this repo | Not applicable; see below |
+| `03_RESEARCH/RESEARCH.md` | [RESEARCH.md](../03_RESEARCH/RESEARCH.md) | Stricter than the template |
+| `02_PRODUCT/PRODUCT.md` | [PRODUCT.md](../02_PRODUCT/PRODUCT.md) | Approved 2026-09-20 |
+| `02_PRODUCT/THESIS.md` | [THESIS.md](../02_PRODUCT/THESIS.md) | Approved 2026-09-20, deliberately partial |
+| `04_DESIGN/EXPERIENCE.md` | [EXPERIENCE.md](../02_PRODUCT/EXPERIENCE.md) | Approved 2026-09-20 |
+| `07_BUSINESS/INVESTOR.md` | [INVESTOR.md](../07_BUSINESS/INVESTOR.md) | Approved 2026-09-20: a factual snapshot, not a pitch |
+| `07_BUSINESS/BUSINESS-MODEL.md`, `MARKET.md`, `GTM.md`, `METRICS.md`, `METRIC_TREE.md` | [BUSINESS-MODEL.md](../07_BUSINESS/BUSINESS-MODEL.md), [MARKET.md](../07_BUSINESS/MARKET.md), [GTM.md](../07_BUSINESS/GTM.md), [METRICS.md](../07_BUSINESS/METRICS.md) | Covered; `METRIC_TREE.md` partly — only the system-outcome branch applies |
+| `07_BUSINESS/CUSTOMER.md`, `GROWTH.md`, `LAUNCH.md`, `PORTFOLIO.md`, `PRESENTATIONS.md`, `SOCIAL_MEDIA.md`, `SOCIAL_BENCHMARK.md`, `STRATEGY.md` | Not in this repo | Not applicable; see below |
+| `08_DECISIONS/DECISIONS.md` | [DECISIONS.md](../08_DECISIONS/DECISIONS.md) | Covered, one file per decision |
+| `05_ENGINEERING/ENGINEERING.md` | [05_ENGINEERING](../05_ENGINEERING/README.md), status in [FOUNDATION.md](../05_ENGINEERING/FOUNDATION/FOUNDATION.md) | Covered |
+| `00_START_HERE/DOCUMENT_AGENT.md`, `UPDATE_AGENT.md`, `REVIEW_AGENT.md`, `RESEARCH_AGENT.md` | [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md) and the test suite | Partly; see below |
+| `00_START_HERE/ORCHESTRATOR.md`, `ORGANIZATION.md`, `AI_AUDIT_ENGINE.md` | Not formally instantiated in this repo | A solo-maintainer repo has no orchestration layer or audit ledger to route through; git/PR history and CI checks serve the accountability role instead |
+| `SUMMARY.md`, `00_START_HERE/V3_FRAMEWORK.md`, `FRAMEWORK_BENCHMARK.md`, `FRAMEWORK_RESEARCH.md`, `VERSION.md` | Not in this repo | The framework's own map, architecture and version history |
+| `00_START_HERE/DOCUMENTATION_SYSTEM.md` | The layout of `docs/` itself | Followed literally; see below |
 
 ## What is not applicable, and why
 
-**`PRODUCT_CREATION_SYSTEM.md` and `INTERVIEW.md`** describe company-level idea
-discovery and the whole product lifecycle. Trove and Vero exist and are described
-here, and the discovery that produced them belongs with the company rather than
-the website repository.
+**`00_START_HERE/PRODUCT_CREATION_SYSTEM.md` and `02_PRODUCT/INTERVIEW.md`**
+describe company-level idea discovery and the whole product lifecycle. Trove
+and Vero exist and are described here, and the discovery that produced them
+belongs with the company rather than the website repository.
+
+**The `07_BUSINESS` files with no counterpart here** (`CUSTOMER.md`,
+`GROWTH.md`, `LAUNCH.md`, `PORTFOLIO.md`, `PRESENTATIONS.md`,
+`SOCIAL_MEDIA.md`, `SOCIAL_BENCHMARK.md`, `STRATEGY.md`) describe activity
+that doesn't exist yet for this site: no product has launched, there are no
+customers, no growth experiments, no social presence and no portfolio
+decision to record. Each is marked "Not applicable" in Wolf itself rather
+than filled with invented content, per the framework's own rule against
+fabricating facts, metrics or outcomes.
 
 **`INVESTOR.md`** is a factual snapshot of what is real, not a pitch. An investor
 narrative for products that have not shipped would contradict rule 1 ([never claim a
@@ -71,8 +89,9 @@ Add one when there is a real answer, not before.
 
 ## The agents
 
-No standalone document plays the role of `DOCUMENT_AGENT.md`, `UPDATE_AGENT.md`
-or `REVIEW_AGENT.md`, but their intent is covered in two places. The change
+No standalone document plays the role of `00_START_HERE/DOCUMENT_AGENT.md`,
+`UPDATE_AGENT.md` or `REVIEW_AGENT.md`, but their intent is covered in two
+places. The change
 checklist and the "propose, don't silently change" discipline are in
 [AI-WORKFLOW.md](../05_ENGINEERING/AI/AI-WORKFLOW.md). The test suite is the
 mechanical review gate: `tests/security.test.mjs`, `tests/evidence.test.mjs` and
@@ -83,14 +102,17 @@ change; that is low value at this repository's size.
 
 ## The documentation system
 
-`Documentation_Organization_System.md` prescribes ten numbered areas, one
+`00_START_HERE/DOCUMENTATION_SYSTEM.md` prescribes ten numbered areas, one
 canonical home per concept, a README per folder and a status header on every
 document. `docs/` follows it literally: exactly ten areas, every folder and file
 the system lists, and `tests/docs.test.mjs` enforces the parts a machine can check.
 Where the system lists something this site has little to put in — the business
 documents — the file exists, holds what is true, and says plainly what is open,
 rather than being left out or padded. All ten of the documents that were Drafts were
-approved by Dev on 2026-09-20.
+approved by Dev on 2026-09-20. This structure predates Wolf and was carried
+over unchanged, since Wolf's own `00_START_HERE`…`10_ARCHIVE` layout is (by
+design) the same ten-area system with an eleventh area, `10_ARCHIVE`, that
+this repository's `09_ARCHIVE` already covers.
 
 ## What closed the gaps
 
