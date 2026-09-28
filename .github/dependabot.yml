@@ -5,11 +5,13 @@ updates:
   # the lockfile diff before approving.
   # The app moved into code/ on 4 September 2026. Pointed at "/", every weekly
   # run since then has failed with "/package.json not found".
+  # Monthly, at most two open: each update pull request runs CI, and minutes
+  # are shared by every Vroe Labs repository.
   - package-ecosystem: npm
     directory: "/code"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     versioning-strategy: increase
     labels: ["dependencies"]
 

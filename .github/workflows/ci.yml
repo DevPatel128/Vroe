@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same pull request or branch makes the older run moot.
+# Cancelling it saves shared free minutes (300 a month budgeted here).
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 # Secrets are deliberately NOT referenced in this workflow, so it is safe to run
 # on pull requests from forks. Deployment lives in deploy.yml, which runs only
 # on pushes to main.
@@ -140,7 +146,10 @@ jobs:
   # It is a separate job, and Lighthouse a separate dependency tree in
   # code/perf/, so that nothing in the deploy job's install ever includes it.
   # Like `verify`, it references no secrets.
+  # The longest job here (up to 20 minutes). It runs on the pull request; the
+  # push that lands the same change on main does not run it a second time.
   performance:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

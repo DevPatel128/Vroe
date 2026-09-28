@@ -4,12 +4,15 @@ name: Health check
 # run emails the person who last edited the schedule below, through GitHub's own
 # Actions notifications, with no extra service. ADR-020.
 #
-# Every three hours: a run is billed to the minute, and the free allowance on a
-# private repo is 2,000 minutes a month. Tighten it once the repository is
-# public and minutes stop counting.
+# Twice a day. Every run bills at least a minute, and the account's 2,000
+# free minutes a month on private repositories are shared by every Vroe Labs
+# repository: this one is budgeted 300 a month (see Trove's
+# Documentation/05_ENGINEERING/COST/COST.md, "Actions budget across
+# repositories"). Every three hours cost about 240 minutes a month on its own.
+# Tighten it once the repository is public and minutes stop counting.
 on:
   schedule:
-    - cron: "17 */3 * * *"
+    - cron: "17 3,15 * * *"
   workflow_dispatch:
 
 permissions:
