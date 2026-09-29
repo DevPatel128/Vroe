@@ -1,6 +1,6 @@
 # CI/CD
 
-**Status:** Review · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Review · **Last updated:** 2026-09-29 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How a change reaches production and what stands in its way. This is the design of
 the pipeline; the procedures for when it misbehaves are in
@@ -58,9 +58,9 @@ if any of these break. Nothing here needs doing by hand.
 `.github/workflows/ci.yml` additionally runs `npm audit`, generates an SBOM, and
 fails on any source map, unexpected dotfile, or secret name in `dist/client`.
 
-It also runs **"Check the repository for committed secrets"**, which stands in
-for GitHub's secret scanning and push protection (unavailable on a private repo
-without Advanced Security). It adds no third-party action — it greps the files
+It also runs **"Check the repository for committed secrets"**, a second layer
+beside GitHub's own secret scanning and push protection, which are switched on
+now the repository is public. It adds no third-party action — it greps the files
 git actually tracks for environment files, credential-shaped assignments, and
 private-key headers. A line can opt out with a trailing `allowlist secret`
 comment; the two Turnstile test fixtures use it, so a real key pasted into a

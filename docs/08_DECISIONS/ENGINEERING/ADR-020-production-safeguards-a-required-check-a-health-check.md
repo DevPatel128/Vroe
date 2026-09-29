@@ -1,6 +1,6 @@
 # ADR-020 — Production safeguards: a required check, a health check, automatic rollback
 
-**Status:** Approved · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-29 · **Owner:** Vroe Labs · **Version:** 1.0
 
 **Category:** Engineering · **Recorded:** 2026-09-19
 
@@ -57,5 +57,10 @@ which leaves a bad deploy live for as long as it takes someone to notice.
 **Revisit when.** The repository goes public (shorten the health interval,
 since minutes stop counting); a second maintainer joins (require a review);
 or the health check raises a false alarm.
+
+**Amendment, 2026-09-29.** The repository is now public, so the Actions-minutes
+cost above is zero. The health check stays at every three hours; the interval is
+now only a question of how fast an outage should be noticed. A proposal to trim
+it to twice a day to save minutes was closed as unnecessary.
 
 **Approved by.** Dev — **Date.** 2026-09-19.

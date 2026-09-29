@@ -1,6 +1,6 @@
 # Metrics
 
-**Status:** Approved · **Last updated:** 2026-09-20 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-29 · **Owner:** Vroe Labs · **Version:** 1.0
 
 What is measured about the site, the values at a dated moment, and what is not
 measured. The principle is to measure outcomes, not vanity
@@ -39,4 +39,4 @@ was taken. No target has been set for any outcome ([PRODUCT.md](../02_PRODUCT/PR
 | --- | --- |
 | Page views and visitors | **Not measured.** `CF_ANALYTICS_TOKEN` is empty, so no analytics beacon is injected |
 | Conversion, retention, traffic sources | **Not measured** |
-| Early-access signups | Countable by hand, not tracked over time, and **deliberately not recorded in this repository**: the repository is becoming public, and a subscriber count is a business disclosure the maintainer has not chosen to make. The count is one command ([RESTORE-SUBSCRIBERS.md](../06_OPERATIONS/RUNBOOKS/RESTORE-SUBSCRIBERS.md), step 5). Say so if it should be recorded here |
+| Early-access signups | Countable by hand, not tracked over time, and **deliberately not recorded in this repository**: the repository is public, and a subscriber count is a business disclosure the maintainer has not chosen to make. The count is one command ([RESTORE-SUBSCRIBERS.md](../06_OPERATIONS/RUNBOOKS/RESTORE-SUBSCRIBERS.md), step 5). Say so if it should be recorded here |

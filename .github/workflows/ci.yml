@@ -91,8 +91,8 @@ jobs:
           fi
           echo "Build output is clean."
 
-      # GitHub's own secret scanning and push protection are not available on a
-      # private repo without Advanced Security, so this stands in for them. It
+      # GitHub's own secret scanning and push protection are switched on for this
+      # public repo; this check is a second layer that also runs before merge. It
       # deliberately adds no third-party action: everything here is grep against
       # files git is actually tracking.
       - name: Check the repository for committed secrets
