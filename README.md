@@ -80,4 +80,4 @@ secrets in the repository. Report a vulnerability via [SECURITY.md](SECURITY.md)
 ## Licence
 
 Source code: [MIT](LICENSE). Brand assets, copy, photography and the Vroe Labs
-name are © Vroe Labs and not covered by that licence.
+name are © Vroe Labs and not covered by that licence; see [NOTICE](NOTICE).
