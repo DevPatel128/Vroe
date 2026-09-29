@@ -4,9 +4,8 @@ name: Health check
 # run emails the person who last edited the schedule below, through GitHub's own
 # Actions notifications, with no extra service. ADR-020.
 #
-# Every three hours: a run is billed to the minute, and the free allowance on a
-# private repo is 2,000 minutes a month. Tighten it once the repository is
-# public and minutes stop counting.
+# Every three hours. The repository is public, so Actions minutes are free and
+# this interval is a choice about how quickly an outage is noticed, not a cost.
 on:
   schedule:
     - cron: "17 */3 * * *"
