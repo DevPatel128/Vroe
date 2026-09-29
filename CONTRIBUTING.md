@@ -90,3 +90,5 @@ checks the structure, the headers and the links.
 ## Security
 
 Do not open a public issue for a vulnerability. See [SECURITY.md](SECURITY.md).
+
+By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

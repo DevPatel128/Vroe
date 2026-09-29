@@ -1,6 +1,6 @@
 # Content
 
-**Status:** Approved · **Last updated:** 2026-09-14 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-29 · **Owner:** Vroe Labs · **Version:** 1.0
 
 ## The rule
 
@@ -29,8 +29,8 @@ is live when it is not") and they are enforced by tests.
 | Trove | `Taking shape` | none — `url: null` |
 | Vero | `Upcoming` | none — `url: null` |
 
-Trove's live URL was removed from the site entirely. Neither
-`trove.devpatel1286.workers.dev` nor `trove.vroelabs.com` appears anywhere. Both
+Trove's live URL was removed from the site entirely. Neither its old
+workers.dev preview address nor `trove.vroelabs.com` appears anywhere. Both
 product cards and both note cards link to internal pages.
 
 **When Trove ships**, set `url` and `status` in `src/content/products.js`. The

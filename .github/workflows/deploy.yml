@@ -63,9 +63,9 @@ jobs:
 
           # The workers.dev hostname contains the account's workers.dev
           # subdomain, which can be renamed in the dashboard. It was renamed
-          # once, from devpatel1286 to dvpatel, and the smoke test went on
-          # probing a hostname that no longer resolved. So take the address
-          # wrangler reports for this deploy instead of hard-coding it.
+          # once, and the smoke test went on probing a hostname that no
+          # longer resolved. So take the address wrangler reports for this
+          # deploy instead of hard-coding it.
           url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' wrangler-deploy.log | head -n 1 || true)
           if [ -z "$url" ]; then
             echo "::error::wrangler deploy did not report a workers.dev address; is workers_dev still true in wrangler.jsonc?"
