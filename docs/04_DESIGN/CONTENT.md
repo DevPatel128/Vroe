@@ -1,6 +1,6 @@
 # Content
 
-**Status:** Approved · **Last updated:** 2026-09-14 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-09-29 · **Owner:** Vroe Labs · **Version:** 1.0
 
 ## The rule
 
