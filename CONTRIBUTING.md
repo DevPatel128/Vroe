@@ -14,18 +14,17 @@ worker on `http://localhost:8787` (wrangler uses the next free port if that one 
 
 ## Before you change anything
 
-Read [docs/00_START_HERE/README.md](docs/00_START_HERE/README.md). It says where every kind of
-information lives, and has a load order and a "where do I change X?" table. For
-agents, [CLAUDE.md](CLAUDE.md) is the short version.
+Read [AGENTS.md](AGENTS.md). It has the commands, the project rules and where each
+kind of information lives. Agents start there too.
 
 ## The rules
 
-The canonical statement is [docs/01_PRINCIPLES/PRINCIPLES.md](docs/01_PRINCIPLES/PRINCIPLES.md);
+The canonical statement is the project block of [AGENTS.md](AGENTS.md);
 in short:
 
 1. **Never claim a product is available.** Neither Trove nor Vero has shipped.
    No external product links, no `offers` in structured data, no present-tense
-   "Trove is a…". See [docs/04_DESIGN/CONTENT.md](docs/04_DESIGN/CONTENT.md).
+   "Trove is a…". See [PRODUCT.md](PRODUCT.md), "Honesty rules".
 2. **Never weaken the CSP.** No `unsafe-inline`, no `unsafe-eval`, no wildcards.
    **No inline `style` attributes** — they are blocked and the browser drops the
    styling silently. Use a class.
@@ -75,17 +74,17 @@ rendering at zero height with no error visible to the user.
 
 ## Recording decisions
 
-If you make a choice the next person would reasonably make differently, add an
-ADR under [docs/08_DECISIONS](docs/08_DECISIONS/DECISIONS.md), using the template
-there. Context, decision, consequences. Include what it cost, not just what it
+If you make a choice the next person would reasonably make differently, add a
+row to [DECISIONS.md](DECISIONS.md) with the next free ADR number. Decision, why,
+options rejected, trade-off. Include what it cost, not just what it
 gained.
 
 ## Documentation
 
-Every concept has one canonical home, and `docs/` has ten numbered areas and
-nothing else. Every document opens with a status header. Before adding a file, read
-the conventions in [docs/00_START_HERE/README.md](docs/00_START_HERE/README.md); `npm run test:docs`
-checks the structure, the headers and the links.
+Every concept has one canonical home in the root kit docs (see [AGENTS.md](AGENTS.md));
+`docs/` holds only the research record. Update the canonical document rather than
+adding a new file. `npm run test:docs` checks that the kit docs exist and that every
+link resolves.
 
 ## Security
 

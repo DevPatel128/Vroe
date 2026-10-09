@@ -1,6 +1,6 @@
 # Evidence layer
 
-**Status:** Approved · **Last updated:** 2026-09-14 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-10-09 · **Owner:** Vroe Labs · **Version:** 1.0
 
 How `/trove` measures the problem Trove is being built for, and the rules that
 keep those numbers honest. Source files and the reproducible computation are in
@@ -129,7 +129,7 @@ not behaviour.
 ## Adding or updating a figure
 
 1. Confirm the data was collected and published in 2024 or later.
-2. Download the primary source into `docs/impact-research/raw/` and add it, with
+2. Download the primary source into `docs/03_RESEARCH/impact-research/raw/` and add it, with
    URL and SHA-256, to the README there.
 3. Add or reuse a source in `sources.js` and a metric in `metrics.js`.
 4. Type the raw value in `countries.js` with an exact locator and today's date as

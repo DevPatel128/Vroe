@@ -34,7 +34,7 @@ jobs:
           set -uo pipefail
 
           if [ -z "$WORKER_URL" ]; then
-            echo "::error::The repository variable WORKER_URL is not set, so nothing is being monitored. See docs/06_OPERATIONS/OBSERVABILITY.md."
+            echo "::error::The repository variable WORKER_URL is not set, so nothing is being monitored. See RUNBOOK.md."
             exit 1
           fi
 

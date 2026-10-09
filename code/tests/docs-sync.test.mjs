@@ -22,18 +22,14 @@ import { fileURLToPath } from "node:url";
 
 const code = fileURLToPath(new URL("../", import.meta.url));
 const repo = path.resolve(code, "..");
-const docs = (rel) => path.join(repo, "docs", rel);
+// The canonical documents are the WOLF kit docs at the repository root (ADR-025).
+const docs = (rel) => path.join(repo, rel);
 
 const DOC = {
-  developerExperience: "05_ENGINEERING/DEVELOPER-EXPERIENCE/DEVELOPER-EXPERIENCE.md",
-  cicd: "05_ENGINEERING/CI-CD/CI-CD.md",
-  experience: "02_PRODUCT/EXPERIENCE.md",
-  data: "05_ENGINEERING/DATA/DATA.md",
-  infrastructure: "05_ENGINEERING/INFRASTRUCTURE/INFRASTRUCTURE.md",
-  architecture: "05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md",
-  security: "05_ENGINEERING/SECURITY/SECURITY.md",
-  observability: "06_OPERATIONS/OBSERVABILITY.md",
-  tokenRunbook: "06_OPERATIONS/RUNBOOKS/CLOUDFLARE-API-TOKEN.md",
+  runbook: "RUNBOOK.md",
+  product: "PRODUCT.md",
+  system: "SYSTEM.md",
+  decisions: "DECISIONS.md",
 };
 
 const readDoc = (rel) => readFile(docs(rel), "utf8");
@@ -79,7 +75,7 @@ const pkg = JSON.parse(await readCode("package.json"));
 const scripts = pkg.scripts;
 
 test("every npm script is documented", async () => {
-  const text = await readDoc(DOC.developerExperience);
+  const text = await readDoc(DOC.runbook);
   const undocumented = Object.keys(scripts).filter((name) => {
     // Namespaced scripts (test:docs) are listed by name in tables; plain ones by
     // the command a person types.
@@ -88,7 +84,7 @@ test("every npm script is documented", async () => {
     return !text.includes(`npm run ${name}`);
   });
   assert.deepEqual(undocumented, [],
-    `npm scripts missing from ${DOC.developerExperience}: ${undocumented.join(", ")}`);
+    `npm scripts missing from ${DOC.runbook}: ${undocumented.join(", ")}`);
 });
 
 test("every test file is run by npm test", async () => {
@@ -107,13 +103,13 @@ test("every test file is run by npm test", async () => {
 test("every GitHub workflow is documented", async () => {
   const dir = path.join(repo, ".github", "workflows");
   const files = (await readdir(dir)).filter((f) => f.endsWith(".yml"));
-  requireMentioned(await readDoc(DOC.cicd), files, "A GitHub workflow", DOC.cicd);
+  requireMentioned(await readDoc(DOC.runbook), files, "A GitHub workflow", DOC.runbook);
 });
 
 test("every route is described", async () => {
   const routes = [...(await readCode("src/content/routes.js")).matchAll(/path:\s*"([^"]+)"/g)].map((m) => m[1]);
   assert.ok(routes.length >= 10, "expected to find the route table");
-  requireMentioned(await readDoc(DOC.experience), routes.map((r) => `\`${r}\``), "A route", DOC.experience);
+  requireMentioned(await readDoc(DOC.product), routes.map((r) => `\`${r}\``), "A route", DOC.product);
 });
 
 test("every binding and cron trigger is documented", async () => {
@@ -124,15 +120,14 @@ test("every binding and cron trigger is documented", async () => {
     ...(config.r2_buckets ?? []).map((b) => b.bucket_name),
     ...(config.triggers?.crons ?? []),
   ];
-  requireMentioned(await allOf(DOC.data, DOC.infrastructure), names, "A Cloudflare binding, bucket or cron trigger",
-    `${DOC.data} or ${DOC.infrastructure}`);
+  requireMentioned(await readDoc(DOC.system), names, "A Cloudflare binding, bucket or cron trigger", DOC.system);
 });
 
 test("every API endpoint is documented", async () => {
   const source = await readCode("worker/index.js");
   const endpoints = [...new Set([...source.matchAll(/["'`](\/api\/[a-z-]+)["'`]/g)].map((m) => m[1]))];
   assert.ok(endpoints.length >= 3, "expected to find the /api endpoints");
-  requireMentioned(await readDoc(DOC.architecture), endpoints, "An API endpoint", DOC.architecture);
+  requireMentioned(await readDoc(DOC.system), endpoints, "An API endpoint", DOC.system);
 });
 
 test("every secret and variable is documented", async () => {
@@ -144,14 +139,14 @@ test("every secret and variable is documented", async () => {
     const yml = await readFile(path.join(dir, file), "utf8");
     for (const [, n] of yml.matchAll(/\b(?:secrets|vars)\.([A-Z][A-Z0-9_]+)/g)) names.add(n);
   }
-  const text = await allOf(DOC.security, DOC.infrastructure, DOC.cicd, DOC.observability, DOC.tokenRunbook, DOC.data);
-  requireMentioned(text, [...names], "A secret or variable", "SECURITY, INFRASTRUCTURE, CI-CD, OBSERVABILITY or the token runbook");
+  const text = await allOf(DOC.system, DOC.runbook);
+  requireMentioned(text, [...names], "A secret or variable", "SYSTEM.md or RUNBOOK.md");
 });
 
 /* ─── Decisions cited in code exist ────────────────────────────────────── */
 
 test("every decision cited in the code exists in the index", async () => {
-  const index = await readDoc("08_DECISIONS/DECISIONS.md");
+  const index = await readDoc(DOC.decisions);
   const roots = ["src", "worker", "scripts", "tests", "perf"].map((d) => path.join(code, d));
   const files = [];
   async function walk(dir) {
@@ -173,7 +168,7 @@ test("every decision cited in the code exists in the index", async () => {
       if (!index.includes(`[ADR-${n}]`)) missing.add(`ADR-${n} (cited in ${path.relative(code, file)})`);
     }
   }
-  assert.deepEqual([...missing], [], "decisions cited in code but absent from docs/08_DECISIONS/DECISIONS.md");
+  assert.deepEqual([...missing], [], "decisions cited in code but absent from DECISIONS.md");
 });
 
 /* ─── Values that must agree in two places ─────────────────────────────── */

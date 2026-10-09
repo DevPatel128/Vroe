@@ -1,11 +1,12 @@
 /**
  * The documentation system's rules, enforced.
  *
- * docs/ is organised into ten numbered areas (docs/00_START_HERE/README.md).
- * These tests check the parts of that system a machine can: the structure, the
- * status header every document carries, and that no link points at nothing.
- * Whether a document is the *right* canonical home for a concept is a human
- * judgement, and stays one.
+ * The canonical documents are the WOLF kit docs at the repository root
+ * (AGENTS.md, PRODUCT.md, SYSTEM.md, RUNBOOK.md, GROWTH.md, DECISIONS.md,
+ * MISTAKES.md; ADR-025). The research record stays under docs/03_RESEARCH/,
+ * because the code cites those paths. These tests check what a machine can:
+ * the kit docs exist, docs/ holds only the research record, research documents
+ * carry their status header, and no link points at nothing.
  */
 
 import assert from "node:assert/strict";
@@ -17,26 +18,12 @@ import { fileURLToPath } from "node:url";
 const repo = fileURLToPath(new URL("../../", import.meta.url));
 const docsDir = path.join(repo, "docs");
 
-const AREAS = [
-  "00_START_HERE",
-  "01_PRINCIPLES",
-  "02_PRODUCT",
-  "03_RESEARCH",
-  "04_DESIGN",
-  "05_ENGINEERING",
-  "06_OPERATIONS",
-  "07_BUSINESS",
-  "08_DECISIONS",
-  "09_ARCHIVE",
-];
-
-// The one area whose front door is an index rather than a README.
-const INDEX_FILE = { "08_DECISIONS": "DECISIONS.md" };
+const KIT_DOCS = ["AGENTS.md", "CLAUDE.md", "PRODUCT.md", "SYSTEM.md", "RUNBOOK.md", "GROWTH.md", "DECISIONS.md", "MISTAKES.md", "TASK.md"];
 
 const STATUSES = ["Draft", "Review", "Approved", "Superseded", "Archived"];
 
-// Root-level files that also link into docs/.
-const ROOT_DOCS = ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CLAUDE.md"];
+// Root-level files whose links are checked too.
+const ROOT_DOCS = [...KIT_DOCS, "README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md"];
 
 async function walk(dir) {
   const out = [];
@@ -104,18 +91,16 @@ function anchorsOf(text) {
   return anchors;
 }
 
-test("docs/ holds exactly the ten areas and nothing else", async () => {
-  const top = (await readdir(docsDir)).filter((n) => !n.startsWith("."));
-  assert.deepEqual([...top].sort(), [...AREAS].sort(),
-    "docs/ may only contain the ten numbered areas; a new concept belongs inside one of them");
+test("every kit document exists at the repository root", async () => {
+  for (const file of KIT_DOCS) {
+    assert.ok(await existsExact(path.join(repo, file)), `${file} is missing (checked case-sensitively)`);
+  }
 });
 
-test("every area has its front door", async () => {
-  for (const area of AREAS) {
-    const file = INDEX_FILE[area] ?? "README.md";
-    assert.ok(await existsExact(path.join(docsDir, area, file)),
-      `docs/${area}/${file} is missing (checked case-sensitively)`);
-  }
+test("docs/ holds only the research record", async () => {
+  const top = (await readdir(docsDir)).filter((n) => !n.startsWith("."));
+  assert.deepEqual(top, ["03_RESEARCH"],
+    "docs/ holds only the research record; everything else has one home in the root kit docs");
 });
 
 test("every document carries a valid status header", async () => {
@@ -127,23 +112,6 @@ test("every document carries a valid status header", async () => {
     const head = (await readFile(file, "utf8")).split("\n").slice(0, 8).join("\n");
     assert.ok(pattern.test(head),
       `${rel(file)} needs a header line: **Status:** Draft|Review|Approved|Superseded|Archived · **Last updated:** YYYY-MM-DD · **Owner:** … · **Version:** 1.0`);
-  }
-});
-
-test("archived and superseded documents live in the archive, and only they do", async () => {
-  for (const file of markdown) {
-    const head = (await readFile(file, "utf8")).split("\n").slice(0, 8).join("\n");
-    const status = head.match(/\*\*Status:\*\* (\w+)/)?.[1];
-    const inArchive = rel(file).startsWith(path.join("docs", "09_ARCHIVE"));
-    // ADRs are the exception: a superseded decision may stay beside its category
-    // until it is moved, but nothing current may sit in the archive.
-    if (inArchive && !path.basename(file).startsWith("README")) {
-      assert.ok(["Archived", "Superseded"].includes(status),
-        `${rel(file)} is in the archive, so its status must be Archived or Superseded, not ${status}`);
-    }
-    if (!inArchive && status === "Archived") {
-      assert.fail(`${rel(file)} is marked Archived but is not in docs/09_ARCHIVE`);
-    }
   }
 });
 
@@ -175,19 +143,17 @@ test("every relative link and anchor resolves", async () => {
   assert.deepEqual(broken, [], `broken links:\n  ${broken.join("\n  ")}`);
 });
 
-test("every decision file is listed in the decisions index", async () => {
-  const index = await readFile(path.join(docsDir, "08_DECISIONS", "DECISIONS.md"), "utf8");
-  const adrs = allFiles.filter((f) => /ADR-\d{3}-.*\.md$/.test(path.basename(f)));
-  assert.ok(adrs.length > 0, "no decision files found");
-  for (const adr of adrs) {
-    assert.ok(index.includes(path.basename(adr)), `${rel(adr)} is not listed in DECISIONS.md`);
-  }
+test("decision numbers in DECISIONS.md are unique", async () => {
+  const text = await readFile(path.join(repo, "DECISIONS.md"), "utf8");
+  const numbers = [...text.matchAll(/^\| \d{4}-\d{2}-\d{2} \| \[(ADR-\d{3})\]/gm)].map((m) => m[1]);
+  assert.ok(numbers.length > 0, "no decision rows found");
+  assert.deepEqual(numbers.filter((n, i) => numbers.indexOf(n) !== i), [], "a decision number is used twice");
 });
 
 test("no document contains a path from someone's machine", async () => {
-  for (const file of markdown) {
+  for (const file of [...markdown, ...ROOT_DOCS.map((f) => path.join(repo, f))]) {
     const text = await readFile(file, "utf8");
     const hit = text.match(/\/(Users|home)\/[A-Za-z0-9._-]+\//);
-    assert.ok(!hit, `${rel(file)} contains a local path (${hit?.[0]}); this repository is heading public`);
+    assert.ok(!hit, `${rel(file)} contains a local path (${hit?.[0]}); this repository is public`);
   }
 });

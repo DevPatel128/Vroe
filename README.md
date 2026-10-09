@@ -6,7 +6,7 @@
 
 Prerendered static HTML on Cloudflare Workers. No React reaches the browser.
 
-[vroelabs.com](https://vroelabs.com) · [Documentation](docs/00_START_HERE/README.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
+[vroelabs.com](https://vroelabs.com) · [Documentation](AGENTS.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
 <img src="code/public/assets/og-vroe-labs.jpg" alt="Vroe Labs: Useful ideas, made real." width="720">
 
@@ -53,7 +53,7 @@ browser receives HTML and CSS plus one small enhancement script, and every
 dependency is a `devDependency` because nothing else ships. The Worker runs
 first on every request, so the security headers reach HTML, assets and errors
 alike. The reasoning is in the
-[architecture document](docs/05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md).
+[system document](SYSTEM.md).
 
 ## Tech stack
 
@@ -96,7 +96,7 @@ commit a real value.
 | `npm run test:security` | Headers, CSP, subscribe pipeline, build hygiene |
 | `npm run perf` | Lighthouse budgets against the preview (needs Chrome and `cd perf && npm ci`) |
 | `npm run audit:deps` | `npm audit --audit-level=high` |
-| `npm run backup` | Copy the subscriber list to the maintainer's computer; see [BACKUPS](docs/06_OPERATIONS/BACKUPS.md) |
+| `npm run backup` | Copy the subscriber list to the maintainer's computer; see [RUNBOOK](RUNBOOK.md) |
 | `npm run deploy` | Build and deploy to Cloudflare |
 
 Finish a change with `npm run build && npm test && npm audit --audit-level=high`.
@@ -115,22 +115,22 @@ code/                  buildable app
 ├── worker/            Cloudflare Worker: routing, /api, security headers
 ├── scripts/           build pipeline, backup, docs check
 └── tests/             worker, security, SEO, evidence, budgets, docs
-docs/                  ten numbered areas; start at docs/00_START_HERE
+*.md                   WOLF kit docs at the root; start at AGENTS.md
+docs/03_RESEARCH/      the research record and source files behind /trove
 .github/workflows/     ci, deploy, health check, docs-impact
 ```
 
 ## Documentation
 
-[docs/00_START_HERE/README.md](docs/00_START_HERE/README.md) is the entry point:
-where every kind of information lives, a load order, and a "where do I change X?"
-table.
+The documentation follows the WOLF kit layout: one root file per concern.
+[AGENTS.md](AGENTS.md) is the entry point, with the commands and the project rules.
 
-- [Principles](docs/01_PRINCIPLES/PRINCIPLES.md): the rules everything follows
-- [Architecture](docs/05_ENGINEERING/ARCHITECTURE/ARCHITECTURE.md), [Security](docs/05_ENGINEERING/SECURITY/SECURITY.md) and [CI/CD](docs/05_ENGINEERING/CI-CD/CI-CD.md)
+- [PRODUCT.md](PRODUCT.md): what the site is, its pages, the honesty rules and the design tokens
+- [SYSTEM.md](SYSTEM.md): architecture, data, endpoints, security headers and the CSP
+- [RUNBOOK.md](RUNBOOK.md): commands, deploy, rollback, backups and what to do when something breaks
+- [GROWTH.md](GROWTH.md): SEO, the page log and what is measured
 - [Research](docs/03_RESEARCH/RESEARCH.md): the evidence behind `/trove`, and its sources
-- [Content and honesty rules](docs/04_DESIGN/CONTENT.md) and the [brand guide](docs/04_DESIGN/BRAND-GUIDE.md)
-- [Operations](docs/06_OPERATIONS/README.md): what to do when something breaks
-- [Decisions](docs/08_DECISIONS/DECISIONS.md): every non-obvious choice, and why
+- [DECISIONS.md](DECISIONS.md) and [MISTAKES.md](MISTAKES.md): every non-obvious choice, and every lesson
 
 ## Products
 
