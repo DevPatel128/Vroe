@@ -185,7 +185,7 @@ export function evaluate({ changed, body = "", actor = "", facts = {}, docChange
 /* ─── The runner: git in, a verdict out ────────────────────────────────── */
 
 function git(args, cwd) {
-  return execFileSync("git", args, { cwd, encoding: "utf8", maxBuffer: 1 << 26 });
+  return execFileSync("git", args, { cwd, encoding: "utf8", maxBuffer: 1 << 26, stdio: ["ignore", "pipe", "pipe"] });
 }
 
 function gather(root, baseSha) {
