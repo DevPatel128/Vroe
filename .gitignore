@@ -5,11 +5,10 @@
 .idea/
 .vscode/
 
-# Company framework reference copy — internal strategy/decision templates,
-# kept locally for AI-assisted work, never published with this public repo.
-# Superseded "The Framework./" (v2) by Wolf (v3.0) on 2026-09-28; see
-# docs/00_START_HERE/FRAMEWORK-MAP.md for the applied, published mapping.
-Wolf/
+# The old local WOLF v3 copy (moved to the central archive on 2026-10-09). Anchored
+# to the repository root, because an unanchored "Wolf/" also matches
+# .claude/skills/wolf/ on case-insensitive file systems and hides the wolf skill.
+/Wolf/
 
 # Subscriber backups (npm run backup). Personal data: never commit. A test proves this rule holds.
 /backups/

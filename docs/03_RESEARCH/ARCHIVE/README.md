@@ -1,6 +1,6 @@
 # Research archive
 
-**Status:** Approved · **Last updated:** 2026-09-19 · **Owner:** Vroe Labs · **Version:** 1.0
+**Status:** Approved · **Last updated:** 2026-10-09 · **Owner:** Vroe Labs · **Version:** 1.0
 
 Research that has been superseded or set aside, kept so the reasoning behind
 leaving it out can be checked. Nothing here is on the site. The current evidence
@@ -8,7 +8,7 @@ is in [RESEARCH.md](../RESEARCH.md); the sources still in use are in
 [SOURCES.md](../SOURCES.md).
 
 **Recency rule.** The website only uses data collected and published in 2024 or
-later ([ADR-017](../../08_DECISIONS/PRODUCT/ADR-017-only-data-collected-and-published-in-2024-or-later.md)).
+later ([ADR-017](../../../DECISIONS.md)).
 Older files stay in `impact-research/raw/`, marked "not used" in
 [SOURCES.md](../SOURCES.md).
 

@@ -17,14 +17,14 @@ const repo = fileURLToPath(new URL("../../", import.meta.url));
 const change = (p, status = "M") => ({ path: p, status });
 
 const WORKER = change("code/worker/index.js");
-const DATA_DOC = change("docs/05_ENGINEERING/DATA/DATA.md");
+const DATA_DOC = change("SYSTEM.md");
 
 test("a change to the Worker with no documentation fails, and says what to update", () => {
   const r = evaluate({ changed: [WORKER] });
   assert.equal(r.ok, false);
   assert.equal(r.problems.length, 1);
   assert.match(r.problems[0], /the Worker/);
-  assert.match(r.problems[0], /docs\/05_ENGINEERING\/DATA\/DATA\.md/);
+  assert.match(r.problems[0], /SYSTEM\.md/);
   assert.match(r.problems[0], /Docs: none/);
 });
 
@@ -33,18 +33,18 @@ test("changing one of the rule's canonical documents satisfies it", () => {
 });
 
 test("a document from a different rule does not", () => {
-  const r = evaluate({ changed: [WORKER, change("docs/04_DESIGN/RESPONSIVE.md")] });
+  const r = evaluate({ changed: [WORKER, change("GROWTH.md")] });
   assert.equal(r.ok, false);
 });
 
 test("a new decision counts as documentation", () => {
-  const adr = change("docs/08_DECISIONS/ENGINEERING/ADR-030-something.md", "A");
-  assert.equal(evaluate({ changed: [WORKER, adr] }).ok, true);
+  const decisions = change("DECISIONS.md");
+  assert.equal(evaluate({ changed: [WORKER, decisions], facts: { decisionAdded: true } }).ok, true);
 });
 
 test("an edited old decision does not count; only a new one does", () => {
-  const edited = change("docs/08_DECISIONS/ENGINEERING/ADR-004-hsts-without-preload.md", "M");
-  assert.equal(evaluate({ changed: [WORKER, edited] }).ok, false);
+  const decisions = change("DECISIONS.md");
+  assert.equal(evaluate({ changed: [WORKER, decisions], facts: { decisionAdded: false } }).ok, false);
 });
 
 test("'Docs: none' needs a reason", () => {
@@ -72,7 +72,7 @@ test("package.json only triggers when its scripts changed", () => {
   assert.equal(evaluate({ changed: [pkg], facts: { scriptsChanged: false } }).ok, true, "a dependency bump");
   assert.equal(evaluate({ changed: [pkg], facts: { scriptsChanged: true } }).ok, false);
   assert.equal(
-    evaluate({ changed: [pkg, change("docs/05_ENGINEERING/DEVELOPER-EXPERIENCE/DEVELOPER-EXPERIENCE.md")], facts: { scriptsChanged: true } }).ok,
+    evaluate({ changed: [pkg, change("RUNBOOK.md")], facts: { scriptsChanged: true } }).ok,
     true,
   );
 });
@@ -112,7 +112,7 @@ test("every document the rule table names exists", () => {
   const missing = [];
   for (const rule of RULES) {
     for (const doc of rule.docs) {
-      if (!existsSync(path.join(repo, "docs", doc))) missing.push(`${rule.id}: docs/${doc}`);
+      if (!existsSync(path.join(repo, doc))) missing.push(`${rule.id}: ${doc}`);
     }
   }
   assert.deepEqual(missing, [], "docs named in scripts/docs-impact.mjs that no longer exist");

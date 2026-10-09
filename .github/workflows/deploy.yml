@@ -53,7 +53,7 @@ jobs:
         id: deploy
         # The token is scoped to Workers Scripts:Edit, Workers KV Storage:Edit,
         # Account Settings:Read and Zone:Workers Routes:Edit on vroelabs.com.
-        # It is not a global API key. See docs/06_OPERATIONS/RUNBOOKS/CLOUDFLARE-API-TOKEN.md.
+        # It is not a global API key. See RUNBOOK.md, "The CI token".
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

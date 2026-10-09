@@ -8,10 +8,10 @@ Documentation is part of the change, not a follow-up. The `docs-impact` check fa
 this pull request if it changes something the docs describe and no canonical
 document changed with it.
 
-- [ ] I updated the canonical document for what I changed (start at
-      `docs/00_START_HERE/README.md`, "where do I change X?"), and bumped its
-      `Last updated` date.
-- [ ] A new non-obvious decision has an ADR (`docs/08_DECISIONS/`).
+- [ ] I updated the canonical root document for what I changed (`PRODUCT.md`,
+      `SYSTEM.md`, `RUNBOOK.md`, `GROWTH.md`, or `docs/03_RESEARCH/` for evidence).
+- [ ] A new non-obvious decision has a new row in `DECISIONS.md`, and a mistake
+      has a row in `MISTAKES.md` with its enforcing check.
 - [ ] If I changed what the subscribe endpoint stores or keeps, I updated
       `code/src/content/legal.js` (the privacy policy) in this same change.
 
