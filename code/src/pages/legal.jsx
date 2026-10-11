@@ -1,5 +1,6 @@
 import { PRIVACY, TERMS, LEGAL_EFFECTIVE } from "../content/legal.js";
 import { SITE } from "../content/site.js";
+import { COMPANY_STATUS } from "../content/copy.js";
 import { Breadcrumbs } from "../components/Breadcrumbs.jsx";
 
 /** Shared renderer for /privacy and /terms. */
@@ -42,6 +43,7 @@ export function LegalPage({ kind }) {
               <>See also our <a href="/privacy">privacy policy</a>.</>
             )}
           </p>
+          <p className="stack-sm company-status">{COMPANY_STATUS}</p>
         </section>
       </div>
     </>

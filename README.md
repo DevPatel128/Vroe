@@ -186,5 +186,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Participation is governed by the
 
 ## Licence
 
-Source code: [MIT](LICENSE). The Vroe Labs name, brand assets, copy and
-photography are © Vroe Labs and not covered by that licence; see [NOTICE](NOTICE).
+Source-available under the Vroe Labs licence (PolyForm Strict 1.0.0):
+noncommercial use only; no changes, derivative works or redistribution. See
+[LICENSE](LICENSE). The Vroe Labs name, brand assets, copy and photography are
+also © Vroe Labs; third-party code keeps its own licence. See [NOTICE](NOTICE).

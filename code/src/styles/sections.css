@@ -48,6 +48,7 @@
 .prose a:hover { border-color: var(--coral); }
 .prose .closer { display: block; margin-top: 40px; color: var(--ink); font-family: var(--serif); font-size: 26px; letter-spacing: -0.03em; }
 .legal-effective { color: var(--ink-soft); font-size: 12px; font-weight: 600; margin-bottom: 34px; }
+.company-status { color: var(--ink-soft); font-size: 13px; }
 
 /* ─── Contact ─────────────────────────────────────────────────────────── */
 .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 44px 0 50px; }
