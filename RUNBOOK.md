@@ -65,6 +65,9 @@ The only alert channel is GitHub's failed-workflow email. Turn on "Send notifica
 - **`CLOUDFLARE_API_TOKEN` leaks:** revoke it in Cloudflare API Tokens, create a new one, `gh secret set CLOUDFLARE_API_TOKEN`.
 - **KV data exposed:** rotate account credentials first. Keys are hashes; values are addresses. Then decide on notifying people.
 
+## CI runner
+The WOLF workflow (`.github/workflows/wolf.yml`) reads the repo variable `RUNNER_LABELS` (a JSON list). Unset means GitHub's `ubuntu-latest`, which is what this public repo uses. Never set it to a self-hosted runner here: Vroe is public, and a fork pull request could then run code on the owner's Mac. Private repos use the variable when their free Actions minutes run out.
+
 ## The CI token
 Create a custom token (never the Global API Key): Account · Workers Scripts · Edit; Account · Workers KV Storage · Edit; Account · Account Settings · Read; Zone · Workers Routes · Edit. Scope it to the account and to `vroelabs.com` only. Store it with `gh secret set CLOUDFLARE_API_TOKEN` and the account id with `gh secret set CLOUDFLARE_ACCOUNT_ID --repo DevPatel128/Vroe`. Check with `gh secret list`.
 
