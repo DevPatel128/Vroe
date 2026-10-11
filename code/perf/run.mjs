@@ -101,6 +101,8 @@ const RUN_TIMEOUT_MS = 120_000;
 
 async function lighthouseOnce(url, scratch, attempt = 1) {
   const out = path.join(scratch, "run.json");
+  const art = path.join(scratch, "art");
+  await rm(art, { recursive: true, force: true });
   try {
     await run(
       process.execPath,
@@ -112,10 +114,16 @@ async function lighthouseOnce(url, scratch, attempt = 1) {
         `--output-path=${out}`,
         "--only-categories=performance,accessibility,best-practices,seo",
         "--chrome-flags=--headless=new --no-sandbox",
+        `-GA=${art}`,
       ],
       { maxBuffer: 64 * 1024 * 1024, timeout: RUN_TIMEOUT_MS, killSignal: "SIGTERM" },
     );
   } catch (err) {
+    if (String(err.stderr ?? err.message).includes("NO_NAVSTART")) {
+      const { cp } = await import("node:fs/promises");
+      await cp(art, path.join(reports, `diag-${url.replace(/\//g, "_")}-${Date.now()}`), { recursive: true }).catch(() => {});
+      console.log("DIAG saved artifacts");
+    }
     const wedged = err.killed || err.signal === "SIGTERM";
     if (wedged && attempt < 2) {
       console.log(`\n  ${url}: no result after ${RUN_TIMEOUT_MS / 1000} s, retrying once`);
