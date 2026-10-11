@@ -1,6 +1,12 @@
-Vroe Labs website: what the MIT licence does and does not cover
+Vroe Labs website: what the Vroe Labs licence does and does not cover
 
-The MIT licence in LICENSE covers the source code only.
+The Vroe Labs licence in LICENSE (PolyForm Strict 1.0.0, noncommercial use
+only; no changes, derivative works or redistribution) covers the source code
+only. Versions published before 2026-10-11 remain under the MIT licence they
+were published under.
+
+Third-party packages, fonts and icons keep their own licences (see LEGAL.md,
+Assets, and the licence files shipped in each package). They are not relicensed.
 
 The Vroe Labs name and wordmark, the brand guide, the site copy, and the
 still-life photography in assets-src/ and public/assets/ are (c) Vroe Labs and

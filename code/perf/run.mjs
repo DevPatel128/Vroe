@@ -99,6 +99,14 @@ async function waitForSite() {
 // until CI's own timeout. SIGTERM lets Lighthouse close the Chrome it opened.
 const RUN_TIMEOUT_MS = 120_000;
 
+// SpareRendererForSitePerProcess is off on purpose. Chrome 154 (the runner's current
+// stable) keeps a pre-started "spare" renderer, and when Lighthouse's about:blank ->
+// page navigation needs a fresh one, that renderer can start tracing after it has
+// already emitted the page's navigationStart. The trace then has no usable
+// navigationStart and Lighthouse fails with NO_NAVSTART on about 5% of runs. With the
+// feature off: 0 failures in 80 runs, against 3 to 8 per 80 with the default flags (RUNBOOK.md).
+const CHROME_FLAGS = "--headless=new --no-sandbox --disable-features=SpareRendererForSitePerProcess";
+
 async function lighthouseOnce(url, scratch, attempt = 1) {
   const out = path.join(scratch, "run.json");
   try {
@@ -111,7 +119,7 @@ async function lighthouseOnce(url, scratch, attempt = 1) {
         "--output=json",
         `--output-path=${out}`,
         "--only-categories=performance,accessibility,best-practices,seo",
-        "--chrome-flags=--headless=new --no-sandbox",
+        `--chrome-flags=${CHROME_FLAGS}`,
       ],
       { maxBuffer: 64 * 1024 * 1024, timeout: RUN_TIMEOUT_MS, killSignal: "SIGTERM" },
     );

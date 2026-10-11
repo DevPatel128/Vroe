@@ -4,18 +4,40 @@
  * ACCURACY RULE: the privacy policy must describe what the Worker actually
  * does, not what a template says. It is written against worker/index.js and
  * must be re-read whenever that file's data handling changes. Today the site
- * stores exactly four things per signup — hashed key, address, timestamp,
- * country — and sets no cookies of its own, and keeps a daily backup of that list
- * for BACKUP_RETENTION_DAYS. See docs/05_ENGINEERING/SECURITY/SECURITY.md.
+ * stores exactly four things per signup (address, timestamp, country, consent
+ * flag) under a hashed key, keeps a per-IP rate-limit counter for
+ * RATE_LIMIT_WINDOW_S (600 s), logs CSP violation reports, sets no cookies of its
+ * own, and has backups of the list that are made by hand (nothing schedules
+ * them) and pruned to BACKUP_RETENTION_DAYS when the next one runs. The Analytics
+ * section follows CF_ANALYTICS_TOKEN, so it cannot claim a beacon that is not
+ * loaded. See SYSTEM.md and LEGAL.md (data map).
  */
 
-export const LEGAL_EFFECTIVE = "20 September 2026";
+import { CF_ANALYTICS_TOKEN } from "./site.js";
+
+export const LEGAL_EFFECTIVE = "11 October 2026";
 
 /** Retention window, in days, for a stored subscriber record. Mirrors worker/index.js. */
 export const RETENTION_DAYS = 730;
 
 /** How long a daily backup of the list is kept. Mirrors worker/backup.js. */
 export const BACKUP_RETENTION_DAYS = 30;
+
+/** How long the per-IP rate-limit counter lives, in minutes. Mirrors RATE_LIMIT_WINDOW_S (600 s) in worker/index.js. */
+export const RATE_LIMIT_WINDOW_MINUTES = 10;
+
+/**
+ * The Analytics section. It describes Cloudflare Web Analytics only when the
+ * beacon is actually injected (CF_ANALYTICS_TOKEN set in site.js); otherwise it
+ * says there is none. Turning analytics on also needs a new LEGAL_EFFECTIVE date.
+ */
+const ANALYTICS_PARAGRAPHS = CF_ANALYTICS_TOKEN
+  ? [
+      "We use Cloudflare Web Analytics to see roughly how many people visit and which pages they read. It is cookieless: it does not use client-side state, does not fingerprint visitors, and does not follow you to other sites. The data we see is aggregate — page views, referrers, countries and broad device categories — and cannot be traced back to an individual.",
+    ]
+  : [
+      "This site does not use analytics. No analytics script loads, and we do not count or profile visitors. If that changes, this section will say so, and any analytics we add will be cookieless.",
+    ];
 
 export const PRIVACY = {
   title: "Privacy Policy",
@@ -45,7 +67,8 @@ export const PRIVACY = {
         "A note that you ticked the consent box.",
       ],
       after: [
-        "That is the complete list. We do not ask for your name, and we do not attempt to work out who you are or where you work.",
+        "That is the complete list for your signup. We do not ask for your name, and we do not attempt to work out who you are or where you work.",
+        `To stop the form being abused, we also count submissions from each IP address. That counter is stored in Cloudflare Workers KV under a key that contains your IP address, is not linked to your email address, and deletes itself after ${RATE_LIMIT_WINDOW_MINUTES} minutes.`,
       ],
     },
     {
@@ -53,7 +76,7 @@ export const PRIVACY = {
       paragraphs: [
         "Records are held in Cloudflare Workers KV. Each entry is filed under a one-way cryptographic hash of your address rather than the address itself, so the stored list cannot be browsed by guessing email addresses.",
         `We keep a subscription record for up to ${RETENTION_DAYS} days from the date you subscribe, or until you ask us to remove it, whichever comes first.`,
-        `We also keep a backup copy of the list, so we can restore it if something goes wrong. Backups are kept on a computer that belongs to Vroe Labs, and each one is deleted after ${BACKUP_RETENTION_DAYS} days. If you ask us to remove your details, they leave the live list straight away and are gone from every backup within ${BACKUP_RETENTION_DAYS} days.`,
+        `We also keep backup copies of the list, so we can restore it if something goes wrong. Backups are made by hand, not on a schedule, and are kept on the founder's own computer. Each time a new backup is made, copies older than ${BACKUP_RETENTION_DAYS} days are deleted, so an older copy can remain until the next backup is made. If you ask us to remove your details, we delete them from the live list when we action your request, which we do within 30 days, and they drop out of the backups as those older copies are deleted.`,
       ],
     },
     {
@@ -68,19 +91,18 @@ export const PRIVACY = {
     {
       heading: "Bot protection",
       paragraphs: [
-        "The form is protected by Cloudflare Turnstile, which checks that a submission comes from a person rather than an automated script. Turnstile processes your IP address and basic browser signals to make that decision. It is a privacy-preserving alternative to a traditional CAPTCHA: it does not track you across websites and does not ask you to label photographs.",
+        "The form is protected by Cloudflare Turnstile, which checks that a submission comes from a person rather than an automated script. Turnstile processes your IP address and basic browser signals to make that decision. It is an alternative to a traditional CAPTCHA that does not ask you to label photographs. Cloudflare describes how it handles that data in its own privacy policy, and we do not control it.",
       ],
     },
     {
       heading: "Analytics",
-      paragraphs: [
-        "We use Cloudflare Web Analytics to see roughly how many people visit and which pages they read. It is cookieless and privacy-first: it does not use client-side state, does not fingerprint visitors, and does not follow you to other sites. The data we see is aggregate — page views, referrers, countries and broad device categories — and cannot be traced back to an individual.",
-      ],
+      paragraphs: ANALYTICS_PARAGRAPHS,
     },
     {
       heading: "Hosting and server logs",
       paragraphs: [
         "This site is hosted on Cloudflare. As with any web host, Cloudflare processes technical request data — IP address, user agent, the page requested — in order to serve pages, block attacks and keep the site online. That processing is governed by Cloudflare's own privacy policy. Our application logs record whether a submission succeeded or failed, never the address involved.",
+        "If your browser blocks something on a page because of our security policy (the Content Security Policy), it may send us a report. We log only the rule involved, the address that was blocked and the page it happened on, so we can fix the site, and we keep nothing else from the report. These logs are held in Cloudflare Workers Logs.",
       ],
     },
     {
@@ -104,13 +126,13 @@ export const PRIVACY = {
     {
       heading: "Changes to this policy",
       paragraphs: [
-        "If we change what we collect or how we use it, we will update this page and change the effective date at the top. Material changes to how we treat addresses already on the list will be announced to that list.",
+        "If we change what we collect or how we use it, we will update this page and change the effective date at the top. Material changes to how we treat addresses already on the list will be noted on this page.",
       ],
     },
     {
       heading: "Contact",
       paragraphs: [
-        "Questions, corrections and deletion requests all go to the same address, and a person reads it.",
+        "Questions, corrections, deletion requests and complaints all go to the same address, and a person reads it: Dev Patel, founder of Vroe Labs.",
       ],
       contact: true,
     },
@@ -156,7 +178,7 @@ export const TERMS = {
     {
       heading: "Our content",
       paragraphs: [
-        "The text, design, images, code and brand marks on this site belong to Vroe Labs unless stated otherwise. You are welcome to link to us, quote us with attribution, and share what we publish. You may not republish substantial parts as your own or use our name or marks in a way that suggests we endorse something we do not.",
+        "The text, design, images, code and brand marks on this site belong to Vroe Labs unless stated otherwise. You are welcome to link to us, quote us with attribution, and share what we publish. You may not republish substantial parts as your own or use our name or marks in a way that suggests we endorse something we do not. The site's source code is published under the Vroe Labs licence (PolyForm Strict 1.0.0): noncommercial use only, with no changes, derivative works or redistribution. The licence text is in the LICENSE file of the public repository.",
       ],
     },
     {

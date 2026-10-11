@@ -1,6 +1,6 @@
 import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { SITE } from "../content/site.js";
-import { FOOTER } from "../content/copy.js";
+import { COMPANY_STATUS, FOOTER } from "../content/copy.js";
 
 /**
  * Footer. Doubles as the site's secondary navigation, so every important page
@@ -15,6 +15,7 @@ export function Footer() {
           Vroe Labs
         </a>
         <span>{FOOTER.copyright}</span>
+        <span>{COMPANY_STATUS}</span>
       </div>
 
       <nav className="footer-nav" aria-label="Footer">

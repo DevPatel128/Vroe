@@ -18,6 +18,8 @@ Every command runs in `code/`. Node 22 or newer.
 | `npm run build:fonts`, `build:images`, `build:prerender`, `build:seo` | The build's own steps |
 | `npm run build:og`, `build:icons` | Not part of `build`; outputs are committed. Regenerate only when artwork or wording changes |
 
+Lighthouse `NO_NAVSTART` (the `performance` job failing at random since Chrome 154): the runner passes `--disable-features=SpareRendererForSitePerProcess` to Chrome (`code/perf/run.mjs`, `CHROME_FLAGS`). Evidence, 2026-10-11 on `ubuntu-latest`, Chrome 154.0.8037.97, 80 runs of `/trove` and `/products` per setting: default flags 3 to 8 failures, this flag 0, `--disable-site-isolation-trials` 0, `--process-per-tab` 5, `--disable-gpu` 3. The failing trace has no `navigationStart` carrying the page URL. If it returns, re-measure before adding retries.
+
 Test suites: `test:sites` (Worker routing) · `test:security` (headers, CSP, subscribe pipeline, build hygiene, no `style="`) · `test:functionality` · `test:seo` · `test:evidence` (every figure recomputed) · `test:performance` (byte budgets) · `test:docs` (kit docs exist, links resolve, no local paths) · `test:accessibility` · `test:docs-sync` (every script, workflow, route, binding, endpoint, secret and cited decision is documented; retention periods agree) · `test:docs-impact` (the docs-impact rule, without git) · `test:backup` (shape, restore round trip, retention, `backups/` never tracked, nothing personal printed).
 
 Local secrets: `.dev.vars` holds `TURNSTILE_SECRET_KEY` (gitignored). To test the success path locally, swap in Cloudflare's always-passes test secret for a moment, then restore it. Delete `.wrangler/state/` to clear local KV.
