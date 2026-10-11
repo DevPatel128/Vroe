@@ -17,9 +17,12 @@ done < <(rows '## Legal pages')
 
 allowed=$(rows '## Third parties' | col 2; echo "${SITE_HOST:-}")
 files=$(find "$out" -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.mjs' \))
-hosts=$( [ -z "$files" ] || { printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 grep -ohiE \
-  '(src|srcset)=["'"'"']https?://[^/"'"'"' ]+|<link[^>]*rel=["'"'"']?(stylesheet|preload|modulepreload|icon)[^>]*>|url\(["'"'"']?https?://[^/"'"'"') ]+|import[ (]*["'"'"']https?://[^/"'"'"' ]+' \
-  | grep -oiE 'https?://[^/"'"'"') >]+' | sed -E 's#https?://##I' | tr 'A-Z' 'a-z' | sort -u || true; } )
+q='["'"'"']'   # a quote, single or double
+hosts=$( [ -z "$files" ] || {
+  printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 grep -ohiE "(src|srcset)=${q}https?://[^/\"' ]+|<link[^>]*rel=${q}?(stylesheet|preload|modulepreload|icon)[^>]*>|import[ (]*${q}https?://[^/\"' ]+" || true
+  # CSS url() only in stylesheets: JS bundles hold URL-polyfill test strings like new URL("https://…").
+  printf '%s\n' "$files" | grep '\.css$' | tr '\n' '\0' | xargs -0 grep -ohE "url\(${q}?https?://[^/\"') ]+" 2>/dev/null || true
+} | grep -oiE 'https?://[^/"'"'"') >]+' | sed -E 's#https?://##I' | tr 'A-Z' 'a-z' | grep -E '^[a-z0-9.-]+\.[a-z]{2,}(:[0-9]+)?$' | sort -u || true)
 for h in $hosts; do printf '%s\n' "$allowed" | grep -qxiF "$h" || { echo "legal-check: unlisted third-party host $h (add it to LEGAL.md with data + licence, or remove it)"; fail=1; }; done
 
 noalt=$( [ -z "$files" ] || printf '%s\n' "$files" | grep '\.html$' | tr '\n' '\0' | xargs -0 grep -oiE '<img[^>]*>' | grep -viE '<img[^>]*[[:space:]]alt=' || true)
