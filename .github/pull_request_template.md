@@ -1,3 +1,5 @@
+WOLF check: <paste the PR body line printed by scripts/wolf-check.sh>
+
 ## What changed and why
 
 <!-- One or two sentences. The why matters more than the what. -->

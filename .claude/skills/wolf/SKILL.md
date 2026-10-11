@@ -16,6 +16,7 @@ Read `AGENTS.md`. Respect the autonomy table in `WOLF/GOVERN.md`. Leave a trace 
 5. **Decide:** GO fills the `PRODUCT.md` brief. PIVOT or KILL goes in `DECISIONS.md`.
 
 ## Change mode: `/wolf <requirement>`
+0. **Check against WOLF first:** `bash scripts/wolf-check.sh "<requirement>" [paths]`. Read the rules, WOLF files and past mistakes it prints. If the requirement conflicts with them, say which rule and stop. Re-run it when the scope grows to new areas.
 1. **Research** only if facts are unknown. Keep only facts that change a decision.
 2. **Plan:** add acceptance criteria with IDs to `PRODUCT.md` and write a `TASK.md` card. Bundle enough IDs to meet the VU floor (`scripts/wolf-stats.sh`). Ask only when blocked.
 3. **Build** with the coding rules in `AGENTS.md` (least code; `db.ts` scoping; file caps).

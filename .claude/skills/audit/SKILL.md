@@ -13,9 +13,11 @@ Rule 0: blunt. Audit like the new owner who gets paged. A report only: change no
    - interfaces with one implementation, config nobody sets
    - an isolation test that does not cover every user table
    - health checks that do not test real dependencies
+   - legal gaps: run `scripts/legal-check.sh <build-dir>` and walk every `LEGAL.md` launch checklist line against the code and the live site (consent, data minimization, SDKs, dark patterns, hidden fees, fake reviews or claims, alt and contrast, keyboard, business details, age rule, email unsubscribe, asset licences, delete and export). A line without evidence is a finding.
    Before calling code unused, grep the whole tree, including tests, config and dynamic references.
 3. **Debt ledger:** collect every deferral marker:
    `grep -rnE --exclude-dir={.git,node_modules,dist,build,.next} '(#|//|/[*]) ?(shortcut|TODO|FIXME):' .`
    One row each: `file:line, what was simplified, ceiling, upgrade trigger`. Tag `no-trigger` when no upgrade condition is named; those rot.
 4. **Output:** `What this repo does:` + the assumed load. Up to 20 findings in the `review` format, grouped Must / Should / Nice. Then the debt ledger. End with `Verdict:` (healthy, or what to fix first) · `Lean: -N lines, -M dependencies possible` · `Not checked:`.
 Every finding needs a concrete failing case. No vague worries.
+Before publishing a repo or cleaning up its GitHub presentation, run `repo` (inventory, full-history secrets, publication verdict).

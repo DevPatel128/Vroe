@@ -26,10 +26,68 @@ request: browser → Worker vroe-labs (run_worker_first: true)
 - `build:og` and `build:icons` are not part of the build; the three OG cards and the touch icon are committed. OG text is per-glyph vector paths (ADR-005).
 - `assets-src/` holds the originals and is never published. Only `dist/client/` is.
 
+## Diagrams
+Drawn from `wrangler.jsonc`, `worker/index.js`, `src/client/enhance.js` and `.github/workflows/`. No account, zone or namespace IDs.
+
+System:
+```mermaid
+flowchart LR
+    V["Visitor browser"] --> CF["Cloudflare edge<br/>Bot Fight Mode on the custom domain"]
+    CF --> W["Worker vroe-labs<br/>run_worker_first"]
+    W -->|"ASSETS binding"| A["dist/client<br/>prerendered HTML, CSS, enhance.js"]
+    W -->|"POST /api/subscribe"| TS["Turnstile siteverify"]
+    W --> RL[("KV RATE_LIMIT")]
+    W --> SUB[("KV SUBSCRIBERS")]
+    W --> L["Workers Logs"]
+    V -.->|"form use only"| TJS["challenges.cloudflare.com<br/>Turnstile script"]
+    M["Maintainer laptop"] -.->|"npm run backup (Wrangler)"| SUB
+```
+
+Request lifecycle (page and subscribe):
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant W as Worker
+    participant A as ASSETS
+    participant T as Turnstile
+    participant K as KV
+    B->>W: GET /trove
+    W->>W: canonicalRedirect (www to apex, http to https when CF-Ray)
+    W->>A: env.ASSETS.fetch
+    A-->>W: HTML (or 404 page)
+    W-->>B: withSecurity + withCache headers
+    B->>W: GET /api/config
+    W-->>B: public Turnstile site key
+    B->>T: load script, solve challenge
+    B->>W: POST /api/subscribe (email, consent, cf_turnstile_response)
+    W->>W: Origin, method, type, size, JSON, honeypot
+    W->>K: RATE_LIMIT get/put (fails open)
+    W->>T: siteverify (skipped if TURNSTILE_SECRET_KEY is unset)
+    W->>W: validate email and consent
+    W->>K: SUBSCRIBERS put, 730-day TTL
+    W-->>B: JSON 200, 4xx, or 503 if the KV write fails
+```
+
+Deploy and monitoring:
+```mermaid
+flowchart LR
+    PR["Pull request"] --> CI["ci.yml: verify<br/>audit, build, test, SBOM, leak scans"]
+    PR --> PERF["ci.yml: performance<br/>Lighthouse on wrangler dev"]
+    PR --> DI["docs-impact.yml"]
+    PR --> WG["wolf.yml: WOLF check line, forbidden files"]
+    CI --> MAIN["merge to main"]
+    MAIN --> D["deploy.yml: build, test, wrangler deploy"]
+    D --> S{"Smoke test on workers.dev<br/>headers, 12 routes, 404, health"}
+    S -->|pass| LIVE["Live"]
+    S -->|fail| RB["wrangler rollback, run stays red"]
+    H["health.yml every 3 h"] --> LIVE
+```
+Branch protection on `main` requires `verify` and `docs-impact` (read from the GitHub API on 2026-10-11); `performance` and `wolf` run but are not required. UNKNOWN: the GitHub `production` environment's protection rules.
+
 ## Data model (no database, no accounts, no cookies)
 | Store | Holds | Lifetime | Writable by client |
 |---|---|---|---|
-| KV `SUBSCRIBERS` | Key `sub:<sha256(lowercased email)>`; value exactly `{ email, subscribed_at, country, consent }`. No IP, user agent or referrer | 730 days (`RETENTION_DAYS` in `worker/index.js` and `src/content/legal.js`) | Only through `/api/subscribe` |
+| KV `SUBSCRIBERS` | Key `sub:` followed by the SHA-256 hex of the lowercased email; value exactly `{ email, subscribed_at, country, consent }`. No IP, user agent or referrer | 730 days (`RETENTION_DAYS` in `worker/index.js` and `src/content/legal.js`) | Only through `/api/subscribe` |
 | KV `RATE_LIMIT` | Per-IP throttle counter keyed on `cf-connecting-ip` | Expires on its own | No |
 | `backups/subscribers/YYYY-MM-DD.json` on the maintainer's computer (gitignored) | Daily copy of `SUBSCRIBERS` in `wrangler kv bulk put` format | 30 days (`BACKUP_RETENTION_DAYS` in `scripts/backup-subscribers.mjs` and `legal.js`) | No |
 

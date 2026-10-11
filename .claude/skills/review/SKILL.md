@@ -9,6 +9,7 @@ Priority order: correct → safe → holds at expected load → tested → fast 
 
 ## 1. Understand
 - Scope: what the user names. Otherwise uncommitted changes, otherwise the branch against `main`.
+- Read `.wolf/check` (or run `scripts/wolf-check.sh` on the diff). A change that breaks a rule it lists, or skips a doc it names, is a Must finding.
 - Read the diff, every caller of each changed function, the tests and the relevant docs. A changed signature or behavior means grep every caller.
 - Trace data in → stored → out. State the load you assumed (from README, deploy config, `SYSTEM.md`).
 

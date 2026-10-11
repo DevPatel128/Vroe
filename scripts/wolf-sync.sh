@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install or update WOLF in a project.
-#   wolf-sync.sh <project-dir>        existing product: framework only (docs, skills, scripts, guard). Never adds app code.
+#   wolf-sync.sh <project-dir>        existing product: framework only (docs, skills, scripts, guard, wolf.yml gate). Never adds app code or app CI.
 #   wolf-sync.sh <project-dir> --new  new app: also the D1 app skeleton, package.json, CI, Dependabot, pre-push hook.
 # Framework-owned files are always updated. Project docs and the project block of AGENTS.md are never overwritten.
 set -euo pipefail
@@ -11,12 +11,15 @@ copy_missing() { for f in "$@"; do [ -e "$dst/$f" ] || { mkdir -p "$(dirname "$d
 
 # Framework-owned: always updated. A project's own script with the same name is kept.
 mkdir -p "$dst/scripts" "$dst/.claude/hooks" "$dst/.claude/skills" "$dst/.cursor/rules"
+# A script is WOLF's when it is byte-identical to any version WOLF ever shipped (git history); edited copies are kept.
+shipped() { git -C "$wolf" log --format= --raw --no-abbrev -- "kit/scripts/$1" 2>/dev/null | awk '{print $4}'; }
 for f in "$src"/scripts/*.sh; do
-  t="$dst/scripts/$(basename "$f")"
-  if [ -e "$t" ] && ! grep -q 'WOLF\|wolf-\|forUser\|Delivers' "$t"; then echo "wolf-sync: kept project's own scripts/$(basename "$f")"; else cp "$f" "$t"; fi
+  n=$(basename "$f"); t="$dst/scripts/$n"
+  if [ -e "$t" ] && ! cmp -s "$f" "$t" && ! shipped "$n" | grep -qx "$(git hash-object "$t")"; then echo "wolf-sync: kept project's own scripts/$n (differs from every WOLF version)"; else cp "$f" "$t"; fi
 done
 cp "$src/.claude/hooks/guard.sh" "$dst/.claude/hooks/"; cp -R "$wolf/skills/." "$dst/.claude/skills/"
 cp "$src/.cursor/rules/wolf.mdc" "$dst/.cursor/rules/"
+mkdir -p "$dst/.github/workflows"; cp "$src/.github/workflows/wolf.yml" "$dst/.github/workflows/"   # framework gate only; app CI untouched
 
 # Guard hook: merged into an existing .claude/settings.json, never replacing it.
 s="$dst/.claude/settings.json"
@@ -28,7 +31,19 @@ if [ -f "$s" ]; then
 else cp "$src/.claude/settings.json" "$s"; fi
 
 # Project-owned docs: copied only when missing.
-copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md TASK.md DECISIONS.md MISTAKES.md sell
+copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md LEGAL.md TASK.md DECISIONS.md MISTAKES.md sell README.md
+# GitHub community files: only when the repo has none in any place GitHub reads (root, docs/, .github/; any case).
+has_any() { for d in . docs .github; do ls "$dst/$d" 2>/dev/null | grep -qix "$1" && return 0; done; return 1; }
+for f in SECURITY.md CONTRIBUTING.md pull_request_template.md; do has_any "$f" || copy_missing ".github/$f"; done
+has_any ISSUE_TEMPLATE || copy_missing .github/ISSUE_TEMPLATE
+# An existing PR template gets the framework-first line it lacks (pr-gate requires it).
+for t in "$dst"/.github/[Pp][Uu][Ll][Ll]_[Rr][Ee][Qq][Uu][Ee][Ss][Tt]_[Tt][Ee][Mm][Pp][Ll][Aa][Tt][Ee].md "$dst"/[Pp][Uu][Ll][Ll]_[Rr][Ee][Qq][Uu][Ee][Ss][Tt]_[Tt][Ee][Mm][Pp][Ll][Aa][Tt][Ee].md "$dst"/docs/[Pp][Uu][Ll][Ll]_[Rr][Ee][Qq][Uu][Ee][Ss][Tt]_[Tt][Ee][Mm][Pp][Ll][Aa][Tt][Ee].md; do
+  [ -f "$t" ] && ! grep -q '^WOLF check:' "$t" && { printf 'WOLF check: <paste the PR body line printed by scripts/wolf-check.sh>\n\n' | cat - "$t" > "$t.new" && mv "$t.new" "$t"; }
+done
+# .gitignore: a new app gets the full baseline. Every repo gets the secret and .wolf/ lines it lacks; nothing is removed.
+[ "$mode" = "--new" ] && copy_missing .gitignore
+need=$( { awk '/^# Secrets/{on=1;next} /^# /{on=0} on' "$src/.gitignore"; echo '.wolf/'; } | while IFS= read -r l; do grep -qxF -- "$l" "$dst/.gitignore" 2>/dev/null || echo "$l"; done)
+[ -z "$need" ] || printf '\n# WOLF: secrets and local tool state (wolf-sync)\n%s\n' "$need" >> "$dst/.gitignore"
 # CLAUDE.md: keep the project's own, and make sure it points at AGENTS.md.
 if [ -f "$dst/CLAUDE.md" ]; then grep -q 'AGENTS.md' "$dst/CLAUDE.md" || printf '\nRead and follow `AGENTS.md` (WOLF rules).\n' >> "$dst/CLAUDE.md"
 else cp "$src/CLAUDE.md" "$dst/CLAUDE.md"; fi
@@ -48,6 +63,11 @@ if [ "$mode" = "--new" ]; then
     .env.example .github/workflows/ci.yml .github/dependabot.yml
   # Never replace an existing hooks setup (e.g. husky).
   [ -n "$(git -C "$dst" config core.hooksPath 2>/dev/null || true)" ] || git -C "$dst" config core.hooksPath hooks 2>/dev/null || true
+fi
+# A .gitignore line like `Wolf/` also hides .claude/skills/wolf/ on case-insensitive filesystems (macOS).
+if git -C "$dst" rev-parse --git-dir >/dev/null 2>&1 && git -C "$dst" check-ignore -q .claude/skills/wolf/SKILL.md; then
+  echo "wolf-sync: WARNING .claude/skills/wolf is git-ignored by: $(git -C "$dst" check-ignore -v .claude/skills/wolf/SKILL.md | cut -f1)"
+  echo "wolf-sync: anchor that pattern to the repo root (e.g. /Wolf/) so the skills get committed"
 fi
 echo "$v" > "$dst/.wolf-version"
 echo "wolf-sync: $dst now on WOLF $v (${mode:-framework only})"

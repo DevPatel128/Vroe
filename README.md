@@ -23,6 +23,16 @@ ship almost no JavaScript, be readable by crawlers on every route, and hold a
 strict security policy. It ships **2.2 KB** of gzipped JavaScript, under a
 Content Security Policy with no `unsafe-inline` and no `unsafe-eval`.
 
+## Status
+
+| Area | State |
+| --- | --- |
+| Website | Shipped. Live at vroelabs.com, deployed from `main` by GitHub Actions |
+| Early-access form | Shipped. Stores consented addresses in Workers KV |
+| Trove | Planned. Not available; the site describes it and shows the evidence |
+| Vero | Planned. An exploration, not a product |
+| Analytics | Off. The Cloudflare Web Analytics token in `src/content/site.js` is empty, so no beacon loads |
+
 ## What it does
 
 | Capability | How |
@@ -103,6 +113,19 @@ Finish a change with `npm run build && npm test && npm audit --audit-level=high`
 A pull request must pass the `verify` and `docs-impact` checks, and the
 documentation changes in the same pull request as the code.
 
+## Deploy
+
+Pushing to `main` runs [`deploy.yml`](.github/workflows/deploy.yml): install,
+build, `npm test`, then `wrangler deploy` with the `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` repository secrets. A smoke test then checks the
+deployed Worker on its workers.dev address: the eight security headers, no
+`unsafe-inline`, twelve public routes returning 200, a 404 for an unknown path
+and `/api/health`. If the smoke test fails, the workflow runs
+`wrangler rollback` to the previous version and still ends red.
+[`health.yml`](.github/workflows/health.yml) probes the live site every three
+hours. `npm run deploy` from `code/` does the same build and deploy by hand.
+Token scopes, secrets and rollback steps are in [RUNBOOK.md](RUNBOOK.md).
+
 ## Project structure
 
 ```text
@@ -145,6 +168,16 @@ Strict CSP, the full security header set on every response, Turnstile and rate
 limiting on the one write endpoint, and no secrets in the repository. Report a
 vulnerability privately via [SECURITY.md](SECURITY.md); please do not open a
 public issue.
+
+## Limitations
+
+- Single opt-in. Double opt-in needs transactional email, which the site does not have.
+- No self-serve unsubscribe, export or deletion. Requests go to the contact address and the maintainer handles them with Wrangler.
+- The rate limit is per IP and fails open if KV is unavailable.
+- Subscriber records are plaintext values in KV; keys are hashed. Backups live on the maintainer's computer.
+- Bot Fight Mode challenges GitHub runners on the custom domain, so CI verifies the deploy on workers.dev and can only partly check vroelabs.com.
+- The privacy policy describes Cloudflare Web Analytics, which is not switched on.
+- No independent penetration test has been done.
 
 ## Contributing
 
