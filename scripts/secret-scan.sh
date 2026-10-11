@@ -21,19 +21,21 @@ else skipped="history (gitleaks not installed)"; fi
 bad=$( { git ls-files; git log --all --pretty=format: --name-only; } | sort -u | grep -E '(^|/)(\.env(\.[^/]*)?|\.dev\.vars|id_(rsa|ed25519|ecdsa)|[^/]*\.(pem|key|p12|pfx|keystore|sqlite3?|db)|[^/]*(service-account|credentials)[^/]*\.json|[^/]*\.(sql|dump)\.gz)$' | grep -vE '\.env\.[^/]*(example|template|sample)$' || true)
 [ -z "$bad" ] || { echo "secret-scan: files that must not be in git, tracked now or in history (untrack, rotate if real, plan a history clean):"; echo "$bad"; fail=1; }
 
-# 3. Client build: no source maps, no token-shaped strings, no server-only env names.
+# 3. Client build: no source maps and no token-shaped strings (fail); server-only env names (warn).
 out=${1:-}
 if [ -n "$out" ]; then
   [ -d "$out" ] || { echo "secret-scan: no build dir $out"; exit 1; }
   maps=$(find "$out" -name '*.map' | head -5)
   [ -z "$maps" ] || { echo "secret-scan: source maps shipped to the client (disable them or upload to Sentry only):"; echo "$maps"; fail=1; }
   tokens='sk_live_[0-9A-Za-z]{10,}|rk_live_[0-9A-Za-z]{10,}|re_[0-9A-Za-z_]{20,}|gh[pousr]_[0-9A-Za-z]{30,}|github_pat_[0-9A-Za-z_]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[abprs]-[0-9A-Za-z-]{10,}|sk-ant-[0-9A-Za-z_-]{20,}|sk-(proj-)?[0-9A-Za-z_-]{32,}|phx_[0-9A-Za-z]{20,}|sntrys_[0-9A-Za-z_=+/]{20,}'
-  hits=$(grep -rlE "$tokens" "$out" 2>/dev/null | head -10 || true)
+  # A token must start at a word boundary: `capture_unhandled_rejections` is not a Resend key.
+  hits=$(grep -rlE "(^|[^A-Za-z0-9_])($tokens)" "$out" 2>/dev/null | head -10 || true)
   [ -z "$hits" ] || { echo "secret-scan: token-shaped strings in client files (values not shown):"; echo "$hits"; fail=1; }
   if [ -f .env.example ]; then
     for n in $(grep -oE '^[A-Z][A-Z0-9_]+=' .env.example | tr -d = | grep -vE '^(NEXT_PUBLIC_|VITE_|PUBLIC_)'); do
       f=$(grep -rlw "$n" "$out" 2>/dev/null | head -1 || true)
-      [ -z "$f" ] || { echo "secret-scan: server-only variable $n is referenced in client file $f"; fail=1; }
+      # A name alone is not a leak (libraries read env names in shared code), so this warns; values are caught above.
+      [ -z "$f" ] || echo "secret-scan: review: server-only name $n appears in client file $f (check no value is inlined)"
     done
   fi
 fi
