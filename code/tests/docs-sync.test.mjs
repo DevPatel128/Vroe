@@ -190,3 +190,26 @@ test("the backup retention period agrees between the backup script and the priva
   assert.equal(policy, worker,
     "src/content/legal.js and scripts/backup-subscribers.mjs disagree about how long backups are kept; the privacy policy would be a false statement");
 });
+
+test("the rate-limit window agrees between the Worker and the privacy policy", async () => {
+  const num = (text, name) => Number(text.match(new RegExp(`(?<![A-Z_])${name}\\s*=\\s*(\\d+)`))?.[1]);
+  const seconds = num(await readCode("worker/index.js"), "RATE_LIMIT_WINDOW_S");
+  const minutes = num(await readCode("src/content/legal.js"), "RATE_LIMIT_WINDOW_MINUTES");
+  assert.ok(seconds > 0 && minutes > 0, "RATE_LIMIT_WINDOW_S or RATE_LIMIT_WINDOW_MINUTES not found");
+  assert.equal(minutes * 60, seconds,
+    "src/content/legal.js and worker/index.js disagree about how long the per-IP counter is kept; the privacy policy would be a false statement");
+});
+
+test("the privacy policy's Analytics section matches whether the beacon is loaded", async () => {
+  const { CF_ANALYTICS_TOKEN } = await import("../src/content/site.js");
+  const { PRIVACY } = await import("../src/content/legal.js");
+  const section = PRIVACY.sections.find((s) => s.heading === "Analytics");
+  assert.ok(section, "the privacy policy has no Analytics section");
+  const text = section.paragraphs.join(" ");
+  if (CF_ANALYTICS_TOKEN) {
+    assert.match(text, /Cloudflare Web Analytics/, "the beacon is loaded but the policy does not name it");
+  } else {
+    assert.doesNotMatch(text, /We use/, "the policy says analytics is used, but CF_ANALYTICS_TOKEN is empty so no beacon loads");
+    assert.match(text, /does not use analytics/);
+  }
+});

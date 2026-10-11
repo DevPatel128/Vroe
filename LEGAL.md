@@ -3,9 +3,10 @@
 Not legal advice. AI drafts this file; a human approves it before launch. `scripts/legal-check.sh` reads the two tables marked "checked".
 
 ## Business
-- **Legal name:** UNKNOWN (owner fills) · **Address:** UNKNOWN (owner fills) · **Contact:** vroelabs@gmail.com (`SITE.email` in `code/src/content/site.js`, shown on `/contact` and in the privacy policy)
-- **Grievance / privacy contact:** UNKNOWN (owner fills; the privacy policy routes every request to the contact address)
-- **Jurisdictions served:** UNKNOWN (owner fills; the site is public and the `/trove` evidence covers India and the United States) · **Governing law:** UNKNOWN (owner fills)
+- **Legal name:** Vroe Labs (trading name of Dev Patel; not a registered company yet) · **Address:** not published (owner decision, 2026-10-11) · **Contact and grievance contact:** Dev Patel, founder, vroelabs@gmail.com (`SITE.email` in `code/src/content/site.js`, shown on `/contact` and in the privacy policy). vroelabs.com has no MX record (checked 2026-10-11), so no @vroelabs.com address can receive mail.
+- **Status:** building (not yet in testing). The site says so at the bottom of `/privacy`, `/terms` and `/contact` and in the footer (`COMPANY_STATUS` in `code/src/content/copy.js`): "Vroe Labs is not yet a registered company. Its products are being built and are not yet in testing. Full legal details will be published before launch."
+- **Licence:** PolyForm Strict 1.0.0 (the Vroe Labs licence), `LICENSE`; ADR-026. Third-party notices stay in `NOTICE` and this file.
+- **Jurisdictions served:** UNKNOWN (owner fills; the site is public and the `/trove` evidence covers India and the United States) · **Governing law:** UNKNOWN (owner confirms; the terms page currently says the laws of India)
 - **Age rule:** the privacy policy says the site is not directed at children and nothing is knowingly collected from anyone under 16. The form has no age check.
 - **Paid:** no. Nothing is sold; neither product is available. · **Refund window:** n/a · **Cancel path:** email the contact address to be removed (privacy policy, "Your choices"). There is no self-serve unsubscribe yet.
 
@@ -15,7 +16,7 @@ Not legal advice. AI drafts this file; a human approves it before launch. `scrip
 | Privacy policy | /privacy | live (`PRIVACY` in `code/src/content/legal.js`) |
 | Terms of service | /terms | live (`TERMS` in `code/src/content/legal.js`) |
 | Refund and cancellation | /refund | n/a until paid |
-| Contact (legal name, address, email) | /contact | live with the email only; legal name and address are not on the page yet |
+| Contact (email, company status) | /contact | live with the email and the company-status line; no postal address by owner decision |
 
 ## Third parties (checked: every external host the build loads must be listed)
 | Host | What | Data it gets | Licence / terms | Needs consent |
@@ -34,14 +35,14 @@ Hosting is Cloudflare Workers, with Workers KV for storage and Workers Logs for 
 | Consent flag | Proof of consent | Consent | Same record | KV `SUBSCRIBERS` | Cloudflare (processor) |
 | IP address | Per-IP rate limit, 5 per 10 minutes | Legitimate interest (abuse prevention) | 600 seconds (`RATE_LIMIT_WINDOW_S`, KV `expirationTtl`) | KV `RATE_LIMIT`, as part of the counter key | Cloudflare (processor) |
 | IP address, browser signals | Turnstile bot check | Legitimate interest (security) | Cloudflare's terms | Cloudflare Turnstile | Cloudflare |
-| Backup of the subscriber list | Restore after data loss (`npm run backup`) | Same as the records | 30 days (`BACKUP_RETENTION_DAYS`) | Maintainer's computer, `backups/subscribers/` (gitignored) | Nobody |
+| Backup of the subscriber list | Restore after data loss (`npm run backup`, run by hand; nothing schedules it) | Same as the records | Copies older than 30 days (`BACKUP_RETENTION_DAYS`) are deleted when the next backup runs | Maintainer's computer, `backups/subscribers/` (gitignored) | Nobody |
 | CSP violation report (directive, blocked URI, document URI) | Detect CSP breakage (`/api/csp-report`) | Legitimate interest (security) | Workers Logs retention (UNKNOWN, Cloudflare default) | Workers Logs | Cloudflare (processor) |
 
 No cookies, no accounts, no analytics today. Addresses are never written to logs (`worker/index.js` logs "New subscriber stored" only).
 
-Delete and export: there is no `db.ts` and no self-serve path. Requests go to the contact address; the maintainer reads or deletes the KV record with Wrangler (`RUNBOOK.md`). Answer requests within 30 days (GDPR allows 1 month; CCPA 45 days).
+Delete and export: there is no `db.ts` and no self-serve path, and no unsubscribe link (the form says "Ask us to remove you anytime"). Requests go to the contact address; the maintainer reads or deletes the KV record with Wrangler (`RUNBOOK.md`). Answer requests within 30 days (GDPR allows 1 month; CCPA 45 days).
 
-Known mismatch to fix before launch: the privacy policy section "Analytics" says Cloudflare Web Analytics is used, but `CF_ANALYTICS_TOKEN` is empty so no beacon loads. Either enable it or change that section.
+Privacy policy accuracy (fixed 2026-10-11): the "Analytics" section follows `CF_ANALYTICS_TOKEN`. It is empty, so the policy says the site uses no analytics. A test in `code/tests/docs-sync.test.mjs` fails if the policy and the token disagree. Enabling analytics also needs a new `LEGAL_EFFECTIVE` date. The policy also covers the per-IP rate-limit counter (600 s), CSP reports (Workers Logs) and hand-made backups.
 
 ## Assets
 | Asset (font, image, icon, video) | Source | Licence | Proof (link or receipt) |
@@ -49,7 +50,7 @@ Known mismatch to fix before launch: the privacy policy section "Analytics" says
 | DM Sans (self-hosted woff2) | `@fontsource/dm-sans` 5.3.0 | OFL-1.1 | package.json `license` in node_modules |
 | Instrument Serif (self-hosted woff2) | `@fontsource/instrument-serif` 5.3.0 | OFL-1.1 | package.json `license` in node_modules |
 | Icons, rendered to inline SVG at build time | `@phosphor-icons/react` 2.1.10 | MIT | package.json `license` in node_modules |
-| Still-life photography (`assets-src/`, `public/assets/`) | Vroe Labs, per `NOTICE` | (c) Vroe Labs, not licensed for reuse | UNKNOWN: how the images were made is not recorded (owner fills) |
+| Still-life photography (`assets-src/`, `public/assets/`) | Vroe Labs, per `NOTICE` | (c) Vroe Labs, not licensed for reuse (the code is under the Vroe Labs licence, PolyForm Strict 1.0.0) | UNKNOWN: how the images were made is not recorded (owner fills) |
 | OG cards, favicon, touch icon | Generated by `scripts/generate-og.mjs` and `generate-icons.mjs` from the brand assets | (c) Vroe Labs | Generated in repo |
 
 ## Launch checklist (each line: done, n/a with reason, or open)

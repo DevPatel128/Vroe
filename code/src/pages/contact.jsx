@@ -1,5 +1,5 @@
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
-import { CONTACT, EARLY_ACCESS } from "../content/copy.js";
+import { COMPANY_STATUS, CONTACT, EARLY_ACCESS } from "../content/copy.js";
 import { SITE } from "../content/site.js";
 import { Breadcrumbs } from "../components/Breadcrumbs.jsx";
 import { SubscribeForm } from "../components/SubscribeForm.jsx";
@@ -47,7 +47,9 @@ export function ContactPage() {
         </div>
         <SubscribeForm />
       </section>
-      <div className="pad-end-lg" />
+      <div className="section pad-end-lg">
+        <p className="company-status stack-lg">{COMPANY_STATUS}</p>
+      </div>
     </>
   );
 }

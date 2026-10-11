@@ -52,9 +52,9 @@ export const EARLY_ACCESS = {
   body: "Occasional updates on what we are building. No more than that.",
   consent:
     "I agree to Vroe Labs storing my email address so they can send me occasional updates.",
-  privacyNote: "We store only your address, the date, and your country. Read our",
+  privacyNote: "We store your address, the date, your country and your consent. Read our",
   successMessage: "You're on the list. We'll be in touch.",
-  smallprint: "No spam. Unsubscribe anytime.",
+  smallprint: "No spam. Ask us to remove you anytime.",
 };
 
 export const ABOUT = {
@@ -115,6 +115,15 @@ export const CONTACT = {
   emailLabel: "Email us directly",
   responseNote: "A person reads every message. We usually reply within a couple of days.",
 };
+
+/**
+ * Company status, in the owner's wording (2026-10-11). Shown at the bottom of
+ * /privacy, /terms and /contact and as a line in the footer. "Its products"
+ * stands in for a product name because this site covers both Trove and Vero.
+ * Remove or replace once the company is registered (LEGAL.md, Business).
+ */
+export const COMPANY_STATUS =
+  "Vroe Labs is not yet a registered company. Its products are being built and are not yet in testing. Full legal details will be published before launch.";
 
 export const FOOTER = {
   note: "Small products. Meaningful change.",
