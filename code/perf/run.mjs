@@ -99,10 +99,16 @@ async function waitForSite() {
 // until CI's own timeout. SIGTERM lets Lighthouse close the Chrome it opened.
 const RUN_TIMEOUT_MS = 120_000;
 
+// SpareRendererForSitePerProcess is off on purpose. Chrome 154 (the runner's current
+// stable) keeps a pre-started "spare" renderer, and when Lighthouse's about:blank ->
+// page navigation needs a fresh one, that renderer can start tracing after it has
+// already emitted the page's navigationStart. The trace then has no usable
+// navigationStart and Lighthouse fails with NO_NAVSTART on about 5% of runs. With the
+// feature off: 0 failures in 80 runs, against 3 to 8 per 80 with the default flags (RUNBOOK.md).
+const CHROME_FLAGS = "--headless=new --no-sandbox --disable-features=SpareRendererForSitePerProcess";
+
 async function lighthouseOnce(url, scratch, attempt = 1) {
   const out = path.join(scratch, "run.json");
-  const art = path.join(scratch, "art");
-  await rm(art, { recursive: true, force: true });
   try {
     await run(
       process.execPath,
@@ -113,17 +119,11 @@ async function lighthouseOnce(url, scratch, attempt = 1) {
         "--output=json",
         `--output-path=${out}`,
         "--only-categories=performance,accessibility,best-practices,seo",
-        "--chrome-flags=--headless=new --no-sandbox",
-        `-GA=${art}`,
+        `--chrome-flags=${CHROME_FLAGS}`,
       ],
       { maxBuffer: 64 * 1024 * 1024, timeout: RUN_TIMEOUT_MS, killSignal: "SIGTERM" },
     );
   } catch (err) {
-    if (String(err.stderr ?? err.message).includes("NO_NAVSTART")) {
-      const { cp } = await import("node:fs/promises");
-      await cp(art, path.join(reports, `diag-${url.replace(/\//g, "_")}-${Date.now()}`), { recursive: true }).catch(() => {});
-      console.log("DIAG saved artifacts");
-    }
     const wedged = err.killed || err.signal === "SIGTERM";
     if (wedged && attempt < 2) {
       console.log(`\n  ${url}: no result after ${RUN_TIMEOUT_MS / 1000} s, retrying once`);
