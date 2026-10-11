@@ -31,12 +31,12 @@ React runs at build time only. No React reaches the browser. `code/scripts/prere
 Be blunt. No sugarcoating. Give the real risk, number and odds. Every answer ends with what was not checked and what could fail.
 
 ## Start of every task
-1. Read this file. Load only the docs the router in `WOLF/README.md` names.
-2. Read the hard rules below. Check `MISTAKES.md` for the same area.
+1. Framework first: run `bash scripts/wolf-check.sh "<task>" [paths]`. It prints the hard rules, WOLF files, past mistakes and docs for this change, and stamps the branch. The guard blocks code edits until it runs.
+2. Read what it printed (and only those WOLF files). If the request breaks a rule, say so and stop before building.
 3. If unclear, ask. Never invent requirements or facts; write `UNKNOWN`.
 
 ## Hard rules (max 15; each one came from a real incident)
-1. Never merge or deploy on red or skipped CI. A skipped required job is a failure.
+1. Never merge or deploy on red CI. A required job that skipped when it should have run is a failure. Only a skip from a documented path filter (for example a docs-only change) is allowed.
 2. Never use `--no-verify`, force-push `main`, or weaken a test to make it pass.
 3. User data goes only through `src/db.ts` `forUser()`. Never touch `env.DB` elsewhere. `userId` comes only from the session.
 4. `role`, `plan` and `user_id` are never client-writable. Writes use field allowlists.
@@ -55,9 +55,9 @@ Be blunt. No sugarcoating. Give the real risk, number and odds. Every answer end
 Least code that fully works. Order: skip it if nobody needs it → reuse repo code → use the platform or standard library → use an installed dependency → write one clear line → write the minimum code. No new dependency for a few lines. No wrappers or "for later" code. For bugs, grep every caller and fix the root cause once. Non-trivial logic gets one test. Mark limits with `// shortcut: <limit>, <when to upgrade>`. Split a file before 400 lines (components) or 1000 (any file). No `any` or casts. Never cut validation, security, accessibility or data-loss handling.
 
 ## Ship rules
-- PR body: `Delivers: <IDs>` (VU at or above the floor in `wolf-stats`), `AI tokens: <n>`, evidence, rollback.
-- Update touched docs in the same PR: `PRODUCT.md` status, `SYSTEM.md` for schema or API, `RUNBOOK.md` for ops, `GROWTH.md` for public pages.
+- PR body: `WOLF check: <line from wolf-check>`, `Delivers: <IDs>` (VU at or above the floor in `wolf-stats`), `AI tokens: <n>`, evidence, rollback.
+- Update touched docs in the same PR: `PRODUCT.md` status, `SYSTEM.md` for schema or API, `RUNBOOK.md` for ops, `GROWTH.md` for public pages, `LEGAL.md` for new data, third parties, assets, email or pricing, `README.md` when setup, stack or status changes.
 - Autonomy limits: `WOLF/GOVERN.md`. When in doubt, stop and ask.
 
 ## Docs
-`PRODUCT.md` what and why · `SYSTEM.md` how it works · `RUNBOOK.md` operate · `GROWTH.md` reach · `TASK.md` feature card · `DECISIONS.md` · `MISTAKES.md` · `sell/` pitch material · framework: `WOLF/`
+`PRODUCT.md` what and why · `SYSTEM.md` how it works · `RUNBOOK.md` operate · `GROWTH.md` reach · `LEGAL.md` legal facts and launch checklist · `TASK.md` feature card · `DECISIONS.md` · `MISTAKES.md` · `sell/` pitch material · framework: `WOLF/`

@@ -13,6 +13,7 @@ Never merge on red or skipped CI. Never use `--no-verify` or weaken a test. Resp
 6. **No GitHub remote?** Stop after step 5. Write the body below to `PR_BODY.md`, then run `scripts/pr-gate.sh PR_BODY.md <floor>` locally.
 7. **PR body:**
    ```
+   WOLF check: <PR body line printed by scripts/wolf-check.sh>
    Delivers: F3.1, F3.2
    AI tokens: <from scripts/wolf-cost.sh>
    Evidence: <commands + results>

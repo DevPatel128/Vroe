@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Fails a PR whose Delivers: IDs are below the VU floor or missing from PRODUCT.md.
+# Fails a PR without a WOLF check line, or whose Delivers: IDs are below the VU floor or missing from PRODUCT.md.
 # Usage: pr-gate.sh <pr-body-file> <floor> [labels]
 set -euo pipefail
 body=$1; floor=${2:-1}; labels=${3:-}
 case ",$labels," in *,hotfix,*|*,dependencies,*) echo "pr-gate: exempt ($labels)"; exit 0;; esac
+# Framework first: the PR names the WOLF rules and docs it was built against (from scripts/wolf-check.sh).
+grep -qiE '^WOLF check: *[^ <]' "$body" || { echo "pr-gate: missing 'WOLF check:' line. Run scripts/wolf-check.sh and paste its PR body line."; exit 1; }
 ids=$(grep -m1 -i '^Delivers:' "$body" | grep -oE '[A-Z][0-9]+\.[0-9]+' | sort -u || true)
 vu=$(printf '%s' "$ids" | grep -c . || true)
 # An ID counts only when its criterion is real text, not the template placeholder.

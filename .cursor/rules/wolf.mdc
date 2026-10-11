@@ -2,4 +2,4 @@
 description: WOLF rules
 alwaysApply: true
 ---
-Read and follow `AGENTS.md` (hard rules, coding rules, ship rules). Never use --no-verify, never force-push main, never read .env files, never touch env.DB outside src/db.ts.
+Read and follow `AGENTS.md` (hard rules, coding rules, ship rules). Framework first: before editing code, run `bash scripts/wolf-check.sh "<task>"` and build within what it prints (Cursor has no blocking hook; CI pr-gate still requires the `WOLF check:` line). Never use --no-verify, never force-push main, never read .env files, never touch env.DB outside src/db.ts.

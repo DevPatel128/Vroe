@@ -1,0 +1,20 @@
+# WOLF framework gate, owned by WOLF and updated by wolf-sync. App CI stays in its own workflow.
+name: wolf
+on: pull_request
+permissions: { contents: read }
+jobs:
+  framework-first:
+    # Dependabot and hotfix PRs are exempt, as in pr-gate.sh.
+    if: github.actor != 'dependabot[bot]' && !contains(github.event.pull_request.labels.*.name, 'dependencies') && !contains(github.event.pull_request.labels.*.name, 'hotfix')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - name: PR names the WOLF check it was built against
+        env: { BODY: '${{ github.event.pull_request.body }}' }   # via env: PR text never becomes shell code
+        run: |
+          printf '%s\n' "$BODY" | grep -qiE '^WOLF check: *[^ <]' && echo "WOLF check line present" || {
+            echo "::error::Missing 'WOLF check:' line. Run scripts/wolf-check.sh \"<task>\" and paste the line it prints into the PR body."; exit 1; }
+      - name: no forbidden files (env, keys, local DBs) in any commit on any branch
+        run: git fetch -q origin '+refs/heads/*:refs/remotes/origin/*' && WOLF_HISTORY=skip bash scripts/secret-scan.sh
