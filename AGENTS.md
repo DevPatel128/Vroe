@@ -31,7 +31,7 @@ React runs at build time only. No React reaches the browser. `code/scripts/prere
 Be blunt. No sugarcoating. Give the real risk, number and odds. Every answer ends with what was not checked and what could fail.
 
 ## Start of every task
-1. Framework first: run `bash scripts/wolf-check.sh "<task>" [paths]`. It prints the hard rules, WOLF files, past mistakes and docs for this change, and stamps the branch. The guard blocks code edits until it runs.
+1. Framework first: run `bash scripts/wolf-check.sh "<task>" [paths]`. It prints the hard rules, WOLF files, past mistakes and docs for this change, and stamps the branch. The guard blocks code edits (editor and shell) until it runs, and the git pre-commit hook blocks code commits from any tool, Cursor included.
 2. Read what it printed (and only those WOLF files). If the request breaks a rule, say so and stop before building.
 3. If unclear, ask. Never invent requirements or facts; write `UNKNOWN`.
 

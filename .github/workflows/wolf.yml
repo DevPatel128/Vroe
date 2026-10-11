@@ -6,7 +6,7 @@ jobs:
   framework-first:
     # Dependabot and hotfix PRs are exempt, as in pr-gate.sh.
     if: github.actor != 'dependabot[bot]' && !contains(github.event.pull_request.labels.*.name, 'dependencies') && !contains(github.event.pull_request.labels.*.name, 'hotfix')
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["ubuntu-latest"]') }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
