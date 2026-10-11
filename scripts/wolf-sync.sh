@@ -31,7 +31,7 @@ if [ -f "$s" ]; then
 else cp "$src/.claude/settings.json" "$s"; fi
 
 # Project-owned docs: copied only when missing.
-copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md LEGAL.md TASK.md DECISIONS.md MISTAKES.md sell README.md
+copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md LEGAL.md TASK.md DECISIONS.md MISTAKES.md sell README.md LICENSE
 # GitHub community files: only when the repo has none in any place GitHub reads (root, docs/, .github/; any case).
 has_any() { for d in . docs .github; do ls "$dst/$d" 2>/dev/null | grep -qix "$1" && return 0; done; return 1; }
 for f in SECURITY.md CONTRIBUTING.md pull_request_template.md; do has_any "$f" || copy_missing ".github/$f"; done
@@ -58,11 +58,26 @@ elif [ -f "$dst/AGENTS.md" ]; then
 else cp "$src/AGENTS.md" "$dst/AGENTS.md"; fi
 
 if [ "$mode" = "--new" ]; then
-  mkdir -p "$dst/hooks"; cp "$src/hooks/pre-push" "$dst/hooks/"
+  mkdir -p "$dst/hooks"; cp "$src/hooks/pre-push" "$src/hooks/pre-commit" "$dst/hooks/"
   copy_missing src/db.ts migrations test/isolation.test.ts package.json package-lock.json tsconfig.json \
     .env.example .github/workflows/ci.yml .github/dependabot.yml
   # Never replace an existing hooks setup (e.g. husky).
   [ -n "$(git -C "$dst" config core.hooksPath 2>/dev/null || true)" ] || git -C "$dst" config core.hooksPath hooks 2>/dev/null || true
+fi
+# Commit-time framework-first check, wired into whatever hook setup the repo already uses. Never replaces a hook and
+# never creates a hooks folder: a core.hooksPath that points at a missing folder (husky not installed) is only warned about.
+if git -C "$dst" rev-parse --git-dir >/dev/null 2>&1; then
+  hp=$(git -C "$dst" config core.hooksPath 2>/dev/null || true); hd=""
+  if [ -z "$hp" ]; then hd=$(git -C "$dst" rev-parse --git-path hooks); [ "${hd#/}" = "$hd" ] && hd="$dst/$hd"   # common dir, also inside a worktree
+  else
+    case "$hp" in */.husky/_|*/.husky/_/|.husky/_|.husky/_/) hp=${hp%/}; hp=${hp%/_} ;; esac   # husky 9 keeps user hooks one level up
+    hd=$hp; [ "${hd#/}" = "$hd" ] && hd="$dst/$hd"
+  fi
+  if [ -d "$hd" ]; then
+    hook="$hd/pre-commit"; [ -f "$hook" ] || printf '#!/usr/bin/env bash\n' > "$hook"
+    grep -q 'wolf-precommit.sh' "$hook" || printf 'bash scripts/wolf-precommit.sh   # WOLF framework first\n' >> "$hook"
+    chmod +x "$hook"
+  else echo "wolf-sync: WARNING commit hook not installed: hooks folder $hd does not exist (run the repo's hook setup, e.g. npm install, then sync again)"; fi
 fi
 # A .gitignore line like `Wolf/` also hides .claude/skills/wolf/ on case-insensitive filesystems (macOS).
 if git -C "$dst" rev-parse --git-dir >/dev/null 2>&1 && git -C "$dst" check-ignore -q .claude/skills/wolf/SKILL.md; then
