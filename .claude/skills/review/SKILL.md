@@ -13,6 +13,8 @@ Priority order: correct → safe → holds at expected load → tested → fast 
 - Read the diff, every caller of each changed function, the tests and the relevant docs. A changed signature or behavior means grep every caller.
 - Trace data in → stored → out. State the load you assumed (from README, deploy config, `SYSTEM.md`).
 
+Diff touches UI, styles or copy on screen: also run the `design` skill's checks (`design-check.sh`, real-browser widths, the generic-AI-look list) and treat a token or component missing from `DESIGN.md` as a Must finding.
+
 ## 2. Look for
 1. **Bug:** wrong result, crash, edge cases (empty, zero, last item, rounding, time zones), a broken caller, a fix applied in one caller while the shared code stays broken.
 2. **Risk:** injection, missing authz, unscoped DB access outside `db.ts`, secrets, client-writable protected fields, swallowed errors, writes out of order, missing `batch()`.

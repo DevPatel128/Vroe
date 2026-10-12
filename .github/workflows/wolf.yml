@@ -18,3 +18,21 @@ jobs:
             echo "::error::Missing 'WOLF check:' line. Run scripts/wolf-check.sh \"<task>\" and paste the line it prints into the PR body."; exit 1; }
       - name: no forbidden files (env, keys, local DBs) in any commit on any branch
         run: git fetch -q origin '+refs/heads/*:refs/remotes/origin/*' && WOLF_HISTORY=skip bash scripts/secret-scan.sh
+
+  # Build the client and run the release checks. Switched on per product by the repo variable BUILD_DIR (the client build
+  # output, relative to the repo root, e.g. dist or code/dist/client); BUILD_CWD is where `npm run build` runs (default: root).
+  release-checks:
+    if: vars.BUILD_DIR != ''
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["ubuntu-latest"]') }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 24 }
+      - name: build
+        working-directory: ${{ vars.BUILD_CWD || '.' }}
+        run: npm ci && npm run build
+      - name: legal, secrets in the bundle, design system
+        env: { BUILD_DIR: '${{ vars.BUILD_DIR }}', SITE_HOST: '${{ vars.SITE_HOST }}', WOLF_HISTORY: skip }
+        run: bash scripts/legal-check.sh "$BUILD_DIR" && bash scripts/secret-scan.sh "$BUILD_DIR" && bash scripts/design-check.sh "$BUILD_DIR"

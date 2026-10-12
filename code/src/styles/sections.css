@@ -102,7 +102,9 @@
 .hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 .form-status { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; line-height: 1.5; }
-.form-status[data-tone="error"] { color: #9c2f1c; }
+/* #932b19, not the earlier #9c2f1c: that was 4.39:1 on the sky form panel, under the 4.5:1 AA needs at 13px.
+   This is 4.79:1 on sky and 7.47:1 on paper. */
+.form-status[data-tone="error"] { color: #932b19; }
 .form-status[data-tone="success"] { color: var(--ink); font-weight: 700; }
 .form-status svg { flex: none; font-size: 20px; }
 .success-message { display: flex; align-items: center; gap: 11px; color: var(--ink); font-size: 14px; font-weight: 700; }

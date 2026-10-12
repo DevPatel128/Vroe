@@ -68,6 +68,8 @@ The only alert channel is GitHub's failed-workflow email. Turn on "Send notifica
 ## CI runner
 The WOLF workflow (`.github/workflows/wolf.yml`) reads the repo variable `RUNNER_LABELS` (a JSON list). Unset means GitHub's `ubuntu-latest`, which is what this public repo uses. Never set it to a self-hosted runner here: Vroe is public, and a fork pull request could then run code on the owner's Mac. Private repos use the variable when their free Actions minutes run out.
 
+The same workflow's `release-checks` job (build, `legal-check.sh`, `secret-scan.sh`, `design-check.sh`) stays off until the repo variable `BUILD_DIR` is set. For this repo set `BUILD_DIR=code/dist/client`, `BUILD_CWD=code` and `SITE_HOST=vroelabs.com` under Settings, Secrets and variables, Actions, Variables. To run the same checks locally: `cd code && npm run build`, then from the repo root `bash scripts/design-check.sh code/dist/client`. The real-browser half of the design gate (`design/design.spec.ts`) is run by hand: serve `code/dist/client` on a free port and run it with Playwright, `BASE_URL` set and `DESIGN_PAGES` listing every route in `sitemap.xml`.
+
 ## The CI token
 Create a custom token (never the Global API Key): Account · Workers Scripts · Edit; Account · Workers KV Storage · Edit; Account · Account Settings · Read; Zone · Workers Routes · Edit. Scope it to the account and to `vroelabs.com` only. Store it with `gh secret set CLOUDFLARE_API_TOKEN` and the account id with `gh secret set CLOUDFLARE_ACCOUNT_ID --repo DevPatel128/Vroe`. Check with `gh secret list`.
 

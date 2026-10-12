@@ -164,3 +164,39 @@
   .source-list dl > div { grid-template-columns: 1fr; gap: 0; }
   .impact-layer { padding: 26px 22px; }
 }
+
+/* ─── Touch targets ───────────────────────────────────────────────────── */
+/* Every link and button on a phone or tablet is at least 44 x 44 px (WCAG 2.2
+   target size, and what design/design.spec.ts measures). The visible text,
+   underline and spacing stay where they were: the extra hit area is added with
+   padding and cancelled with an equal negative margin, or, for the footer, taken
+   from the gaps between links. Desktop widths are untouched. */
+@media (max-width: 980px) {
+  .skip-link { padding: 14px 18px; }
+
+  .wordmark { display: inline-flex; align-items: center; min-height: 44px; margin-block: -9px; }
+  .footer-wordmark { margin-block: -10px; }
+  .menu-toggle { align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-block: -4px; }
+
+  .site-nav { gap: 22px; }
+  .site-nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 8px; margin-block: -14px; }
+  .site-nav .nav-cta { padding: 11px 16px; margin-block: -3px; }
+
+  .footer-nav { gap: 0; }
+  .footer-nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 11px; }
+  .footer-nav { margin-inline: -11px; }
+
+  .breadcrumbs a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 8px; margin: -15px -8px; }
+
+  .text-link { padding-top: 19px; margin-top: -16px; }
+  .text-link.dark-link { margin-top: 9px; }
+  .contact-email { display: inline-flex; align-items: flex-end; min-height: 44px; margin-top: -11px; }
+  .access-copy .contact-email { margin-top: -10px; }
+}
+
+@media (max-width: 700px) {
+  .site-nav a { margin-block: 0; }
+  .site-nav .nav-cta { margin-block: 4px 0; }
+  .contact-email { margin-top: -14px; }
+  .access-copy .contact-email { margin-top: -10px; }
+}

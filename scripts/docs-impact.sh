@@ -9,4 +9,5 @@ if has '(^|/)(pages|app|routes)/' && has '\.(html|tsx|mdx?)$' && ! has '^GROWTH\
 if has '(wrangler\.(toml|jsonc?)|\.github/workflows/)' && ! has '^RUNBOOK\.md$'; then echo "docs-impact: ops changed, update RUNBOOK.md"; fail=1; fi
 if git diff "${1:-origin/main}"...HEAD -- . ':!LEGAL.md' | grep -qiE '^\+.*(<script[^>]+src=.https?://|<link[^>]+href=.https?://|"(@?posthog[a-z-]*|@sentry/[a-z-]+|@?stripe[a-z/-]*|resend|mixpanel[a-z-]*|@vercel/analytics|react-ga4?)": *")' && ! has '^LEGAL\.md$'; then echo "docs-impact: third party added, record it in LEGAL.md"; fail=1; fi
 if git diff "${1:-origin/main}"...HEAD -- 'wrangler.*' | grep -qE '^\+.*"(d1_databases|kv_namespaces|r2_buckets|services|queues|durable_objects|ai|vectorize|hyperdrive)"' && ! has '^SYSTEM\.md$'; then echo "docs-impact: new binding or service, update the SYSTEM.md diagrams"; fail=1; fi
+if has '(tailwind\.config\.[a-z]+|(^|/)(design-)?tokens?\.[a-z]+|(^|/)theme\.[a-z]+|globals\.css|variables\.css)$' && ! has '^DESIGN\.md$'; then echo "docs-impact: design tokens or theme changed, update DESIGN.md"; fail=1; fi
 [ $fail = 0 ] && echo "docs-impact: ok"; exit $fail
