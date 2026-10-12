@@ -104,6 +104,9 @@ Why KV and not a database: one list of addresses does not need Postgres (ADR-010
 | `CLOUDFLARE_API_TOKEN` | GitHub Actions secret | Secret. Deploy only; four permissions (`RUNBOOK.md`) |
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub Actions secret | Deploy |
 | `WORKER_URL` | GitHub Actions variable | The public workers.dev address the health check probes |
+| `BUILD_DIR` | GitHub Actions variable | Turns on the `release-checks` job in `wolf.yml`: the client build output relative to the repo root (`code/dist/client`) that `legal-check.sh`, `secret-scan.sh` and `design-check.sh` read |
+| `BUILD_CWD` | GitHub Actions variable | Where `npm run build` runs for that job (`code`); unset means the repo root |
+| `SITE_HOST` | GitHub Actions variable | The site's own domain (`vroelabs.com`), so `legal-check.sh` accepts absolute self-links |
 
 ## Endpoints
 | Method path | Auth | Authz rule | Input schema | Limits | Idempotent | Errors |

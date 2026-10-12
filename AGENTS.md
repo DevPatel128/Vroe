@@ -56,8 +56,8 @@ Least code that fully works. Order: skip it if nobody needs it → reuse repo co
 
 ## Ship rules
 - PR body: `WOLF check: <line from wolf-check>`, `Delivers: <IDs>` (VU at or above the floor in `wolf-stats`), `AI tokens: <n>`, evidence, rollback.
-- Update touched docs in the same PR: `PRODUCT.md` status, `SYSTEM.md` for schema or API, `RUNBOOK.md` for ops, `GROWTH.md` for public pages, `LEGAL.md` for new data, third parties, assets, email or pricing, `README.md` when setup, stack or status changes.
+- Update touched docs in the same PR: `PRODUCT.md` status, `SYSTEM.md` for schema or API, `RUNBOOK.md` for ops, `GROWTH.md` for public pages, `LEGAL.md` for new data, third parties, assets, email or pricing, `DESIGN.md` for tokens, components and UI changes (seen in a real browser at 375/768/1280), `README.md` when setup, stack or status changes.
 - Autonomy limits: `WOLF/GOVERN.md`. When in doubt, stop and ask.
 
 ## Docs
-`PRODUCT.md` what and why · `SYSTEM.md` how it works · `RUNBOOK.md` operate · `GROWTH.md` reach · `LEGAL.md` legal facts and launch checklist · `TASK.md` feature card · `DECISIONS.md` · `MISTAKES.md` · `sell/` pitch material · framework: `WOLF/`
+`PRODUCT.md` what and why · `SYSTEM.md` how it works · `RUNBOOK.md` operate · `GROWTH.md` reach · `LEGAL.md` legal facts and launch checklist · `DESIGN.md` design system · `TASK.md` feature card · `DECISIONS.md` · `MISTAKES.md` · `sell/` pitch material · framework: `WOLF/`

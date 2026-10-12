@@ -13,7 +13,7 @@ copy_missing() { for f in "$@"; do [ -e "$dst/$f" ] || { mkdir -p "$(dirname "$d
 mkdir -p "$dst/scripts" "$dst/.claude/hooks" "$dst/.claude/skills" "$dst/.cursor/rules"
 # A script is WOLF's when it is byte-identical to any version WOLF ever shipped (git history); edited copies are kept.
 shipped() { git -C "$wolf" log --format= --raw --no-abbrev -- "kit/scripts/$1" 2>/dev/null | awk '{print $4}'; }
-for f in "$src"/scripts/*.sh; do
+for f in "$src"/scripts/*.sh "$src"/scripts/*.mjs; do
   n=$(basename "$f"); t="$dst/scripts/$n"
   if [ -e "$t" ] && ! cmp -s "$f" "$t" && ! shipped "$n" | grep -qx "$(git hash-object "$t")"; then echo "wolf-sync: kept project's own scripts/$n (differs from every WOLF version)"; else cp "$f" "$t"; fi
 done
@@ -31,7 +31,7 @@ if [ -f "$s" ]; then
 else cp "$src/.claude/settings.json" "$s"; fi
 
 # Project-owned docs: copied only when missing.
-copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md LEGAL.md TASK.md DECISIONS.md MISTAKES.md sell README.md LICENSE
+copy_missing PRODUCT.md SYSTEM.md RUNBOOK.md GROWTH.md LEGAL.md DESIGN.md design TASK.md DECISIONS.md MISTAKES.md sell README.md LICENSE
 # GitHub community files: only when the repo has none in any place GitHub reads (root, docs/, .github/; any case).
 has_any() { for d in . docs .github; do ls "$dst/$d" 2>/dev/null | grep -qix "$1" && return 0; done; return 1; }
 for f in SECURITY.md CONTRIBUTING.md pull_request_template.md; do has_any "$f" || copy_missing ".github/$f"; done

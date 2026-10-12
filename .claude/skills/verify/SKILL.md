@@ -6,7 +6,7 @@ description: Prove or disprove one specific claim with fresh before/after eviden
 
 A recap is not verification. Never soften a negative result.
 1. Restate the claim so it can be falsified: condition, metric, threshold. A vague claim ("cleaner") gets a request for a measurable one.
-2. Pick the smallest surface that could disprove it: a unit test, a repro script, a curl, a Playwright check, a timing, `wolf-stats`, `cf-usage`.
+2. Pick the smallest surface that could disprove it: a unit test, a repro script, a curl, a Playwright check, a timing, `wolf-stats`, `cf-usage`. A claim about how a page looks or behaves needs a real browser at 375, 768 and 1280 px (`design.spec.ts`, Playwright, or a browser tool), with the screenshots read, not just a green test.
 3. **Baseline:** run it on the old state (merge base, or the broken repro).
 4. **Treatment:** the same command, data and environment on the new state.
 5. Compare the raw outputs, not impressions.

@@ -17,7 +17,7 @@ if [ -f README.md ]; then
 else bad "README.md missing"; fi
 
 # Template placeholders left behind (<like this: …>), outside code fences and ordinary HTML tags.
-for f in README.md SYSTEM.md .github/SECURITY.md .github/CONTRIBUTING.md; do
+for f in README.md SYSTEM.md DESIGN.md .github/SECURITY.md .github/CONTRIBUTING.md; do
   [ -f "$f" ] || continue
   left=$(awk '/^```/{c=!c;next} !c' "$f" | grep -nE '<[A-Za-z][^<>]*[ :][^<>]*>' | grep -viE '<(img|a|br|p|div|picture|source|details|summary|sub|sup|kbd|video|span|!--)[ >/]' | head -3 || true)
   [ -z "$left" ] || bad "$f still has template placeholders: $(echo "$left" | cut -c1-80 | tr '\n' ' ')"
@@ -31,6 +31,7 @@ for f in README.md SYSTEM.md .github/*.md docs/*.md; do
   done
 done
 
+[ -f DESIGN.md ] || bad "DESIGN.md missing (UI work needs a written design system; copy it from the WOLF kit)"
 grep -q '```mermaid' SYSTEM.md 2>/dev/null || bad "SYSTEM.md has no Mermaid diagram"
 { [ -f LICENSE ] || [ -f LICENSE.md ] || grep -qi 'licen' DECISIONS.md 2>/dev/null; } || bad "no LICENSE and no licence decision in DECISIONS.md"
 

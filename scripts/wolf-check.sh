@@ -19,7 +19,7 @@ telemetry;sentry|posthog|analytics|telemetry|tracking;10;SHIP.md SECURITY.md;LEG
 health;health|uptime|status page;11;SHIP.md;RUNBOOK.md
 deploy;wrangler|\.github/|deploy|\bci\b|token;1 12;SHIP.md;RUNBOOK.md
 deps;package\.json|package-lock|dependenc|upgrade|\bbump;13;STACK.md SECURITY.md;LEGAL.md
-ui;\.(tsx|jsx|html|css|mdx)$|page|component|landing|copy|design;-;PRODUCT.md GROW.md;GROWTH.md LEGAL.md
+ui;\.(tsx|jsx|html|css|mdx)$|page|component|landing|copy|design;-;PRODUCT.md GROW.md;GROWTH.md LEGAL.md DESIGN.md
 email;email|resend|newsletter|unsubscribe;8;BUILD.md;LEGAL.md
 money;payment|stripe|price|pricing|billing|subscription|refund;8;BUILD.md SECURITY.md;LEGAL.md PRODUCT.md
 ai;\bai\b|llm|model|prompt|openai|anthropic;-;BUILD.md;SYSTEM.md'
